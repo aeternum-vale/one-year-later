@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UniRx.Async;
 
 namespace OneYearLater.Management.Interfaces
 {
     public interface IStorage
     {
-        Task InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records);
-        Task<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date);
+		UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records);
+		UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date);
     }
 }

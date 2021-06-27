@@ -1,6 +1,6 @@
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Storage;
-using OneYearLater.View;
+using OneYearLater.UI;
 using UnityEngine;
 using Zenject;
 

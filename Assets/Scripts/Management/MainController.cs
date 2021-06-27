@@ -40,7 +40,7 @@ namespace OneYearLater.Management
 		{
 			_viewManager.SetIsDatePickingBlocked(true);
 			_viewManager.DisplayDate(date);
-			_viewManager.DisplayFeedLoadingView();
+			_viewManager.DisplayFeedLoading();
 
 			await _viewManager.DisplayDayFeedAsync(await _storage.GetAllDayRecordsAsync(date));
 			_viewManager.SetIsDatePickingBlocked(false);

@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using OneYearLater.Storage.Models;
 using SQLite;
+using UniRx.Async;
 using UnityEngine;
 
 namespace OneYearLater.Storage
 {
 	class SQLiteStorage : MonoBehaviour, IStorage
 	{
+
 		private string _bigDummyParagraph = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 			+ "Ut aliquam risus vitae turpis blandit lobortis. Nam dictum"
 			+ "ornare mi, id varius dolor venenatis in. Vestibulum eu "
@@ -27,15 +29,16 @@ namespace OneYearLater.Storage
 
 		private SQLiteAsyncConnection _connection;
 
-		public SQLiteStorage(string dbFile)
-		{
-			_connection = new SQLiteAsyncConnection(dbFile);
-			_connection.CreateTableAsync<DiaryRecordModel>();
 
-			_connection.InsertAsync(new DiaryRecordModel() { RecordDateTime = DateTime.Now, Text = _bigDummyParagraph });
+		private void Awake()
+		{
+			string dbPath = Path.Combine(Application.dataPath, "StreamingAssets", "db.bytes");
+
+			_connection = new SQLiteAsyncConnection(dbPath);
+			_connection.CreateTableAsync<DiaryRecordModel>();
 		}
 
-		public async Task<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date)
+		public async UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date)
 		{
 			DateTime dayStartInc = date.Date;
 			DateTime dayEndExc = date.Date.AddDays(1);
@@ -45,9 +48,9 @@ namespace OneYearLater.Storage
 				.Select(rm => new DiaryRecordViewModel(rm.RecordDateTime, rm.Text));
 		}
 
-		public Task InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records)
+		public UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records)
 		{
-			return Task.CompletedTask;
+			return UniTask.CompletedTask;
 		}
 	}
 }
