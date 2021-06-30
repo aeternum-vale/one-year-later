@@ -13,12 +13,9 @@ public class FeedView : MonoBehaviour
 	[SerializeField] private Button _prevYearButton;
 
 	[SerializeField] private TextMeshProUGUI _dateText;
-	[SerializeField] private TextMeshProUGUI _loadingText;
+	[SerializeField] private GameObject _loadingImage;
 
 	public event EventHandler<DateTime> DayChanged;
-
-
-
 
 	private DateTime _visibleDate;
 
@@ -74,8 +71,8 @@ public class FeedView : MonoBehaviour
 		_prevYearButton.interactable = interactable;
 	}
 
-	public void SetIsLoadingTextActive(bool isActive)
+	public void SetIsLoadingImageActive(bool isActive)
 	{
-		_loadingText.gameObject.SetActive(isActive);
+		_loadingImage.gameObject.SetActive(isActive);
 	}
 }

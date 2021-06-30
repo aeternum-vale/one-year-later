@@ -36,7 +36,7 @@ namespace OneYearLater.UI
 
 		public UniTask DisplayDayFeedAsync(IEnumerable<BaseRecordViewModel> records)
 		{
-			_feedView.SetIsLoadingTextActive(true);
+			_feedView.SetIsLoadingImageActive(true);
 
 			foreach (Transform child in _feedView.RecordsContainer)
 				GameObject.Destroy(child.gameObject);
@@ -58,14 +58,14 @@ namespace OneYearLater.UI
 				}
 			}
 
-			_feedView.SetIsLoadingTextActive(false);
+			_feedView.SetIsLoadingImageActive(false);
 
 			return UniTask.CompletedTask;
 		}
 
 		public void DisplayFeedLoading()
 		{
-			_feedView.SetIsLoadingTextActive(true);
+			_feedView.SetIsLoadingImageActive(true);
 		}
 
 		public void SetIsDatePickingBlocked(bool isBlocked)
