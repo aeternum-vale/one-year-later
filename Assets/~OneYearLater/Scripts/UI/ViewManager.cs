@@ -28,13 +28,10 @@ namespace OneYearLater.UI
 			DayChanged?.Invoke(this, date);
 		}
 
-		public void DisplayDate(DateTime date)
+		public async UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records)
 		{
 			_feedView.SetDate(date);
-		}
 
-		public async UniTask DisplayDayFeedAsync(IEnumerable<BaseRecordViewModel> records)
-		{
 			_feedView.SetIsNoRecordsMessageActive(false);
 			_feedView.SetIsLoadingImageActive(false);
 			_feedView.ClearRecordsContainer();

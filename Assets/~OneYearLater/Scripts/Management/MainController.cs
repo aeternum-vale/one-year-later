@@ -39,8 +39,7 @@ namespace OneYearLater.Management
 		private async void DisplayFeedFor(DateTime date)
 		{
 			_viewManager.SetIsDatePickingBlocked(true);
-			_viewManager.DisplayDate(date);
-			await _viewManager.DisplayDayFeedAsync(await _storage.GetAllDayRecordsAsync(date));
+			await _viewManager.DisplayDayFeedAsync(date, await _storage.GetAllDayRecordsAsync(date));
 			_viewManager.SetIsDatePickingBlocked(false);
 
 		}

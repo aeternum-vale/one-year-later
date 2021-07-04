@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using OneYearLater.Management.ViewModels;
 using Cysharp.Threading.Tasks;
+using OneYearLater.Management.ViewModels;
 
 namespace OneYearLater.Management.Interfaces
 {
 	public interface IViewManager
 	{
-		void DisplayDate(DateTime date);
-		UniTask DisplayDayFeedAsync(IEnumerable<BaseRecordViewModel> records);
-		void DisplayFeedLoading();
+		UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records);
 		void SetIsDatePickingBlocked(bool isBlocked);
 		event EventHandler<DateTime> DayChanged;
 		event EventHandler<String> XMLFilePicked;
-
 	}
 }
