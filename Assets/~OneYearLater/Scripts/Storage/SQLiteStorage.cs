@@ -6,8 +6,8 @@ using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using OneYearLater.Storage.Models;
 using SQLite;
-using UniRx.Async;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 namespace OneYearLater.Storage
 {

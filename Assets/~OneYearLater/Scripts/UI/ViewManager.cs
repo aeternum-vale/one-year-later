@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+using Management;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
-using UniRx.Async;
 using UnityEngine;
 
 namespace OneYearLater.UI
@@ -14,7 +14,6 @@ namespace OneYearLater.UI
 		[SerializeField] private FeedView _feedView;
 
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
-		[SerializeField] private RectTransform _scrollViewContent;
 
 		public event EventHandler<DateTime> DayChanged;
 		public event EventHandler<string> XMLFilePicked;
@@ -34,33 +33,39 @@ namespace OneYearLater.UI
 			_feedView.SetDate(date);
 		}
 
-		public UniTask DisplayDayFeedAsync(IEnumerable<BaseRecordViewModel> records)
+		public async UniTask DisplayDayFeedAsync(IEnumerable<BaseRecordViewModel> records)
 		{
-			_feedView.SetIsLoadingImageActive(true);
-
-			foreach (Transform child in _feedView.RecordsContainer)
-				GameObject.Destroy(child.gameObject);
-
-			foreach (var record in records)
-			{
-				switch (record.Type)
-				{
-					case ERecord.Diary:
-
-						DiaryRecordView v = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab, _feedView.RecordsContainer);
-						DiaryRecordViewModel vm = (DiaryRecordViewModel)record;
-						v.TimeText = vm.DateTime.ToString("hh:mm");
-						v.ContentText = vm.Text;
-
-						break;
-					default:
-						throw new Exception("invalid record type");
-				}
-			}
-
+			_feedView.SetIsNoRecordsMessageActive(false);
 			_feedView.SetIsLoadingImageActive(false);
+			_feedView.ClearRecordsContainer();
 
-			return UniTask.CompletedTask;
+			if (records.IsAny())
+			{
+				_feedView.SetIsLoadingImageActive(true);
+				List<GameObject> recordGameObjects = new List<GameObject>();
+				foreach (var record in records)
+				{
+					switch (record.Type)
+					{
+						case ERecord.Diary:
+
+							DiaryRecordView v = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
+							DiaryRecordViewModel vm = (DiaryRecordViewModel)record;
+							v.TimeText = vm.DateTime.ToString("hh:mm");
+							v.ContentText = vm.Text;
+							//LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)v.transform);
+							recordGameObjects.Add(v.gameObject);
+							break;
+						default:
+							throw new Exception("invalid record type");
+					}
+				}
+				await _feedView.DisplayRecords(recordGameObjects);
+				_feedView.SetIsLoadingImageActive(false);
+			}
+			else
+				_feedView.SetIsNoRecordsMessageActive(true);
+
 		}
 
 		public void DisplayFeedLoading()

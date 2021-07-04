@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class FeedView : MonoBehaviour
 {
@@ -14,12 +16,12 @@ public class FeedView : MonoBehaviour
 
 	[SerializeField] private TextMeshProUGUI _dateText;
 	[SerializeField] private GameObject _loadingImage;
+	[SerializeField] private GameObject _noRecordsMessage;
+	[SerializeField] private RectTransform _scrollViewContent;
 
 	public event EventHandler<DateTime> DayChanged;
-
 	private DateTime _visibleDate;
 
-	public Transform RecordsContainer { get => _recordsContainer; set => _recordsContainer = value; }
 
 	private void Awake()
 	{
@@ -39,6 +41,30 @@ public class FeedView : MonoBehaviour
 		_nextYearButton.onClick.AddListener(NextYearButtonClicked);
 		_prevYearButton.onClick.AddListener(PrevYearButtonClicked);
 	}
+
+	public async UniTask DisplayRecords(IEnumerable<GameObject> records)
+	{
+		ClearRecordsContainer();
+
+		foreach (var record in records)
+			record.transform.SetParent(_recordsContainer);
+
+		await UniTask.WaitForEndOfFrame();
+
+		var feedViewLayoutGroup = _recordsContainer.GetComponent<LayoutGroup>();
+		LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)feedViewLayoutGroup.transform);
+
+		await UniTask.WaitForEndOfFrame();
+		var contentLayoutGroup = _scrollViewContent.GetComponent<LayoutGroup>();
+		LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)contentLayoutGroup.transform);
+	}
+
+	public void ClearRecordsContainer()
+	{
+		foreach (Transform child in _recordsContainer)
+			Destroy(child.gameObject);
+	}
+
 
 	private void NextYearButtonClicked()
 	{
@@ -74,5 +100,10 @@ public class FeedView : MonoBehaviour
 	public void SetIsLoadingImageActive(bool isActive)
 	{
 		_loadingImage.gameObject.SetActive(isActive);
+	}
+
+	public void SetIsNoRecordsMessageActive(bool isActive)
+	{
+		_noRecordsMessage.gameObject.SetActive(isActive);
 	}
 }
