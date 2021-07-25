@@ -12,7 +12,6 @@ namespace OneYearLater.UI
 	public class ViewManager : MonoBehaviour, IViewManager
 	{
 		[SerializeField] private FeedView _feedView;
-
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
 
 		public event EventHandler<DateTime> DayChanged;
@@ -48,7 +47,7 @@ namespace OneYearLater.UI
 
 							DiaryRecordView v = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
 							DiaryRecordViewModel vm = (DiaryRecordViewModel)record;
-							v.TimeText = vm.DateTime.ToString("hh:mm");
+							v.TimeText = vm.DateTime.ToString("HH:mm");
 							v.ContentText = vm.Text;
 							//LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)v.transform);
 							recordGameObjects.Add(v.gameObject);
@@ -67,6 +66,8 @@ namespace OneYearLater.UI
 
 		public void DisplayFeedLoading()
 		{
+			_feedView.SetIsNoRecordsMessageActive(false);
+			_feedView.ClearRecordsContainer();
 			_feedView.SetIsLoadingImageActive(true);
 		}
 

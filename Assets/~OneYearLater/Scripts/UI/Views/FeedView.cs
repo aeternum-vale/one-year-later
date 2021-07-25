@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using NaughtyAttributes;
 
 public class FeedView : MonoBehaviour
 {
@@ -17,10 +18,14 @@ public class FeedView : MonoBehaviour
 	[SerializeField] private TextMeshProUGUI _dateText;
 	[SerializeField] private GameObject _loadingImage;
 	[SerializeField] private GameObject _noRecordsMessage;
+	[SerializeField] private ScrollRect _feedScrollView;
 	[SerializeField] private RectTransform _scrollViewContent;
 
 	public event EventHandler<DateTime> DayChanged;
 	private DateTime _visibleDate;
+
+	[Header("Debug")]
+	[SerializeField] private float _debugVerticalNormalizedPosition;
 
 
 	private void Awake()
@@ -57,6 +62,8 @@ public class FeedView : MonoBehaviour
 		await UniTask.WaitForEndOfFrame();
 		var contentLayoutGroup = _scrollViewContent.GetComponent<LayoutGroup>();
 		LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)contentLayoutGroup.transform);
+
+		_feedScrollView.verticalNormalizedPosition = 1;
 	}
 
 	public void ClearRecordsContainer()
@@ -105,5 +112,11 @@ public class FeedView : MonoBehaviour
 	public void SetIsNoRecordsMessageActive(bool isActive)
 	{
 		_noRecordsMessage.gameObject.SetActive(isActive);
+	}
+
+	[Button]
+	private void SetVerticalNormalizedPositionToScrollRect()
+	{
+		_feedScrollView.verticalNormalizedPosition = _debugVerticalNormalizedPosition;
 	}
 }

@@ -9,6 +9,7 @@ namespace OneYearLater.Management.Interfaces
 	{
 		UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records);
 		void SetIsDatePickingBlocked(bool isBlocked);
+		void DisplayFeedLoading();
 		event EventHandler<DateTime> DayChanged;
 		event EventHandler<String> XMLFilePicked;
 	}

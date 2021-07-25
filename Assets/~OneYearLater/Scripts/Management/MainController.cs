@@ -9,7 +9,7 @@ namespace OneYearLater.Management
 	{
 
 		[Inject] private IViewManager _viewManager;
-		[Inject] private IStorage _storage;
+		[Inject] private ILocalStorage _storage;
 
 		private void Awake()
 		{
@@ -39,9 +39,9 @@ namespace OneYearLater.Management
 		private async void DisplayFeedFor(DateTime date)
 		{
 			_viewManager.SetIsDatePickingBlocked(true);
+			_viewManager.DisplayFeedLoading();
 			await _viewManager.DisplayDayFeedAsync(date, await _storage.GetAllDayRecordsAsync(date));
 			_viewManager.SetIsDatePickingBlocked(false);
-
 		}
 	}
 }

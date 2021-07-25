@@ -152,7 +152,7 @@ MonoBehaviour:
   m_MinHeight: -1
   m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: -1
+  m_FlexibleWidth: 0
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
 --- !u!1 &1426476859107711201
@@ -193,8 +193,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 540, y: 0}
-  m_SizeDelta: {x: 1080, y: 0}
+  m_AnchoredPosition: {x: 530, y: 0}
+  m_SizeDelta: {x: 1060, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &1426476859107711228
 CanvasRenderer:
@@ -286,6 +286,7 @@ GameObject:
   - component: {fileID: 1426476859466039357}
   - component: {fileID: 1426476859466039356}
   - component: {fileID: 8725497390502879705}
+  - component: {fileID: 2301065474758454828}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -309,8 +310,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 590, y: 0}
+  m_SizeDelta: {x: 900, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &1426476859466039357
 CanvasRenderer:
@@ -340,29 +341,28 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "The group are considered to be progenitors of the trip hop genre. Their
-    debut album, Blue Lines was released in 1991, with the single \"Unfinished Sympathy\"
-    reaching the charts and later being voted the 10th greatest song of all time
-    in a poll by The Guardian. 1998's Mezzanine, containing \"Teardrop\", and 2003's
-    100th Window charted in the UK at number 1. Both Blue Lines and Mezzanine feature
-    in Rolling Stones list of the 500 Greatest Albums of All Time. The group has
-    won numerous music awards throughout their career, including aThe group are considered
-    to be progenitors of the trip hop genre. Their debut album, Blue Lines was released
-    in 1991, with the single \"Unfinished Sympathy\" reaching the charts and later
-    being voted the 10th greatest song of all time in a poll by The Guardian. 1998's
-    Mezzanine, containing \"Teardrop\", and 2003's 100th Window charted in the UK
-    at number 1. Both Blue Lines and Mezzanine feature in Rolling Stones list of
-    the 500 Greatest Albums of All Time. The group has won numerous music awards
-    throughout their career, including a Brit Award\u2014winning Best British Dance
-    Act, two MTV Europe Music Awards, and two Q Awards They have released 5 studio
-    albums that have sold over 11 million copies worldwide. Brit Award\u2014wand
-    two Q Awards They have released 5 studio albums that have sold over 11 million
-    copies worldwide. Brit Award\u2014wThe group are considered to be progenitors
-    of the trip hopand two Q Awards They have released 5 studio albums that have
-    sold over 11 million copies worldwide. Brit Award\u2014wThe group are considered
-    to be progenitors of the trip hopand two Q Awards They have released 5 studio
-    albums that have sold over 11 million copies worldwide. Brit Award\u2014wThe
-    group are considered to be progenitors of the trip hop"
+  m_text: "\u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442
+    \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0442\u0435\u043A\u0441\u0442 "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -445,6 +445,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!114 &2301065474758454828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1426476859466039358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &1426476859575688483
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,7 +5,7 @@ using Cysharp.Threading.Tasks;
 
 namespace OneYearLater.Management.Interfaces
 {
-	public interface IStorage
+	public interface ILocalStorage
 	{
 		UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records);
 		UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date);
