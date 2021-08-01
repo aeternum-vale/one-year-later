@@ -18,7 +18,7 @@ namespace OneYearLater.Management
 
 		private void Start()
 		{
-			DisplayFeedFor(DateTime.Today);
+			//DisplayFeedFor(DateTime.Today);
 		}
 
 		private void AddListeners()

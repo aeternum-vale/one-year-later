@@ -1,8 +1,8 @@
 using System;
-using System.IO;
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using Newtonsoft.Json;
@@ -10,11 +10,12 @@ using OneYearLater.Management.Interfaces;
 using UnityEngine;
 using UnityEngine.Networking;
 
+using Debug = UnityEngine.Debug;
+
 public class DropBoxExternalStorage : MonoBehaviour, IExternalStorage
 {
 	private const string AppKey = "x74srqkscwb6d3o";
 	private const string AppSecret = "ywcxd32t1ohctwv";
-	private const string LocalTestFilePath = @"C:\cookies.jpg";
 
 	[SerializeField] private string _accessCode;
 	[SerializeField] private string _token;
@@ -28,64 +29,118 @@ public class DropBoxExternalStorage : MonoBehaviour, IExternalStorage
 	[Button]
 	public void RequestToken()
 	{
-		Dictionary<string, string> headers = new Dictionary<string, string>();
-
-		headers.Add("code", _accessCode);
-		headers.Add("grant_type", "authorization_code");
-		headers.Add("client_id", AppKey);
-		headers.Add("client_secret", AppSecret);
-
-		PostForm("https://api.dropboxapi.com/oauth2/token", headers).ContinueWith((response) =>
-		{
-			string rawResult = response.Item1;
-			bool isError = response.Item2;
-
-			Debug.Log("rawResult=" + rawResult);
-
-			Dictionary<string, string> result = rawResult.FromJsonToDictionary();
-
-			Debug.Log("dictionary=");
-			foreach (var kvp in result)
-				Debug.Log($"{kvp.Key}:{kvp.Value}");
-
-
-			if (isError)
-				Debug.LogError(result);
-			else
-				_token = result["access_token"];
-		})
-		.Forget();
+		RequestToken(_accessCode).Forget();
 	}
 
-	[Button]
-
-	private async void UploadTestFile()
+	public async UniTask RequestToken(string accessCode)
 	{
+		Dictionary<string, string> formFields = new Dictionary<string, string>();
 
-		Dictionary<string, string> dropboxApiArg = new Dictionary<string, string>()
+		formFields.Add("code", accessCode);
+		formFields.Add("grant_type", "authorization_code");
+		formFields.Add("client_id", AppKey);
+		formFields.Add("client_secret", AppSecret);
+
+		var response = await PostForm("https://api.dropboxapi.com/oauth2/token", formFields);
+
+		string rawResult = response.Item1;
+		bool isError = response.Item2;
+
+		Debug.Log("rawResult=" + rawResult);
+
+		var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(rawResult);
+
+		Debug.Log("dictionary=");
+		foreach (var kvp in result)
+			Debug.Log($"{kvp.Key}:{kvp.Value}");
+
+		if (isError)
+			Debug.LogError(result);
+		else
+			_token = result["access_token"];
+	}
+
+	public async UniTask DownloadFile(string externalStoragePath, string localStoragePath)
+	{
+		Dictionary<string, string> dropboxApiArg = new Dictionary<string, string>() { ["path"] = externalStoragePath };
+
+		string dropboxApiArgsJson = JsonConvert.SerializeObject(dropboxApiArg);
+		Debug.Log(dropboxApiArgsJson);
+
+		UnityWebRequest uwr = UnityWebRequest.Post("https://content.dropboxapi.com/2/files/download", "");
+		uwr.SetRequestHeader("Authorization", $"Bearer {_token}");
+		uwr.SetRequestHeader("Dropbox-API-Arg", dropboxApiArgsJson);
+		uwr.SetRequestHeader("Content-Type", "application/octet-stream");
+
+		uwr.downloadHandler = new DownloadHandlerBuffer();
+		await uwr.SendWebRequest().ToUniTask();
+
+		if (uwr.result == UnityWebRequest.Result.ConnectionError)
+			Debug.LogError(uwr.error);
+		else
 		{
-			["path"] = "/" + Path.GetFileName(LocalTestFilePath),
+			File.WriteAllBytes(localStoragePath, uwr.downloadHandler.data);
+			Debug.Log("download done!");
+		}
+	}
+
+	public async UniTask UploadFile(string localStoragePath, string externalStoragePath)
+	{
+		Dictionary<string, object> dropboxApiArg = new Dictionary<string, object>()
+		{
+			["path"] = externalStoragePath,
 			["mode"] = "overwrite",
-			["autorename"] = "true",
-			["mute"] = "false",
+			["autorename"] = true,
+			["mute"] = false,
 		};
 
-		string dropboxApiArgsJson = dropboxApiArg.FromDictionaryToJson();
+		string dropboxApiArgsJson = JsonConvert.SerializeObject(dropboxApiArg);
 		Debug.Log(dropboxApiArgsJson);
 
 		UnityWebRequest uwr = UnityWebRequest.Post("https://content.dropboxapi.com/2/files/upload", "");
 		uwr.SetRequestHeader("Authorization", $"Bearer {_token}");
 		uwr.SetRequestHeader("Dropbox-API-Arg", dropboxApiArgsJson);
+		uwr.SetRequestHeader("Content-Type", "application/octet-stream");
 
-		byte[] fileData = File.ReadAllBytes(LocalTestFilePath);
+		byte[] fileData = File.ReadAllBytes(localStoragePath);
 
-		uwr.uploadHandler = new UploadHandlerRaw(fileData) { contentType = "application/octet-stream" };
+		uwr.uploadHandler = new UploadHandlerRaw(fileData);
 		await uwr.SendWebRequest().ToUniTask();
 
 		if (uwr.result == UnityWebRequest.Result.ConnectionError)
 			Debug.LogError(uwr.error);
 		else
 			Debug.Log("file uploaded!");
+	}
+
+	public async UniTask<bool> IsFileExist(string path)
+	{
+		Dictionary<string, object> dropboxApiArg = new Dictionary<string, object>()
+		{
+			["path"] = path,
+			["include_media_info"] = false,
+			["include_deleted"] = false,
+			["include_has_explicit_shared_members"] = false
+		};
+		string dropboxApiArgsJson = JsonConvert.SerializeObject(dropboxApiArg);
+		UnityWebRequest uwr = UnityWebRequest.Post("https://api.dropboxapi.com/2/files/get_metadata", "");
+		uwr.SetRequestHeader("Authorization", $"Bearer {_token}");
+		uwr.SetRequestHeader("Content-Type", "application/json");
+		uwr.uploadHandler = new UploadHandlerRaw(Encoding.ASCII.GetBytes(dropboxApiArgsJson));
+
+		uwr.downloadHandler = new DownloadHandlerBuffer();
+
+		try
+		{
+			await uwr.SendWebRequest().ToUniTask();
+		}
+		catch (UnityWebRequestException e)
+		{
+			if (uwr.responseCode != 409)
+				throw e;
+		}
+
+		return uwr.result == UnityWebRequest.Result.Success;
 	}
 
 	private async UniTask<(string, bool)> PostForm(string url, Dictionary<string, string> formFields)
@@ -100,33 +155,13 @@ public class DropBoxExternalStorage : MonoBehaviour, IExternalStorage
 			return (uwr.downloadHandler.text, false);
 	}
 
-	UniTask IExternalStorage.Authenticate()
+	public UniTask Authenticate()
 	{
 		throw new System.NotImplementedException();
 	}
 
-	UniTask IExternalStorage.Sync()
+	public UniTask Sync()
 	{
 		throw new System.NotImplementedException();
-	}
-}
-
-public static class Extensions
-{
-	public static string FromDictionaryToJson(this Dictionary<string, string> dictionary)
-	{
-		var kvs = dictionary.Select(kvp =>
-				string.Format("\"{0}\":{1}",
-				kvp.Key,
-				bool.TryParse(kvp.Value, out bool parsedBool) ? kvp.Value : $"\"{kvp.Value}\"")
-			);
-
-		return string.Concat("{", string.Join(",", kvs), "}");
-	}
-
-	public static Dictionary<string, string> FromJsonToDictionary(this string json)
-	{
-		string[] keyValueArray = json.Replace("{", string.Empty).Replace("}", string.Empty).Replace("\"", string.Empty).Split(',');
-		return keyValueArray.ToDictionary(item => item.Split(':')[0].Trim(), item => item.Split(':')[1].Trim());
 	}
 }
