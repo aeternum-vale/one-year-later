@@ -80,7 +80,6 @@ public class DropBoxExternalStorage : MonoBehaviour, IExternalStorage
 		else
 		{
 			File.WriteAllBytes(localStoragePath, uwr.downloadHandler.data);
-			Debug.Log("download done!");
 		}
 	}
 
@@ -109,8 +108,6 @@ public class DropBoxExternalStorage : MonoBehaviour, IExternalStorage
 
 		if (uwr.result == UnityWebRequest.Result.ConnectionError)
 			Debug.LogError(uwr.error);
-		else
-			Debug.Log("file uploaded!");
 	}
 
 	public async UniTask<bool> IsFileExist(string path)

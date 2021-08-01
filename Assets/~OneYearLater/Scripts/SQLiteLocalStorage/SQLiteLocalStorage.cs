@@ -188,7 +188,6 @@ namespace OneYearLater.LocalStorageSQLite
 			// Debug.Log($"dbBackupNameWithExtension: {dbBackupNameWithExtension}");
 			// Debug.Log($"backupDbPath: {backupDbPath}");
 
-			//check
 			bool isExternalDbFileExisted = await _dropBox.IsFileExist(externalDbPath);
 			Debug.Log($"isExternalDbFileExisted={isExternalDbFileExisted}");
 
@@ -210,12 +209,9 @@ namespace OneYearLater.LocalStorageSQLite
 			{
 				if (isExternalDbFileExisted)
 				{
-					Debug.Log("Start download");
 					await _dropBox.DownloadFile(externalDbPath, externalDbLocalCopyPath);
-					Debug.Log("End download");
 
 					_connectionToLocal = new SQLiteAsyncConnection(originalLocalDbPath);
-					Debug.Log($"_connectionToLocal={_connectionToLocal}");
 
 					AsyncTableQuery<RecordModel> query;
 
@@ -226,7 +222,6 @@ namespace OneYearLater.LocalStorageSQLite
 					List<RecordModel> localRecordsToInsert = new List<RecordModel>();
 
 					_connectionToExternalCopy = new SQLiteAsyncConnection(externalDbLocalCopyPath);
-					Debug.Log($"_connectionToExternalCopy={_connectionToExternalCopy}");
 
 					query = _connectionToExternalCopy.Table<RecordModel>();
 					List<RecordModel> allExternalDbRecords = await query.ToListAsync();

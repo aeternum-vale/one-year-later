@@ -6,21 +6,32 @@ using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using UnityEngine;
+using static Utilities.Extensions;
 
 namespace OneYearLater.UI
 {
+
 	public class ViewManager : MonoBehaviour, IViewManager
 	{
+		[SerializeField] private ViewSPair[] _viewArray;
+		private Dictionary<EView, ScreenView> _viewDictionary;
+
+
 		[SerializeField] private FeedView _feedView;
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
 
 		public event EventHandler<DateTime> DayChanged;
 		public event EventHandler<string> XMLFilePicked;
 
+
+
 		private void Awake()
 		{
+			_viewArray.ToDictionary(out _viewDictionary);
+
 			_feedView.DayChanged += OnFeedViewDayChanged;
 		}
+
 
 		private void OnFeedViewDayChanged(object sender, DateTime date)
 		{

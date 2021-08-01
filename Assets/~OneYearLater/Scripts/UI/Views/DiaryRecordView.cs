@@ -1,11 +1,14 @@
 using TMPro;
 using UnityEngine;
 
-public class DiaryRecordView : MonoBehaviour
+namespace OneYearLater.UI
 {
-	[SerializeField] private TextMeshProUGUI _timeText;
-	[SerializeField] private TextMeshProUGUI _contentText;
+	public class DiaryRecordView : MonoBehaviour
+	{
+		[SerializeField] private TextMeshProUGUI _timeText;
+		[SerializeField] private TextMeshProUGUI _contentText;
 
-	public string TimeText { get => _timeText.text; set => _timeText.text = value; }
-	public string ContentText { get => _contentText.text; set => _contentText.text = value; }
+		public string TimeText { get => _timeText.text; set => _timeText.text = value; }
+		public string ContentText { get => _contentText.text; set => _contentText.text = value; }
+	}
 }

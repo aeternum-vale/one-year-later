@@ -464,7 +464,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &250473953
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1862,6 +1862,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1082591884}
   - component: {fileID: 1082591885}
+  - component: {fileID: 1082591886}
   m_Layer: 5
   m_Name: FeedView
   m_TagString: Untagged
@@ -1908,6 +1909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd677473dca207a4bb15fabe01de8e7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _canvasGroup: {fileID: 1082591886}
   _recordsContainer: {fileID: 1952847160}
   _nextDayButton: {fileID: 6887960372555775904}
   _prevDayButton: {fileID: 1793573384}
@@ -1918,7 +1920,18 @@ MonoBehaviour:
   _noRecordsMessage: {fileID: 325410533}
   _feedScrollView: {fileID: 1518136358}
   _scrollViewContent: {fileID: 43558542}
-  _debugVerticalNormalizedPosition: 0
+--- !u!225 &1082591886
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1082591883}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1102503723
 GameObject:
   m_ObjectHideFlags: 0
@@ -1948,6 +1961,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc13167a66aa4e44b87b8bf364b237f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _viewArray:
+  - Key: 1
+    Value: {fileID: 1082591885}
   _feedView: {fileID: 1082591885}
   _diaryRecordViewPrefab: {fileID: 7233143904756775791, guid: 3d40805061292044bbd766ac99355b39, type: 3}
 --- !u!4 &1102503725
