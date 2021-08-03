@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace OneYearLater.UI
 {
-	public class FeedView : ScreenView
+	public class FeedView : MonoBehaviour
 	{
 		[SerializeField] private Transform _recordsContainer;
 

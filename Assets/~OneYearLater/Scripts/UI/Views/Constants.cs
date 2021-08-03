@@ -6,18 +6,19 @@ namespace OneYearLater.UI
 {
 	public static class Constants
 	{
-		public const float ScreenViewFadeDuration = 1f;
+		public const float ScreenViewFadeDuration = 0.5f;
 	}
 
 	[Serializable]
-	public enum EView
+	public enum EScreenViewKey
 	{
 		None,
 		Feed,
-		Settings
+		Settings,
+		ExternalStorages
 	}
 
 	[Serializable]
-	public class ViewSPair : SerializableKeyValuePair<EView, ScreenView> { }
+	public class ViewSPair : SerializableKeyValuePair<EScreenViewKey, ScreenView> { }
 
 }

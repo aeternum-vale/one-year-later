@@ -24,17 +24,29 @@ namespace OneYearLater.UI
 				_canvasGroup = GetComponent<CanvasGroup>();
 		}
 
-		public UniTask Fade() =>
-			_canvasGroup.DOFade(0f, ScreenViewFadeDuration).ToUniTask();
+		public async UniTask FadeAsync()
+		{
+			await _canvasGroup.DOFade(0f, ScreenViewFadeDuration).ToUniTask();
+			gameObject.SetActive(false);
+		}
 
-		public UniTask Unfade() =>
-			_canvasGroup.DOFade(1f, ScreenViewFadeDuration).ToUniTask();
+		public UniTask UnfadeAsync()
+		{
+			gameObject.SetActive(true);
+			return _canvasGroup.DOFade(1f, ScreenViewFadeDuration).ToUniTask();
+		}
 
-		public UniTask Fade(CancellationToken token) =>
-			_canvasGroup.DOFade(0f, ScreenViewFadeDuration).ToUniTask(token);
+		public async UniTask FadeAsync(CancellationToken token)
+		{
+			await _canvasGroup.DOFade(0f, ScreenViewFadeDuration).ToUniTask(token);
+			gameObject.SetActive(false);
+		}
 
-		public UniTask Unfade(CancellationToken token) =>
-			_canvasGroup.DOFade(1f, ScreenViewFadeDuration).ToUniTask(token);
+		public  UniTask UnfadeAsync(CancellationToken token)
+		{
+			gameObject.SetActive(true);
+			return _canvasGroup.DOFade(1f, ScreenViewFadeDuration).ToUniTask(token);
+		}
 
 
 #if UNITY_EDITOR

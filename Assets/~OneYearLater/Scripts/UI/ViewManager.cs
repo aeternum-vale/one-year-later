@@ -1,7 +1,9 @@
-﻿using System;
+﻿using System.Threading;
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Management;
+using NaughtyAttributes;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
@@ -14,7 +16,7 @@ namespace OneYearLater.UI
 	public class ViewManager : MonoBehaviour, IViewManager
 	{
 		[SerializeField] private ViewSPair[] _viewArray;
-		private Dictionary<EView, ScreenView> _viewDictionary;
+		private Dictionary<EScreenViewKey, ScreenView> _viewDictionary;
 
 
 		[SerializeField] private FeedView _feedView;
@@ -23,7 +25,7 @@ namespace OneYearLater.UI
 		public event EventHandler<DateTime> DayChanged;
 		public event EventHandler<string> XMLFilePicked;
 
-
+		private EScreenViewKey _currentScreenViewKey = EScreenViewKey.None;
 
 		private void Awake()
 		{
@@ -32,6 +34,31 @@ namespace OneYearLater.UI
 			_feedView.DayChanged += OnFeedViewDayChanged;
 		}
 
+		private void Start() {
+			SetScreenView(EScreenViewKey.Feed);
+		}
+
+
+		private CancellationTokenSource _screenViewChangeCTS;
+		private void SetScreenView(EScreenViewKey screenViewKey)
+		{
+			_screenViewChangeCTS?.Cancel();
+			_screenViewChangeCTS = new CancellationTokenSource();
+			var token = _screenViewChangeCTS.Token;
+
+			foreach (var entry in _viewDictionary)
+				if (entry.Key != screenViewKey && entry.Value.gameObject.activeSelf)
+					entry.Value.FadeAsync(token).Forget();
+			
+			_viewDictionary[screenViewKey].UnfadeAsync(token).Forget();
+
+			_currentScreenViewKey = screenViewKey;
+		}
+
+		[Button] private void DebugSetFeedScreenView() => SetScreenView(EScreenViewKey.Feed);
+		[Button] private void DebugSetSettingsScreenView() => SetScreenView(EScreenViewKey.Settings);
+		[Button] private void DebugSetExternalStoragesScreenView() => SetScreenView(EScreenViewKey.ExternalStorages);
+		
 
 		private void OnFeedViewDayChanged(object sender, DateTime date)
 		{
