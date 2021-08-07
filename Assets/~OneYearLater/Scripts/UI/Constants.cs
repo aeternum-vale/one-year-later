@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using OneYearLater.UI.Popups;
 using Utilities;
 
 namespace OneYearLater.UI
@@ -7,9 +7,9 @@ namespace OneYearLater.UI
 	public static class Constants
 	{
 		public const float ScreenViewFadeDuration = 0.5f;
+		public const float PopupFadeDuration = 0.3f;
 	}
 
-	[Serializable]
 	public enum EScreenViewKey
 	{
 		None,
@@ -18,7 +18,20 @@ namespace OneYearLater.UI
 		ExternalStorages
 	}
 
+	public enum EPopupKey
+	{
+		None,
+		Message,
+		Alert,
+		Confirm,
+		Promt
+	}
+
+
 	[Serializable]
 	public class ViewSPair : SerializableKeyValuePair<EScreenViewKey, ScreenView> { }
+
+	[Serializable]
+	public class PopupSPair : SerializableKeyValuePair<EPopupKey, Popup> { }
 
 }

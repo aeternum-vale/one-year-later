@@ -8,36 +8,47 @@ using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using UnityEngine;
+
 using static Utilities.Extensions;
+using OneYearLater.UI.Popups;
 
 namespace OneYearLater.UI
 {
 
 	public class ViewManager : MonoBehaviour, IViewManager
 	{
-		[SerializeField] private ViewSPair[] _viewArray;
-		private Dictionary<EScreenViewKey, ScreenView> _viewDictionary;
-
-
-		[SerializeField] private FeedView _feedView;
-		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
-
 		public event EventHandler<DateTime> DayChanged;
 		public event EventHandler<string> XMLFilePicked;
 
+
+
+		[SerializeField] private ViewSPair[] _viewArray;
+		private Dictionary<EScreenViewKey, ScreenView> _viewDictionary;
+		private FeedView _feedView;
+
+		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
+
+
+		[SerializeField] private string _debugPopupMessage;
+		[SerializeField] private PopupManager _popupManager;
+
 		private EScreenViewKey _currentScreenViewKey = EScreenViewKey.None;
 
+		#region Unity Callbacks
 		private void Awake()
 		{
 			_viewArray.ToDictionary(out _viewDictionary);
 
+			_feedView = _viewDictionary[EScreenViewKey.Feed].GetComponent<FeedView>();
+
 			_feedView.DayChanged += OnFeedViewDayChanged;
 		}
 
-		private void Start() {
+		private void Start()
+		{
 			SetScreenView(EScreenViewKey.Feed);
 		}
-
+		#endregion
 
 		private CancellationTokenSource _screenViewChangeCTS;
 		private void SetScreenView(EScreenViewKey screenViewKey)
@@ -49,7 +60,7 @@ namespace OneYearLater.UI
 			foreach (var entry in _viewDictionary)
 				if (entry.Key != screenViewKey && entry.Value.gameObject.activeSelf)
 					entry.Value.FadeAsync(token).Forget();
-			
+
 			_viewDictionary[screenViewKey].UnfadeAsync(token).Forget();
 
 			_currentScreenViewKey = screenViewKey;
@@ -58,7 +69,7 @@ namespace OneYearLater.UI
 		[Button] private void DebugSetFeedScreenView() => SetScreenView(EScreenViewKey.Feed);
 		[Button] private void DebugSetSettingsScreenView() => SetScreenView(EScreenViewKey.Settings);
 		[Button] private void DebugSetExternalStoragesScreenView() => SetScreenView(EScreenViewKey.ExternalStorages);
-		
+		[Button] private void DebugShowMessagePopup() => _popupManager.ShowMessagePopupAsync(_debugPopupMessage);
 
 		private void OnFeedViewDayChanged(object sender, DateTime date)
 		{
