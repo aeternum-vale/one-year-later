@@ -665,7 +665,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 0.50172657, g: 0.6698113, b: 0.57581013, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1317,7 +1317,7 @@ MonoBehaviour:
   - Key: 3
     Value: {fileID: 458666874}
   _diaryRecordViewPrefab: {fileID: 7233143904756775791, guid: 3d40805061292044bbd766ac99355b39, type: 3}
-  _debugPopupMessage: 
+  _debugPopupMessage: hello world!
   _popupManager: {fileID: 1703173533}
 --- !u!4 &1102503725
 Transform:
@@ -1673,7 +1673,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 514f952898a7fd84fbf1e0a82daec623, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _fadeDuration: 1
+  _ownFadeDuration: 1
   _canvasGroup: {fileID: 1528813682}
 --- !u!225 &1528813682
 CanvasGroup:
@@ -1892,7 +1892,7 @@ MonoBehaviour:
   - Key: 1
     Value: {fileID: 7851187431997904494, guid: 1498710e753738348ba69000a826c218, type: 3}
   - Key: 4
-    Value: {fileID: 5337825191029172297, guid: 453b32946cfa8b44b8554386cd9e4359, type: 3}
+    Value: {fileID: 3710847646741734967, guid: 8196d457768b6e44ca9f154a4a7f1c1d, type: 3}
   _background: {fileID: 1528813681}
   _container: {fileID: 322664530}
 --- !u!4 &1703173534

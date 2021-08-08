@@ -7,7 +7,7 @@ using OneYearLater.UI.Interfaces;
 namespace OneYearLater.UI
 {
 	[RequireComponent(typeof(CanvasGroupFader))]
-	public class ScreenView : MonoBehaviour, IAsyncFadable
+	public class ScreenView : MonoBehaviour
 	{
 		[SerializeField] [ReadOnly] private CanvasGroupFader _canvasGroupFader;
 
@@ -16,7 +16,7 @@ namespace OneYearLater.UI
 		{
 			PopulateFields();
 
-			_canvasGroupFader.FadeDuration = Constants.ScreenViewFadeDuration;
+			_canvasGroupFader.OwnFadeDuration = Constants.ScreenViewFadeDuration;
 		}
 
 #if UNITY_EDITOR

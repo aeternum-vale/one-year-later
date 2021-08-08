@@ -1,53 +1,41 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using NaughtyAttributes;
-using OneYearLater.UI.Interfaces;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+using static Utilities.Extensions;
 namespace OneYearLater.UI.Popups
 {
 	[RequireComponent(typeof(CanvasGroupFader))]
 
-	public class Popup : MonoBehaviour, IAsyncFadable
+	public class Popup : MonoBehaviour
 	{
 		public event EventHandler OkButtonClicked;
 
 		[SerializeField] private TMP_Text _message;
 		[SerializeField] private Button _okButton;
-		[SerializeField] [ReadOnly] private TMP_Text _okButtonTextComponent;
-		[SerializeField] [ReadOnly] private CanvasGroupFader _canvasGroupFader;
+
+		[Header("Animation")]
+
+		[SerializeField] Ease _easeShow = Ease.InBounce;
+		[SerializeField] Ease _easeHide = Ease.OutBounce;
+		[SerializeField] float _fromScale = 0.7f;
 
 
-		#region Unity Callbacks
+		private CanvasGroupFader _canvasGroupFader;
+		private TMP_Text _okButtonTextComponent;
 
 
 		private void Awake()
 		{
-			PopulateFields();
-
-			_canvasGroupFader.FadeDuration = Constants.PopupFadeDuration;
-
+			_okButtonTextComponent = _okButton.GetComponentInChildren<TMP_Text>();
 			_okButton.onClick.AddListener(OnOkButtonClick);
-		}
 
-#if UNITY_EDITOR
-		private void OnValidate()
-		{
-			PopulateFields();
-		}
-#endif
-		#endregion
-
-		private void PopulateFields()
-		{
-			if (_canvasGroupFader == null)
-				_canvasGroupFader = GetComponent<CanvasGroupFader>();
-
-			if (_okButtonTextComponent == null)
-				_okButtonTextComponent = _okButton.GetComponentInChildren<TMP_Text>();
+			_canvasGroupFader = GetComponent<CanvasGroupFader>();
+			_canvasGroupFader.OwnFadeDuration = Constants.PopupAppearDuration;
 		}
 
 		public void Init(string messageText, string okButtonText)
@@ -68,8 +56,22 @@ namespace OneYearLater.UI.Popups
 
 		public UniTask FadeAsync() => _canvasGroupFader.FadeAsync();
 		public UniTask UnfadeAsync() => _canvasGroupFader.UnfadeAsync();
-		public UniTask FadeAsync(CancellationToken token) => _canvasGroupFader.FadeAsync(token);
-		public UniTask UnfadeAsync(CancellationToken token) => _canvasGroupFader.UnfadeAsync(token);
+
+		public UniTask PlayShowAnimation()
+		{
+			transform.localScale = new Vector3(_fromScale, _fromScale, 1);
+			return transform.DOScale(Vector3.one, Constants.PopupAppearDuration)
+				.SetEase(_easeShow)
+				.ToUniTask();
+		}
+
+		public UniTask PlayHideAnimation()
+		{
+			transform.localScale = Vector3.one;
+			return transform.DOScale(new Vector3(_fromScale, _fromScale, 1), Constants.PopupAppearDuration)
+				.SetEase(_easeHide)
+				.ToUniTask();
+		}
 
 	}
 }

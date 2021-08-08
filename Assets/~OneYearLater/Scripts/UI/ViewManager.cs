@@ -69,7 +69,8 @@ namespace OneYearLater.UI
 		[Button] private void DebugSetFeedScreenView() => SetScreenView(EScreenViewKey.Feed);
 		[Button] private void DebugSetSettingsScreenView() => SetScreenView(EScreenViewKey.Settings);
 		[Button] private void DebugSetExternalStoragesScreenView() => SetScreenView(EScreenViewKey.ExternalStorages);
-		[Button] private void DebugShowMessagePopup() => _popupManager.ShowMessagePopupAsync(_debugPopupMessage);
+		[Button] private void DebugShowMessagePopup() => _popupManager.ShowMessagePopupAsync(_debugPopupMessage).Forget();
+		[Button] private void DebugShowPromptPopup() => _popupManager.ShowPromptPopupAsync(_debugPopupMessage).ContinueWith<string>((value) => Debug.Log(value)).Forget();
 
 		private void OnFeedViewDayChanged(object sender, DateTime date)
 		{

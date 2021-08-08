@@ -2,70 +2,53 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using NaughtyAttributes;
-using OneYearLater.UI.Interfaces;
 using UnityEngine;
-using static OneYearLater.UI.Constants;
+
 using static Utilities.Extensions;
 
 namespace OneYearLater.UI
 {
 	[RequireComponent(typeof(CanvasGroup))]
-	public class CanvasGroupFader : MonoBehaviour, IAsyncFadable
+	public class CanvasGroupFader : MonoBehaviour
 	{
-		public float FadeDuration { get => _fadeDuration; set => _fadeDuration = value; }
+		public float OwnFadeDuration { get => _ownFadeDuration; set => _ownFadeDuration = value; }
 
-		[SerializeField] private float _fadeDuration = 1f;
+		[SerializeField] private float _ownFadeDuration = 1f;
 		[SerializeField] [ReadOnly] private CanvasGroup _canvasGroup;
 
-
-
-		#region Unity Callbacks
-		private void Start()
-		{
-			PopulateFields();
-		}
-
-#if UNITY_EDITOR
-		private void OnValidate()
-		{
-			PopulateFields();
-		}
-#endif
-		#endregion
-
-		private void PopulateFields()
-		{
-			if (_canvasGroup == null)
-				_canvasGroup = GetComponent<CanvasGroup>();
-		}
 
 		public void SetAlpha(float alpha)
 		{
 			_canvasGroup.alpha = alpha;
 		}
 
-		public async UniTask FadeAsync()
+		public async UniTask FadeAsync(float duration)
 		{
-			await _canvasGroup.DOFade(0f, _fadeDuration).ToUniTask();
+			await _canvasGroup.DOFade(0f, duration).ToUniTask();
 			gameObject.SetActive(false);
 		}
 
-		public UniTask UnfadeAsync()
+		public UniTask UnfadeAsync(float duration)
 		{
 			gameObject.SetActive(true);
-			return _canvasGroup.DOFade(1f, _fadeDuration).ToUniTask();
+			return _canvasGroup.DOFade(1f, duration).ToUniTask();
 		}
 
-		public async UniTask FadeAsync(CancellationToken token)
+		public async UniTask FadeAsync(float duration, CancellationToken token)
 		{
-			await _canvasGroup.DOFade(0f, _fadeDuration).ToUniTask(token);
+			await _canvasGroup.DOFade(0f, duration).ToUniTask(token);
 			gameObject.SetActive(false);
 		}
 
-		public UniTask UnfadeAsync(CancellationToken token)
+		public UniTask UnfadeAsync(float duration, CancellationToken token)
 		{
 			gameObject.SetActive(true);
-			return _canvasGroup.DOFade(1f, _fadeDuration).ToUniTask(token);
+			return _canvasGroup.DOFade(1f, duration).ToUniTask(token);
 		}
+
+		public  UniTask FadeAsync() => FadeAsync(_ownFadeDuration);
+		public UniTask UnfadeAsync() => UnfadeAsync(_ownFadeDuration);
+		public UniTask FadeAsync(CancellationToken token) => FadeAsync(_ownFadeDuration, token);
+		public UniTask UnfadeAsync(CancellationToken token) => UnfadeAsync(_ownFadeDuration, token);
 	}
 }

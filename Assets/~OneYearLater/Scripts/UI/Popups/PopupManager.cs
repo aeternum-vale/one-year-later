@@ -27,8 +27,12 @@ namespace OneYearLater.UI.Popups
 
 		private async UniTask ShowPopupAsync(Popup popup)
 		{
-			_background.UnfadeAsync().Forget();
-			popup.UnfadeAsync().Forget();
+			_background.UnfadeAsync(Constants.PopupBackgroundFadeDuration).Forget();
+
+			await UniTask.WhenAll(
+				popup.UnfadeAsync(),
+				popup.PlayShowAnimation()
+			);
 
 			bool isOkClicked = false;
 			EventHandler clickHandler = (s, a) => isOkClicked = true;
@@ -36,23 +40,47 @@ namespace OneYearLater.UI.Popups
 			await UniTask.WaitUntil(() => isOkClicked);
 			popup.OkButtonClicked -= clickHandler;
 
-			await popup.FadeAsync();
-			await _background.FadeAsync();
+			_background.FadeAsync(Constants.PopupBackgroundFadeDuration).Forget();
+
+			await UniTask.WhenAll(
+				popup.FadeAsync(),
+				popup.PlayHideAnimation()
+			);
 		}
 
-		public async UniTask ShowMessagePopupAsync(string messageText)
+		public async UniTask ShowMessagePopupAsync(string messageText, string okButtonText = "OK")
 		{
 			Popup messagePopup;
 			EPopupKey key = EPopupKey.Message;
 
 			if (_popupCache.TryGetValue(key, out messagePopup))
-				_popupCache[key] = null;
+				_popupCache.Remove(key);
 			else
-				messagePopup = Instantiate(_popupPrefabsDictionary[EPopupKey.Message], _container);
+				messagePopup = Instantiate(_popupPrefabsDictionary[key], _container);
 
-			messagePopup.Init(messageText, string.Empty);
+			messagePopup.Init(messageText, okButtonText);
 			await ShowPopupAsync(messagePopup);
-			_popupCache[EPopupKey.Message] = messagePopup;
+
+			_popupCache[key] = messagePopup;
+		}
+
+		public async UniTask<string> ShowPromptPopupAsync(string messageText, string okButtonText = "OK", string placeholderText = "")
+		{
+			Popup basePopup;
+			EPopupKey key = EPopupKey.Promt;
+
+			if (_popupCache.TryGetValue(key, out basePopup))
+				_popupCache.Remove(key);
+			else
+				basePopup = Instantiate(_popupPrefabsDictionary[key], _container);
+
+			PromptPopup promptPopup = basePopup.GetComponent<PromptPopup>();
+
+			promptPopup.Init(messageText, okButtonText, placeholderText);
+
+			await ShowPopupAsync(basePopup);
+			_popupCache[key] = basePopup;
+			return promptPopup.InputFieldText;
 		}
 
 

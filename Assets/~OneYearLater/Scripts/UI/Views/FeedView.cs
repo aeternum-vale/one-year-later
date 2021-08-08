@@ -26,8 +26,6 @@ namespace OneYearLater.UI
 		public event EventHandler<DateTime> DayChanged;
 		private DateTime _visibleDate;
 
-		//[Header("Debug")]
-
 
 		private void Awake()
 		{
