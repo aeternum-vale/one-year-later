@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using NaughtyAttributes;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace OneYearLater.UI
+namespace OneYearLater.UI.Views.ScreenViews
 {
-	public class FeedView : MonoBehaviour
+	[RequireComponent(typeof(ScreenView))]
+	public class FeedScreenView : MonoBehaviour
 	{
 		[SerializeField] private Transform _recordsContainer;
 

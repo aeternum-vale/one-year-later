@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace OneYearLater.UI
+namespace OneYearLater.UI.Views
 {
 	public class DiaryRecordView : MonoBehaviour
 	{

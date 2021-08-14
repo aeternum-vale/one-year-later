@@ -5,6 +5,6 @@ namespace OneYearLater.Management
     public class Record
     {
         private DateTime _dateTime;
-        private ERecord _type;
+        private ERecordKey _type;
     }
 }

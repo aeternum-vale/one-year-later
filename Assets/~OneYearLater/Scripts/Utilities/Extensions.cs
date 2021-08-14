@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -7,6 +8,11 @@ namespace Utilities
 {
 	public static class Extensions
 	{
+		public static bool IsAny<T>(this IEnumerable<T> data)
+		{
+			return data != null && data.Any();
+		}
+
 		public static UniTask ToUniTask(this Tween tween)
 		{
 			return tween.AsyncWaitForCompletion().AsUniTask();

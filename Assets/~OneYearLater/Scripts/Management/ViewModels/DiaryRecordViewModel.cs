@@ -8,7 +8,7 @@ namespace OneYearLater.Management.ViewModels
 
         public DiaryRecordViewModel(DateTime dateTime, string text) : base(dateTime)
         {
-            Type = ERecord.Diary;
+            Type = ERecordKey.Diary;
             Text = text;
         }
     }

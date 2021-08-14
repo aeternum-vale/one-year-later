@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+
 using static OneYearLater.Management.Constants;
 
 namespace OneYearLater.Parsers.XML
@@ -21,7 +22,7 @@ namespace OneYearLater.Parsers.XML
 
             do
             {
-                ERecord type;
+                ERecordKey type;
                 DateTime datetime;
 
                 reader.ReadToFollowing("datetime");
@@ -34,7 +35,7 @@ namespace OneYearLater.Parsers.XML
 
                 try
                 {
-                    type = RecordTypeToString.First(x => x.Value == typeStr.Trim().ToLower()).Key;
+                    type = RecordTypeNames.First(x => x.Value == typeStr.Trim().ToLower()).Key;
                 }
                 catch (InvalidOperationException)
                 {
@@ -47,7 +48,7 @@ namespace OneYearLater.Parsers.XML
 
                 switch (type)
                 {
-                    case ERecord.Diary:
+                    case ERecordKey.Diary:
                         reader.ReadToFollowing("text");
                         string text = reader.ReadElementContentAsString();
                         recordViewModel = new DiaryRecordViewModel(datetime, text);

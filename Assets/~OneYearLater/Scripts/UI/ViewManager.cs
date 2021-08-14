@@ -1,16 +1,19 @@
-﻿using System.Threading;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
-using Management;
 using NaughtyAttributes;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
+using OneYearLater.UI.Popups;
+using OneYearLater.UI.Views;
+using OneYearLater.UI.Views.ScreenViews;
 using UnityEngine;
+using Zenject;
 
 using static Utilities.Extensions;
-using OneYearLater.UI.Popups;
 
 namespace OneYearLater.UI
 {
@@ -18,28 +21,32 @@ namespace OneYearLater.UI
 	public class ViewManager : MonoBehaviour, IViewManager
 	{
 		public event EventHandler<DateTime> DayChanged;
-		public event EventHandler<string> XMLFilePicked;
 
+		[Inject] private IExternalStorage[] _externalStorages;
 
+		[SerializeField] private ScreenViewSPair[] _screenViewArray;
+		private Dictionary<EScreenViewKey, ScreenView> _screenViewDictionary;
 
-		[SerializeField] private ViewSPair[] _viewArray;
-		private Dictionary<EScreenViewKey, ScreenView> _viewDictionary;
-		private FeedView _feedView;
+		[SerializeField] private ExternalStorageSettingParameterView _externalStorageSettingParameterViewPrefab;
+
+		private FeedScreenView _feedView;
+		private ExternalStoragesScreenView _externalStoragesScreenView;
 
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
-
-
-		[SerializeField] private string _debugPopupMessage;
 		[SerializeField] private PopupManager _popupManager;
 
 		private EScreenViewKey _currentScreenViewKey = EScreenViewKey.None;
+		private CancellationTokenSource _screenViewChangeCTS;
+
 
 		#region Unity Callbacks
 		private void Awake()
 		{
-			_viewArray.ToDictionary(out _viewDictionary);
+			_screenViewArray.ToDictionary(out _screenViewDictionary);
 
-			_feedView = _viewDictionary[EScreenViewKey.Feed].GetComponent<FeedView>();
+			_feedView = _screenViewDictionary[EScreenViewKey.Feed].GetComponent<FeedScreenView>();
+			_externalStoragesScreenView = 
+				_screenViewDictionary[EScreenViewKey.ExternalStorages].GetComponent<ExternalStoragesScreenView>();
 
 			_feedView.DayChanged += OnFeedViewDayChanged;
 		}
@@ -47,35 +54,9 @@ namespace OneYearLater.UI
 		private void Start()
 		{
 			SetScreenView(EScreenViewKey.Feed);
+			PopulateExternalStorageSettingParameterView();
 		}
 		#endregion
-
-		private CancellationTokenSource _screenViewChangeCTS;
-		private void SetScreenView(EScreenViewKey screenViewKey)
-		{
-			_screenViewChangeCTS?.Cancel();
-			_screenViewChangeCTS = new CancellationTokenSource();
-			var token = _screenViewChangeCTS.Token;
-
-			foreach (var entry in _viewDictionary)
-				if (entry.Key != screenViewKey && entry.Value.gameObject.activeSelf)
-					entry.Value.FadeAsync(token).Forget();
-
-			_viewDictionary[screenViewKey].UnfadeAsync(token).Forget();
-
-			_currentScreenViewKey = screenViewKey;
-		}
-
-		[Button] private void DebugSetFeedScreenView() => SetScreenView(EScreenViewKey.Feed);
-		[Button] private void DebugSetSettingsScreenView() => SetScreenView(EScreenViewKey.Settings);
-		[Button] private void DebugSetExternalStoragesScreenView() => SetScreenView(EScreenViewKey.ExternalStorages);
-		[Button] private void DebugShowMessagePopup() => _popupManager.ShowMessagePopupAsync(_debugPopupMessage).Forget();
-		[Button] private void DebugShowPromptPopup() => _popupManager.ShowPromptPopupAsync(_debugPopupMessage).ContinueWith<string>((value) => Debug.Log(value)).Forget();
-
-		private void OnFeedViewDayChanged(object sender, DateTime date)
-		{
-			DayChanged?.Invoke(this, date);
-		}
 
 		public async UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records)
 		{
@@ -93,13 +74,12 @@ namespace OneYearLater.UI
 				{
 					switch (record.Type)
 					{
-						case ERecord.Diary:
+						case ERecordKey.Diary:
 
 							DiaryRecordView v = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
 							DiaryRecordViewModel vm = (DiaryRecordViewModel)record;
 							v.TimeText = vm.DateTime.ToString("HH:mm");
 							v.ContentText = vm.Text;
-							//LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)v.transform);
 							recordGameObjects.Add(v.gameObject);
 							break;
 						default:
@@ -125,5 +105,47 @@ namespace OneYearLater.UI
 		{
 			_feedView.SetIsDatePickingBlocked(isBlocked);
 		}
+
+		private void SetScreenView(EScreenViewKey screenViewKey)
+		{
+			_screenViewChangeCTS?.Cancel();
+			_screenViewChangeCTS = new CancellationTokenSource();
+			var token = _screenViewChangeCTS.Token;
+
+			foreach (var entry in _screenViewDictionary)
+				if (entry.Key != screenViewKey && entry.Value.gameObject.activeSelf)
+					entry.Value.FadeAsync(token).Forget();
+
+			_screenViewDictionary[screenViewKey].UnfadeAsync(token).Forget();
+
+			_currentScreenViewKey = screenViewKey;
+		}
+
+		private void OnFeedViewDayChanged(object sender, DateTime date)
+		{
+			DayChanged?.Invoke(this, date);
+		}
+
+		private void PopulateExternalStorageSettingParameterView()
+		{
+			var settingParameterViews = new List<ExternalStorageSettingParameterView>();
+
+			_externalStorages.ToList().ForEach(es =>
+			{
+				var spView = Instantiate(_externalStorageSettingParameterViewPrefab);
+				spView.Text = es.Name;
+
+				settingParameterViews.Add(spView);
+			});
+
+			_externalStoragesScreenView.PopulateExternalStoragesList(settingParameterViews);
+		}
+
+		[SerializeField] private string _debugPopupMessage;
+		[Button] private void Debug_SetFeedScreenView() => SetScreenView(EScreenViewKey.Feed);
+		[Button] private void Debug_SetSettingsScreenView() => SetScreenView(EScreenViewKey.Settings);
+		[Button] private void Debug_SetExternalStoragesScreenView() => SetScreenView(EScreenViewKey.ExternalStorages);
+		[Button] private void Debug_ShowMessagePopup() => _popupManager.ShowMessagePopupAsync(_debugPopupMessage).Forget();
+		[Button] private void Debug_ShowPromptPopup() => _popupManager.ShowPromptPopupAsync(_debugPopupMessage).ContinueWith<string>((value) => Debug.Log(value)).Forget();
 	}
 }

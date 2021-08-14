@@ -11,24 +11,11 @@ namespace OneYearLater.Management
 		[Inject] private IViewManager _viewManager;
 		[Inject] private ILocalStorage _storage;
 
+		[Inject] private IExternalStorage[] _externalStorages;
+
 		private void Awake()
 		{
-			AddListeners();
-		}
-
-		private void Start()
-		{
-			//DisplayFeedFor(DateTime.Today);
-		}
-
-		private void AddListeners()
-		{
 			_viewManager.DayChanged += OnViewManagerDayChanged;
-		}
-
-		private void RemoveListeners()
-		{
-			_viewManager.DayChanged -= OnViewManagerDayChanged;
 		}
 
 		private void OnViewManagerDayChanged(object sender, DateTime date)

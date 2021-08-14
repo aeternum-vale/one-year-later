@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using OneYearLater.Management.ViewModels;
+﻿using Cysharp.Threading.Tasks;
 
 namespace OneYearLater.Management.Interfaces
 {
 	public interface IExternalStorage
 	{
+		EExternalStorageKey Key { get; }
+		string Name { get; }
+
 		UniTask Authenticate();
 		UniTask Sync();
 

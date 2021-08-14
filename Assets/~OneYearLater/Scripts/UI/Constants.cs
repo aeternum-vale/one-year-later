@@ -1,5 +1,6 @@
 ﻿using System;
 using OneYearLater.UI.Popups;
+using OneYearLater.UI.Views.ScreenViews;
 using Utilities;
 
 namespace OneYearLater.UI
@@ -13,7 +14,7 @@ namespace OneYearLater.UI
 
 	public enum EScreenViewKey
 	{
-		None,
+		None = 0,
 		Feed,
 		Settings,
 		ExternalStorages
@@ -21,7 +22,7 @@ namespace OneYearLater.UI
 
 	public enum EPopupKey
 	{
-		None,
+		None = 0,
 		Message,
 		Alert,
 		Confirm,
@@ -30,9 +31,8 @@ namespace OneYearLater.UI
 
 
 	[Serializable]
-	public class ViewSPair : SerializableKeyValuePair<EScreenViewKey, ScreenView> { }
+	public class ScreenViewSPair : SerializableKeyValuePair<EScreenViewKey, ScreenView> { }
 
 	[Serializable]
 	public class PopupSPair : SerializableKeyValuePair<EPopupKey, Popup> { }
-
 }
