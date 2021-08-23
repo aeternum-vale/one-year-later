@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using UnityEngine;
 
 namespace Utilities
 {
@@ -28,6 +29,16 @@ namespace Utilities
 			dictionary = new Dictionary<TKey, TValue>();
 			foreach (var item in array)
 				dictionary[item.Key] = item.Value;
+		}
+
+		public static int ActiveChildCount(this Transform t)
+		{
+			int k = 0;
+
+			foreach (Transform c in t)
+				if (c.gameObject.activeSelf) k++;
+			
+			return k;
 		}
 	}
 }

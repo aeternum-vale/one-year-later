@@ -18,6 +18,10 @@ namespace OneYearLater.Management
 			_viewManager.DayChanged += OnViewManagerDayChanged;
 		}
 
+		private void Start() {
+			DisplayFeedFor(DateTime.Now);
+		}
+
 		private void OnViewManagerDayChanged(object sender, DateTime date)
 		{
 			DisplayFeedFor(date);

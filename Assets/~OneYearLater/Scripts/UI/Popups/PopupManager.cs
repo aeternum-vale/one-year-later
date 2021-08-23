@@ -40,7 +40,8 @@ namespace OneYearLater.UI.Popups
 			await UniTask.WaitUntil(() => isOkClicked);
 			popup.OkButtonClicked -= clickHandler;
 
-			_background.FadeAsync(Constants.PopupBackgroundFadeDuration).Forget();
+			if (_container.ActiveChildCount() == 1)
+				_background.FadeAsync(Constants.PopupBackgroundFadeDuration).Forget();
 
 			await UniTask.WhenAll(
 				popup.FadeAsync(),

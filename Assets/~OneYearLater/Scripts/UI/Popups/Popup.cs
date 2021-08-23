@@ -17,9 +17,9 @@ namespace OneYearLater.UI.Popups
 
 		[SerializeField] private TMP_Text _message;
 		[SerializeField] private Button _okButton;
+		
 
 		[Header("Animation")]
-
 		[SerializeField] Ease _easeShow = Ease.InBounce;
 		[SerializeField] Ease _easeHide = Ease.OutBounce;
 		[SerializeField] float _fromScale = 0.7f;

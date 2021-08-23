@@ -14,6 +14,7 @@ using UnityEngine;
 using Zenject;
 
 using static Utilities.Extensions;
+using OneYearLater.UI.Interfaces;
 
 namespace OneYearLater.UI
 {
@@ -23,6 +24,9 @@ namespace OneYearLater.UI
 		public event EventHandler<DateTime> DayChanged;
 
 		[Inject] private IExternalStorage[] _externalStorages;
+
+		[Inject] private IMobileInputHandler _mobileInputHandler;
+
 
 		[SerializeField] private ScreenViewSPair[] _screenViewArray;
 		private Dictionary<EScreenViewKey, ScreenView> _screenViewDictionary;
@@ -35,6 +39,9 @@ namespace OneYearLater.UI
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
 		[SerializeField] private PopupManager _popupManager;
 
+		[SerializeField] private SideMenu _sideMenu;
+
+
 		private EScreenViewKey _currentScreenViewKey = EScreenViewKey.None;
 		private CancellationTokenSource _screenViewChangeCTS;
 
@@ -45,10 +52,27 @@ namespace OneYearLater.UI
 			_screenViewArray.ToDictionary(out _screenViewDictionary);
 
 			_feedView = _screenViewDictionary[EScreenViewKey.Feed].GetComponent<FeedScreenView>();
-			_externalStoragesScreenView = 
+			_externalStoragesScreenView =
 				_screenViewDictionary[EScreenViewKey.ExternalStorages].GetComponent<ExternalStoragesScreenView>();
 
 			_feedView.DayChanged += OnFeedViewDayChanged;
+
+			_mobileInputHandler.SwipeRight += OnSwipeRight;
+			_mobileInputHandler.TapOnRightBorder += OnTapOnRightBorder;
+
+			_sideMenu.FeedButtonClick += (s, a) =>
+			{
+				SetScreenView(EScreenViewKey.Feed);
+				_sideMenu.Close();
+			};
+
+			_sideMenu.ExternalStoragesButtonClick += (s, a) =>
+			{
+				SetScreenView(EScreenViewKey.ExternalStorages);
+				_sideMenu.Close();
+			};
+
+			_externalStoragesScreenView.ConnectButtonClicked += (s, a) => _popupManager.ShowMessagePopupAsync("Hello World!", "hi!");
 		}
 
 		private void Start()
@@ -57,6 +81,16 @@ namespace OneYearLater.UI
 			PopulateExternalStorageSettingParameterView();
 		}
 		#endregion
+
+		private void OnSwipeRight(object sender, bool fromBorder)
+		{
+			if (fromBorder) _sideMenu.Open();
+		}
+
+		private void OnTapOnRightBorder(object sender, EventArgs args)
+		{
+			_sideMenu.Close();
+		}
 
 		public async UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records)
 		{

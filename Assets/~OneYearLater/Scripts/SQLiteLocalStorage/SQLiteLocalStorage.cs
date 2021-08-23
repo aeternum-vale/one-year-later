@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using Cysharp.Threading.Tasks;
 using ExternalStorages;
 using NaughtyAttributes;
@@ -14,6 +12,8 @@ using OneYearLater.Management.ViewModels;
 using SQLite;
 using TMPro;
 using UnityEngine;
+
+using static Utilities.Utils;
 
 #if !UNITY_EDITOR
 using System.Collections;
@@ -47,6 +47,11 @@ namespace OneYearLater.LocalStorageSQLite
 
 		private bool _rollbackError = false;
 
+		private void Awake()
+		{
+			string originalLocalDbPath = GetDbPathOnDevice(_dbNameWithExtension);
+			_connectionToLocal = new SQLiteAsyncConnection(originalLocalDbPath);
+		}
 
 		private string GetDbPathOnDevice(string dbNameWithExtension)
 		{
@@ -124,7 +129,7 @@ namespace OneYearLater.LocalStorageSQLite
 				Type = _type,
 				RecordDateTime = DateTime.ParseExact(_date, "HH:mm dd-MM-yyyy", CultureInfo.InvariantCulture),
 				Content = _content,
-				Hash = GetHashString(
+				Hash = GetSHA256Hash(
 						_type +
 						_date.ToString(CultureInfo.InvariantCulture) +
 						_content +
@@ -140,24 +145,9 @@ namespace OneYearLater.LocalStorageSQLite
 			_connectionToLocal.CloseAsync().Forget();
 		}
 
-		public static byte[] GetHash(string inputString)
-		{
-			using (HashAlgorithm algorithm = SHA256.Create())
-				return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
-		}
-
-		public static string GetHashString(string inputString)
-		{
-			StringBuilder sb = new StringBuilder();
-			foreach (byte b in GetHash(inputString))
-				sb.Append(b.ToString("X2"));
-
-			return sb.ToString();
-		}
-
 		[SerializeField] private TMP_InputField _accessCodeTextBox;
 
-		public async void Sync()
+		public void Sync()
 		{
 			Debug.Log($"accessCode is: {_accessCodeTextBox.text}");
 			_dropBox.RequestToken(_accessCodeTextBox.text)
