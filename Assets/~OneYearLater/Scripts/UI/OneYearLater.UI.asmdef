@@ -1,0 +1,23 @@
+{
+    "name": "OneYearLater.UI",
+    "rootNamespace": "",
+    "references": [
+        "ThirdParty",
+        "UniTask",
+        "NaughtyAttributes.Core",
+        "OneYearLater.Management",
+        "OneYearLater.Global",
+        "LeanCommon",
+        "LeanTouch",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -10,7 +10,6 @@ namespace OneYearLater.Management
 
 		[Inject] private IViewManager _viewManager;
 		[Inject] private ILocalStorage _storage;
-
 		[Inject] private IExternalStorage[] _externalStorages;
 
 		private void Awake()

@@ -1,0 +1,17 @@
+{
+    "name": "OneYearLater.Global",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d3291a5bbecad8a429c65a70cac5d476",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
