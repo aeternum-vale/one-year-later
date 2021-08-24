@@ -10,5 +10,9 @@ namespace OneYearLater.Management.Interfaces
 		UniTask Authenticate();
 		UniTask Sync();
 
+		UniTask<bool> IsFileExist(string path);
+		UniTask DownloadFile(string externalStoragePath, string localStoragePath);
+		UniTask UploadFile(string localStoragePath, string externalStoragePath);
+
 	}
 }
