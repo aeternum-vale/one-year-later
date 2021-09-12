@@ -24,17 +24,17 @@ namespace ExternalStorages
 	{
 		public EExternalStorageKey Key => EExternalStorageKey.DropBox;
 		public string Name => "DropBox";
-
 		private const string AppKey = "x74srqkscwb6d3o"; // aka client_id
 
-		private string _accessCode;
+
 		private string _token;
+		private string _refreshToken;
 
 		private string _codeVerifier;
 		private string _codeChallenge;
 
 
-		public static string GeneratePKCECodeVerifier()
+		private string GeneratePKCECodeVerifier()
 		{
 			var bytes = new byte[128];
 			RandomNumberGenerator.Create().GetBytes(bytes);
@@ -45,7 +45,7 @@ namespace ExternalStorages
 				.Substring(0, 128);
 		}
 
-		public static string GeneratePKCECodeChallenge(string codeVerifier)
+		private string GeneratePKCECodeChallenge(string codeVerifier)
 		{
 			using (var sha256 = SHA256.Create())
 			{
@@ -55,6 +55,25 @@ namespace ExternalStorages
 					.Replace('+', '-')
 					.Replace('/', '_');
 			}
+		}
+
+		public async UniTask<bool> IsTokenValid()
+		{
+			Dictionary<string, object> dropboxArgs = new Dictionary<string, object>()
+			{
+				["jack"] = "black",
+			};
+
+			string dropboxArgsJson = JsonConvert.SerializeObject(dropboxArgs);
+			UnityWebRequest uwr = UnityWebRequest.Post("https://api.dropboxapi.com/2/check/user", "");
+			uwr.SetRequestHeader("Authorization", $"Bearer {_token}");
+			uwr.SetRequestHeader("Content-Type", "application/json");
+
+			uwr.uploadHandler = new UploadHandlerRaw(Encoding.ASCII.GetBytes(dropboxArgsJson));
+
+			await uwr.SendWebRequest().ToUniTask();
+
+			return uwr.result == UnityWebRequest.Result.Success;
 		}
 
 		public void RequestAccessCode()
@@ -70,7 +89,7 @@ namespace ExternalStorages
 				+ "code_challenge_method=S256");
 		}
 
-		public async UniTask RequestToken(string accessCode)
+		public async UniTask<bool> RequestToken(string accessCode)
 		{
 			Dictionary<string, string> formFields = new Dictionary<string, string>();
 
@@ -79,23 +98,53 @@ namespace ExternalStorages
 			formFields.Add("code_verifier", _codeVerifier);
 			formFields.Add("client_id", AppKey);
 
-			var response = await PostForm("https://api.dropboxapi.com/oauth2/token", formFields);
+			(string, Exception) response = await PostForm("https://api.dropboxapi.com/oauth2/token", formFields);
 
-			string rawResult = response.Item1;
-			bool isError = response.Item2;
+			if (response.Item2 != null)
+			{
+				Debug.LogError(response.Item2);
+				return false;
+			}
 
-			Debug.Log("rawResult=" + rawResult);
-
-			var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(rawResult);
+			Debug.Log("rawResult=" + response.Item1);
+			var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Item1);
 
 			Debug.Log("dictionary=");
 			foreach (var kvp in result)
 				Debug.Log($"{kvp.Key}:{kvp.Value}");
 
-			if (isError)
-				Debug.LogError(result);
-			else
-				_token = result["access_token"];
+			_refreshToken = result["refresh_token"];
+			_token = result["access_token"];
+
+			return true;
+		}
+
+		public async UniTask<bool> RequestRefreshToken()
+		{
+			Dictionary<string, string> formFields = new Dictionary<string, string>();
+
+			formFields.Add("grant_type", "refresh_token");
+			formFields.Add("refresh_token", _refreshToken);
+			formFields.Add("client_id", AppKey);
+
+			(string, Exception) response = await PostForm("https://api.dropboxapi.com/oauth2/token", formFields);
+			if (response.Item2 != null)
+			{
+				Debug.LogError(response.Item2);
+				return false;
+			}
+
+			Debug.Log("rawResult=" + response.Item1);
+
+			var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(response.Item1);
+
+			Debug.Log("dictionary=");
+			foreach (var kvp in result)
+				Debug.Log($"{kvp.Key}:{kvp.Value}");
+
+			_token = result["access_token"];
+
+			return true;
 		}
 
 		public async UniTask DownloadFile(string externalStoragePath, string localStoragePath)
@@ -178,26 +227,31 @@ namespace ExternalStorages
 			return uwr.result == UnityWebRequest.Result.Success;
 		}
 
-		private async UniTask<(string, bool)> PostForm(string url, Dictionary<string, string> formFields)
+		private async UniTask<(string, Exception)> PostForm(string url, Dictionary<string, string> formFields)
 		{
 			UnityWebRequest uwr = UnityWebRequest.Post(url, formFields);
 
-			await uwr.SendWebRequest().ToUniTask();
+			try
+			{
+				await uwr.SendWebRequest().ToUniTask();
+			}
+			catch (Exception e)
+			{
+				return (null, e);
+			}
 
 			if (uwr.result == UnityWebRequest.Result.ConnectionError)
-				return (uwr.error, true);
+				return (null, new Exception(uwr.error));
 			else
-				return (uwr.downloadHandler.text, false);
+				return (uwr.downloadHandler.text, null);
 		}
 
-		public UniTask Authenticate()
+
+		public UniTask Synchronize()
 		{
 			throw new System.NotImplementedException();
 		}
 
-		public UniTask Sync()
-		{
-			throw new System.NotImplementedException();
-		}
+		public UniTask<bool> Connect(string code) => RequestToken(code);
 	}
 }

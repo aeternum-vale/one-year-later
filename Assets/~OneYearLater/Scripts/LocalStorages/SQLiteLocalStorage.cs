@@ -149,7 +149,7 @@ namespace OneYearLater.LocalStorages
 		}
 
 		[Button]
-		private async UniTask<bool> SynchronizeLocalAndExternal(IExternalStorage externalStorage)
+		public async UniTask<bool> SynchronizeLocalAndExternal(IExternalStorage externalStorage)
 		{
 			string originalLocalDbPath = GetDbPathOnDevice(_dbNameWithExtension);
 

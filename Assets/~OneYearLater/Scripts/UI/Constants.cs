@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using OneYearLater.Management;
+using OneYearLater.Management.Interfaces;
+using OneYearLater.Management.ViewModels;
 using OneYearLater.UI.Popups;
+using OneYearLater.UI.Views;
 using OneYearLater.UI.Views.ScreenViews;
 using Utilities;
 
@@ -12,14 +17,6 @@ namespace OneYearLater.UI
 		public const float PopupBackgroundFadeDuration = 0.2f;
 	}
 
-	public enum EScreenViewKey
-	{
-		None = 0,
-		Feed,
-		Settings,
-		ExternalStorages
-	}
-
 	public enum EPopupKey
 	{
 		None = 0,
@@ -29,10 +26,17 @@ namespace OneYearLater.UI
 		Promt
 	}
 
-
 	[Serializable]
 	public class ScreenViewSPair : SerializableKeyValuePair<EScreenViewKey, ScreenView> { }
 
 	[Serializable]
 	public class PopupSPair : SerializableKeyValuePair<EPopupKey, Popup> { }
+
+	public struct ExternalStorageViewData
+	{
+		public ExternalStorageView view;
+		public ExternalStorageViewModel viewModel;
+	}
+
+	public class ExternalStorageViewDataDict : Dictionary<EExternalStorageKey, ExternalStorageViewData> { };
 }

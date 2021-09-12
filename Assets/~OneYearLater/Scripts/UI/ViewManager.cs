@@ -22,16 +22,19 @@ namespace OneYearLater.UI
 	public class ViewManager : MonoBehaviour, IViewManager
 	{
 		public event EventHandler<DateTime> DayChanged;
-
-		[Inject] private IExternalStorage[] _externalStorages;
+		public event EventHandler<EScreenViewKey> ScreenViewChanged;
+		public event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
+		public event EventHandler<EExternalStorageKey> SynchronizeWithExternalStorageButtonClicked;
 
 		[Inject] private IMobileInputHandler _mobileInputHandler;
-
 
 		[SerializeField] private ScreenViewSPair[] _screenViewArray;
 		private Dictionary<EScreenViewKey, ScreenView> _screenViewDictionary;
 
-		[SerializeField] private ExternalStorageSettingParameterView _externalStorageSettingParameterViewPrefab;
+
+		[SerializeField] private ExternalStorageView _externalStorageViewPrefab;
+		private ExternalStorageViewDataDict _externalStoragesViewData
+			= new ExternalStorageViewDataDict();
 
 		private FeedScreenView _feedView;
 		private ExternalStoragesScreenView _externalStoragesScreenView;
@@ -78,9 +81,37 @@ namespace OneYearLater.UI
 		private void Start()
 		{
 			SetScreenView(EScreenViewKey.Feed);
-			PopulateExternalStorageSettingParameterView();
 		}
 		#endregion
+
+		public void ProvideExternalStorageViewModels(ExternalStorageViewModel[] vmArray, EExternalStorageViewAppearanceState defaultState, string defaultStatus)
+		{
+			vmArray.ToList().ForEach(vm =>
+			{
+				ExternalStorageView view = Instantiate(_externalStorageViewPrefab);
+				view.Text = vm.name;
+				_externalStoragesViewData.Add(
+					vm.key,
+					new ExternalStorageViewData()
+					{
+						view = view,
+						viewModel = vm
+					});
+
+				view.ConnectButtonClicked += (s, a) => ConnectToExternalStorageButtonClicked?.Invoke(this, vm.key);
+				view.SyncButtonClicked += (s, a) => SynchronizeWithExternalStorageButtonClicked?.Invoke(this, vm.key);
+
+				view.ChangeAppearance(defaultState, defaultStatus);
+			});
+
+			_externalStoragesScreenView.PopulateExternalStoragesList(_externalStoragesViewData);
+		}
+
+		public void ChangeExternalStorageViewAppearance(EExternalStorageKey key, EExternalStorageViewAppearanceState state, string status)
+		{
+			ExternalStorageView view = _externalStoragesViewData[key].view;
+			view.ChangeAppearance(state, status);
+		}
 
 		private void OnSwipeRight(object sender, bool fromBorder)
 		{
@@ -160,19 +191,9 @@ namespace OneYearLater.UI
 			DayChanged?.Invoke(this, date);
 		}
 
-		private void PopulateExternalStorageSettingParameterView()
+		public UniTask<string> ShowPromptPopupAsync(string messageText, string okButtonText, string placeholderText)
 		{
-			var settingParameterViews = new List<ExternalStorageSettingParameterView>();
-
-			_externalStorages.ToList().ForEach(es =>
-			{
-				var spView = Instantiate(_externalStorageSettingParameterViewPrefab);
-				spView.Text = es.Name;
-
-				settingParameterViews.Add(spView);
-			});
-
-			_externalStoragesScreenView.PopulateExternalStoragesList(settingParameterViews);
+			return _popupManager.ShowPromptPopupAsync(messageText, okButtonText, placeholderText);
 		}
 
 		[SerializeField] private string _debugPopupMessage;
@@ -181,5 +202,6 @@ namespace OneYearLater.UI
 		[Button] private void Debug_SetExternalStoragesScreenView() => SetScreenView(EScreenViewKey.ExternalStorages);
 		[Button] private void Debug_ShowMessagePopup() => _popupManager.ShowMessagePopupAsync(_debugPopupMessage).Forget();
 		[Button] private void Debug_ShowPromptPopup() => _popupManager.ShowPromptPopupAsync(_debugPopupMessage).ContinueWith<string>((value) => Debug.Log(value)).Forget();
+
 	}
 }

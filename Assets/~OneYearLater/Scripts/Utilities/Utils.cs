@@ -1,6 +1,8 @@
+using System.Threading;
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using Cysharp.Threading.Tasks;
 
 namespace Utilities
 {
@@ -20,6 +22,14 @@ namespace Utilities
 
 			return sb.ToString().ToLower();
 		}
+
+		public static UniTask Delay(float duration) {
+			return UniTask.Delay(TimeSpan.FromSeconds(duration), DelayType.Realtime);
+		} 
+		
+		public static UniTask Delay(float duration, CancellationToken token) {
+			return UniTask.Delay(TimeSpan.FromSeconds(duration), DelayType.Realtime, cancellationToken: token);
+		} 
 	}
 
 	[Serializable]

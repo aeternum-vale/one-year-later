@@ -9,5 +9,6 @@ namespace OneYearLater.Management.Interfaces
 	{
 		UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records);
 		UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date);
+		UniTask<bool> SynchronizeLocalAndExternal(IExternalStorage externalStorage);
 	}
 }

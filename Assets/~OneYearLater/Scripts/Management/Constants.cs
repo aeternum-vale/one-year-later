@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using OneYearLater.Management.Interfaces;
 
 namespace OneYearLater.Management
 {
@@ -14,6 +13,23 @@ namespace OneYearLater.Management
         None = 0,
         DropBox,
         PCloud
+	}
+
+	public enum EScreenViewKey
+	{
+		None = 0,
+		Feed,
+		Settings,
+		ExternalStorages
+	}
+
+	public enum EExternalStorageViewAppearanceState 
+	{
+		None = 0,
+		NotConnected = 1,
+		Connecting = 2,
+		Connected = 3,
+		Synchronizing = 4
 	}
 
 	public static class Constants

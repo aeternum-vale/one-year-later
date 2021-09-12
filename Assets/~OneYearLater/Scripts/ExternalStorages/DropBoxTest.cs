@@ -26,5 +26,19 @@ public class DropBoxTest : MonoBehaviour
 		_dropBoxExternalStorage.RequestToken(_accessCode).Forget();
 	}
 
+	[Button]
+	public void RequestRefreshToken()
+	{
+		_dropBoxExternalStorage.RequestRefreshToken().Forget();
+	}
+
+	[Button]
+	public void IsTokenValid()
+	{
+		_dropBoxExternalStorage.IsTokenValid()
+			.ContinueWith(IsTokenValid => Debug.Log($"IsTokenValid={IsTokenValid}"))
+			.Forget();
+
+	}
 
 }

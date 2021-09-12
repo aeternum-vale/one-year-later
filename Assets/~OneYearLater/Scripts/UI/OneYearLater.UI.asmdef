@@ -4,19 +4,25 @@
     "references": [
         "ThirdParty",
         "UniTask",
+        "UniTask.DOTween",
+        "DOTween.Modules",
         "NaughtyAttributes.Core",
-        "OneYearLater.Management",
-        "OneYearLater.Global",
         "LeanCommon",
         "LeanTouch",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "OneYearLater.Management",
+        "OneYearLater.Global",
+        "OneYearLater.Utilities"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Android",
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

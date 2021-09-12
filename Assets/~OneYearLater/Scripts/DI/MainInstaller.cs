@@ -16,19 +16,36 @@ namespace OneYearLater.DI
 
 		public override void InstallBindings()
 		{
-			Container.Bind<IViewManager>().FromInstance(_viewManager);
-			Container.Bind<ILocalStorage>().FromInstance(_SQLiteStorage);
-			Container.Bind<IMobileInputHandler>().FromInstance(_leanTouchFacade);
+			Container
+				.Bind<IViewManager>()
+				.To<ViewManager>()
+				.FromInstance(_viewManager)
+				.AsSingle();
 
-			Container.Bind<IExternalStorage>().FromMethodMultiple(GetExternalStorages);
+			Container
+				.Bind<ILocalStorage>()
+				.To<SQLiteLocalStorage>()
+				.FromInstance(_SQLiteStorage)
+				.AsSingle();
+
+			Container
+				.Bind<IMobileInputHandler>()
+				.To<LeanTouchFacade>()
+				.FromInstance(_leanTouchFacade)
+				.AsSingle();
+
+			Container
+				.Bind<IExternalStorage>()
+				.FromMethodMultiple(GetExternalStorages)
+				.AsSingle();
 		}
 
 		IExternalStorage[] GetExternalStorages(InjectContext context)
 		{
 			return new IExternalStorage[]
 			{
-			new DropBoxExternalStorage(),
-			new PCloudExternalStorage()
+				new DropBoxExternalStorage(),
+				new PCloudExternalStorage()
 			};
 		}
 	}

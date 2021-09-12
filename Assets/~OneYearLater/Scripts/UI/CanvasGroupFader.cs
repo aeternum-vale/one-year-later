@@ -12,14 +12,36 @@ namespace OneYearLater.UI
 	public class CanvasGroupFader : MonoBehaviour
 	{
 		public float OwnFadeDuration { get => _ownFadeDuration; set => _ownFadeDuration = value; }
+		private float _ownFadeDuration = 1f;
+		private CanvasGroup _canvasGroup;
 
-		[SerializeField] private float _ownFadeDuration = 1f;
-		[SerializeField] [ReadOnly] private CanvasGroup _canvasGroup;
+		private void Awake() {
+			_canvasGroup = GetComponent<CanvasGroup>();
+		}
 
-
-		public void SetAlpha(float alpha)
+		public void SetAlphaImmediately(float alpha)
 		{
 			_canvasGroup.alpha = alpha;
+		}
+
+		public UniTask SetAlphaAsync(float alpha, float duration)
+		{
+			return _canvasGroup.DOFade(alpha, duration).ToUniTask();
+		}
+
+		public UniTask SetAlphaAsync(float alpha, float duration, CancellationToken token)
+		{
+			return _canvasGroup.DOFade(alpha, duration).ToUniTask(token);
+		}
+
+		public UniTask SetAlphaAsync(float alpha, CancellationToken token)
+		{
+			return _canvasGroup.DOFade(alpha, OwnFadeDuration).ToUniTask(token);
+		}
+
+		public UniTask SetAlphaAsync(float alpha)
+		{
+			return _canvasGroup.DOFade(alpha, OwnFadeDuration).ToUniTask();
 		}
 
 		public async UniTask FadeAsync(float duration)
@@ -46,7 +68,7 @@ namespace OneYearLater.UI
 			return _canvasGroup.DOFade(1f, duration).ToUniTask(token);
 		}
 
-		public  UniTask FadeAsync() => FadeAsync(_ownFadeDuration);
+		public UniTask FadeAsync() => FadeAsync(_ownFadeDuration);
 		public UniTask UnfadeAsync() => UnfadeAsync(_ownFadeDuration);
 		public UniTask FadeAsync(CancellationToken token) => FadeAsync(_ownFadeDuration, token);
 		public UniTask UnfadeAsync(CancellationToken token) => UnfadeAsync(_ownFadeDuration, token);

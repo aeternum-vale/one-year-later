@@ -11,12 +11,13 @@ namespace OneYearLater.UI.Views.ScreenViews
 		public event EventHandler ConnectButtonClicked;
 
 		[SerializeField] private Transform _settingParametersContainer;
-		public void PopulateExternalStoragesList(IEnumerable<ExternalStorageSettingParameterView> settingParameterViews)
+		public void PopulateExternalStoragesList(ExternalStorageViewDataDict dict)
 		{
-			foreach (var item in settingParameterViews)
+			foreach (var kvp in dict)
 			{
-				item.ConnectButtonClicked += (s, a) => ConnectButtonClicked?.Invoke(this, EventArgs.Empty);
-				item.transform.SetParent(_settingParametersContainer);
+				//kvp.ConnectButtonClicked += (s, a) => ConnectButtonClicked?.Invoke(this, EventArgs.Empty);
+
+				kvp.Value.view.transform.SetParent(_settingParametersContainer);
 			}
 		}
 	}

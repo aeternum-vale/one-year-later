@@ -11,6 +11,15 @@ namespace OneYearLater.Management.Interfaces
 		void SetIsDatePickingBlocked(bool isBlocked);
 		void DisplayFeedLoading();
 
+		void ProvideExternalStorageViewModels(ExternalStorageViewModel[] array, EExternalStorageViewAppearanceState defaultState, string defaultStatus);
+		void ChangeExternalStorageViewAppearance(EExternalStorageKey key, EExternalStorageViewAppearanceState state, string status);
+
+		UniTask<string> ShowPromptPopupAsync(string messageText, string okButtonText, string placeholderText);
+
 		event EventHandler<DateTime> DayChanged;
+		event EventHandler<EScreenViewKey> ScreenViewChanged;
+
+		event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
+		event EventHandler<EExternalStorageKey> SynchronizeWithExternalStorageButtonClicked;
 	}
 }

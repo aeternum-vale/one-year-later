@@ -7,14 +7,18 @@
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
         "GUID:4d5d9bee72030a0469ffcc231fcb86fa",
         "GUID:33a987035f3377f4a97dd44c35525d18",
-        "GUID:22050d905e45c2446924aeebccbfaeb7"
+        "GUID:22050d905e45c2446924aeebccbfaeb7",
+        "GUID:3493e9cea28e0f440bb51af08f2a35e3"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Android",
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

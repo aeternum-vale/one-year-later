@@ -1,19 +1,16 @@
 {
-    "name": "ThirdParty",
+    "name": "DOTween.Modules",
     "rootNamespace": "",
-    "references": [
-        "GUID:6055be8ebefd69e48b49212b09b47b2f"
-    ],
-    "includePlatforms": [
-        "Android",
-        "Editor"
-    ],
+    "references": [],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
+    "defineConstraints": [
+        "UNITASK_DOTWEEN_SUPPORT"
+    ],
     "versionDefines": [],
     "noEngineReferences": false
 }
