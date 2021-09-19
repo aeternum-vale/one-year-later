@@ -23,7 +23,7 @@ namespace OneYearLater.Management
 		ExternalStorages
 	}
 
-	public enum EExternalStorageViewAppearanceState 
+	public enum EExternalStorageAppearance 
 	{
 		None = 0,
 		NotConnected = 1,

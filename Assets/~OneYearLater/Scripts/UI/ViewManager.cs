@@ -24,7 +24,7 @@ namespace OneYearLater.UI
 		public event EventHandler<DateTime> DayChanged;
 		public event EventHandler<EScreenViewKey> ScreenViewChanged;
 		public event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
-		public event EventHandler<EExternalStorageKey> SynchronizeWithExternalStorageButtonClicked;
+		public event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
 
 		[Inject] private IMobileInputHandler _mobileInputHandler;
 
@@ -84,7 +84,7 @@ namespace OneYearLater.UI
 		}
 		#endregion
 
-		public void ProvideExternalStorageViewModels(ExternalStorageViewModel[] vmArray, EExternalStorageViewAppearanceState defaultState, string defaultStatus)
+		public void ProvideExternalStorageViewModels(ExternalStorageViewModel[] vmArray, EExternalStorageAppearance defaultState, string defaultStatus)
 		{
 			vmArray.ToList().ForEach(vm =>
 			{
@@ -99,7 +99,7 @@ namespace OneYearLater.UI
 					});
 
 				view.ConnectButtonClicked += (s, a) => ConnectToExternalStorageButtonClicked?.Invoke(this, vm.key);
-				view.SyncButtonClicked += (s, a) => SynchronizeWithExternalStorageButtonClicked?.Invoke(this, vm.key);
+				view.SyncButtonClicked += (s, a) => SyncWithExternalStorageButtonClicked?.Invoke(this, vm.key);
 
 				view.ChangeAppearance(defaultState, defaultStatus);
 			});
@@ -107,7 +107,7 @@ namespace OneYearLater.UI
 			_externalStoragesScreenView.PopulateExternalStoragesList(_externalStoragesViewData);
 		}
 
-		public void ChangeExternalStorageViewAppearance(EExternalStorageKey key, EExternalStorageViewAppearanceState state, string status)
+		public void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance state, string status)
 		{
 			ExternalStorageView view = _externalStoragesViewData[key].view;
 			view.ChangeAppearance(state, status);

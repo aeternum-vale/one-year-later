@@ -4,7 +4,7 @@ using System;
 namespace OneYearLater.LocalStorages.Models
 {
 	[Table("records")]
-	class RecordModel
+	class SQLiteRecordModel
 	{
 		[PrimaryKey, AutoIncrement]
 		[Column("id")]

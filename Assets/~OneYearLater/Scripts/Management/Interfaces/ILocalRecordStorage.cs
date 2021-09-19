@@ -5,10 +5,10 @@ using Cysharp.Threading.Tasks;
 
 namespace OneYearLater.Management.Interfaces
 {
-	public interface ILocalStorage
+	public interface ILocalRecordStorage
 	{
-		UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records);
+		UniTask SaveRecordsAsync(IEnumerable<BaseRecordViewModel> records);
 		UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date);
-		UniTask<bool> SynchronizeLocalAndExternal(IExternalStorage externalStorage);
+		UniTask<bool> SyncLocalAndExternalRecordStorages(IExternalRecordStorage externalStorage);
 	}
 }

@@ -22,7 +22,7 @@ namespace OneYearLater.UI.Views
 		[SerializeField] private Button _syncButton;
 		[SerializeField] private TMP_Text _statusText;
 
-		private EExternalStorageViewAppearanceState _currentViewState;
+		private EExternalStorageAppearance _currentViewState;
 		private CanvasGroupFader _fader;
 		private SettingParameterView _settingParameterView;
 		private CancellationTokenSource _changeStateAnimationCTS;
@@ -45,17 +45,17 @@ namespace OneYearLater.UI.Views
 
 		private void OnConnectButtonClick()
 		{
-			if (_currentViewState == EExternalStorageViewAppearanceState.NotConnected)
+			if (_currentViewState == EExternalStorageAppearance.NotConnected)
 				ConnectButtonClicked?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void OnSyncButtonClick()
 		{
-			if (_currentViewState == EExternalStorageViewAppearanceState.Connected)
+			if (_currentViewState == EExternalStorageAppearance.Connected)
 				SyncButtonClicked?.Invoke(this, EventArgs.Empty);
 		}
 
-		public void ChangeAppearance(EExternalStorageViewAppearanceState state, string status)
+		public void ChangeAppearance(EExternalStorageAppearance state, string status)
 		{
 			_currentViewState = state;
 
@@ -65,28 +65,28 @@ namespace OneYearLater.UI.Views
 
 			switch (state)
 			{
-				case EExternalStorageViewAppearanceState.NotConnected:
+				case EExternalStorageAppearance.NotConnected:
 					_fader.SetAlphaAsync(0.5f, token).Forget();
 					_connectButton.gameObject.SetActive(true);
 					_syncButton.gameObject.SetActive(false);
 
 					break;
-				case EExternalStorageViewAppearanceState.Connecting:
+				case EExternalStorageAppearance.Connecting:
 					_fader.SetAlphaAsync(0.7f, token).Forget();
 					_connectButton.gameObject.SetActive(false);
 					_syncButton.gameObject.SetActive(false);
 					break;
-				case EExternalStorageViewAppearanceState.Connected:
+				case EExternalStorageAppearance.Connected:
 					_fader.SetAlphaAsync(1f, token).Forget();
 					_connectButton.gameObject.SetActive(false);
 					_syncButton.gameObject.SetActive(true);
 					break;
-				case EExternalStorageViewAppearanceState.Synchronizing:
+				case EExternalStorageAppearance.Synchronizing:
 					_fader.SetAlphaAsync(1f, token).Forget();
 					_connectButton.gameObject.SetActive(false);
 					_syncButton.gameObject.SetActive(true);
 
-					_syncButton.transform.DORotate(new Vector3(0, 0, -360f), 1f, RotateMode.FastBeyond360)
+					_syncButton.transform.DORotate(new Vector3(0, 0, -360f), 0.6f, RotateMode.FastBeyond360)
 						.SetEase(Ease.InOutSine);
 						//.SetRelative();
 

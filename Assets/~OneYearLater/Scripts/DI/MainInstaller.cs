@@ -11,7 +11,6 @@ namespace OneYearLater.DI
 	public class MainInstaller : MonoInstaller
 	{
 		[SerializeField] ViewManager _viewManager;
-		[SerializeField] SQLiteLocalStorage _SQLiteStorage;
 		[SerializeField] LeanTouchFacade _leanTouchFacade;
 
 		public override void InstallBindings()
@@ -23,9 +22,15 @@ namespace OneYearLater.DI
 				.AsSingle();
 
 			Container
-				.Bind<ILocalStorage>()
-				.To<SQLiteLocalStorage>()
-				.FromInstance(_SQLiteStorage)
+				.Bind<ILocalRecordStorage>()
+				.To<SQLiteLocalRecordStorage>()
+				.FromNew()
+				.AsSingle();
+
+			Container
+				.Bind<IAppLocalStorage>()
+				.To<SQLiteAppLocalStorage>()
+				.FromNew()
 				.AsSingle();
 
 			Container
@@ -35,14 +40,14 @@ namespace OneYearLater.DI
 				.AsSingle();
 
 			Container
-				.Bind<IExternalStorage>()
+				.Bind<IExternalRecordStorage>()
 				.FromMethodMultiple(GetExternalStorages)
 				.AsSingle();
 		}
 
-		IExternalStorage[] GetExternalStorages(InjectContext context)
+		IExternalRecordStorage[] GetExternalStorages(InjectContext context)
 		{
-			return new IExternalStorage[]
+			return new IExternalRecordStorage[]
 			{
 				new DropBoxExternalStorage(),
 				new PCloudExternalStorage()
