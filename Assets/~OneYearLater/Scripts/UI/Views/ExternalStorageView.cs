@@ -2,13 +2,12 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using NaughtyAttributes;
 using OneYearLater.Management;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-//using static Utilities.Extensions;
+using static OneYearLater.Management.Constants;
 
 namespace OneYearLater.UI.Views
 {
@@ -22,7 +21,7 @@ namespace OneYearLater.UI.Views
 		[SerializeField] private Button _syncButton;
 		[SerializeField] private TMP_Text _statusText;
 
-		private EExternalStorageAppearance _currentViewState;
+		private EExternalStorageAppearance _currentViewAppearance;
 		private CanvasGroupFader _fader;
 		private SettingParameterView _settingParameterView;
 		private CancellationTokenSource _changeStateAnimationCTS;
@@ -45,25 +44,26 @@ namespace OneYearLater.UI.Views
 
 		private void OnConnectButtonClick()
 		{
-			if (_currentViewState == EExternalStorageAppearance.NotConnected)
+			if (_currentViewAppearance == EExternalStorageAppearance.NotConnected)
 				ConnectButtonClicked?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void OnSyncButtonClick()
 		{
-			if (_currentViewState == EExternalStorageAppearance.Connected)
+			if (_currentViewAppearance == EExternalStorageAppearance.Connected)
 				SyncButtonClicked?.Invoke(this, EventArgs.Empty);
 		}
 
-		public void ChangeAppearance(EExternalStorageAppearance state, string status)
+		public void ChangeAppearance(EExternalStorageAppearance appearance, string status = null)
 		{
-			_currentViewState = state;
+			_currentViewAppearance = appearance;
+			status ??= ExternalStorageAppearanceStatuses[appearance];
 
 			_changeStateAnimationCTS?.Cancel();
 			_changeStateAnimationCTS = new CancellationTokenSource();
 			var token = _changeStateAnimationCTS.Token;
 
-			switch (state)
+			switch (appearance)
 			{
 				case EExternalStorageAppearance.NotConnected:
 					_fader.SetAlphaAsync(0.5f, token).Forget();
@@ -88,7 +88,7 @@ namespace OneYearLater.UI.Views
 
 					_syncButton.transform.DORotate(new Vector3(0, 0, -360f), 0.6f, RotateMode.FastBeyond360)
 						.SetEase(Ease.InOutSine);
-						//.SetRelative();
+					//.SetRelative();
 
 					break;
 				default:

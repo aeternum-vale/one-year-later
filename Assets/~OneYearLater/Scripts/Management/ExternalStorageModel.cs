@@ -5,7 +5,7 @@ namespace OneYearLater.Management
 	public struct ExternalStorageModel
 	{
 		public EExternalStorageKey key;
-		public string serializedData;
-		public DateTime lastSync;
+		public string state;
+		public DateTime? lastSync;
 	}
 }

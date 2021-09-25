@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using OneYearLater.LocalStorages.Models;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
@@ -19,25 +20,62 @@ namespace OneYearLater.LocalStorages
 			string dbPath = LocalStorageUtils.GetDbPathOnDevice(_dbNameWithExtension);
 			_connection = new SQLiteAsyncConnection(dbPath);
 
-			_connection.CreateTableAsync<SQLiteExternalStorageStateModel>().Forget();
+			_connection.CreateTableAsync<SQLiteExternalStorageModel>().Forget();
 		}
 
 		public async UniTask<string> GetExternalStorageStateAsync(EExternalStorageKey key)
 		{
-			SQLiteExternalStorageStateModel stateModel = await _connection
-				.Table<SQLiteExternalStorageStateModel>()
+			SQLiteExternalStorageModel sqliteModel = await _connection
+				.Table<SQLiteExternalStorageModel>()
 				.Where(s => s.Id == (int)key)
 				.FirstOrDefaultAsync();
-				
-			return stateModel?.State ?? string.Empty;
+
+			return sqliteModel?.State ?? string.Empty;
 		}
 
-		public UniTask SaveExternalStorageStateAsync(ExternalStorageModel state)
+		public async UniTask<ExternalStorageModel?> GetExternalStorageAsync(EExternalStorageKey key)
 		{
-			
-			SQLiteExternalStorageStateModel stateModel =
-				new SQLiteExternalStorageStateModel() { Id = (int)state.key, State = state.serializedData };
-			return _connection.InsertOrReplaceAsync(stateModel);
+			SQLiteExternalStorageModel sqliteModel = await _connection
+				.Table<SQLiteExternalStorageModel>()
+				.Where(s => s.Id == (int)key)
+				.FirstOrDefaultAsync();
+
+			return sqliteModel != null ?
+				new ExternalStorageModel()
+				{
+					key = key,
+					state = sqliteModel.State,
+					lastSync = sqliteModel.LastSync
+				} :
+				(ExternalStorageModel?)null;
 		}
+
+		public async UniTask UpdateExternalStorageStateAsync(EExternalStorageKey key, string state)
+		{
+			var dbModel = await _connection
+				.Table<SQLiteExternalStorageModel>()
+				.Where(s => s.Id == (int)key)
+				.FirstOrDefaultAsync();
+
+			var modelToInsert = dbModel ?? new SQLiteExternalStorageModel() { Id = (int)key };
+
+			modelToInsert.State = state;
+
+			await _connection.InsertOrReplaceAsync(modelToInsert);
+		}
+
+		public async UniTask UpdateExternalStorageSyncDateAsync(EExternalStorageKey key, DateTime syncDate)
+		{
+			var dbModel = await _connection
+				.Table<SQLiteExternalStorageModel>()
+				.Where(s => s.Id == (int)key)
+				.FirstOrDefaultAsync();
+
+			var modelToInsert = dbModel ?? new SQLiteExternalStorageModel() { Id = (int)key };
+			modelToInsert.LastSync = syncDate;
+
+			await _connection.InsertOrReplaceAsync(modelToInsert);
+		}
+
 	}
 }

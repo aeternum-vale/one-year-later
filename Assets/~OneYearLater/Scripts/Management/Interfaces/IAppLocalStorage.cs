@@ -1,10 +1,12 @@
+using System;
 using Cysharp.Threading.Tasks;
 
 namespace OneYearLater.Management.Interfaces
 {
 	public interface IAppLocalStorage
 	{
-		UniTask SaveExternalStorageStateAsync(ExternalStorageModel state);
-		UniTask<string> GetExternalStorageStateAsync(EExternalStorageKey key);
+		UniTask UpdateExternalStorageStateAsync(EExternalStorageKey key, string state);
+		UniTask UpdateExternalStorageSyncDateAsync(EExternalStorageKey key, DateTime syncDate);
+		UniTask<ExternalStorageModel?> GetExternalStorageAsync(EExternalStorageKey key);
 	}
 }

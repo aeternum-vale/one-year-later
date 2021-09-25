@@ -11,9 +11,6 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.Networking;
 using Utilities;
-using static Utilities.Utils;
-
-
 
 using Debug = UnityEngine.Debug;
 
@@ -31,16 +28,10 @@ namespace ExternalStorages
 
 		public EExternalStorageKey Key => EExternalStorageKey.DropBox;
 		public string Name => "DropBox";
-		public ReactiveProperty<string> PersistentState { get; private set; } = new ReactiveProperty<string>();
+		public ReactiveProperty<string> PersistentState { get; private set; }
+
 		private DropBoxState _state;
-		
-
 		private string _appKey = "x74srqkscwb6d3o"; // aka client_id
-
-		// private string _token;
-		// private string _refreshToken;
-		// private string _codeVerifier;
-		// private string _codeChallenge;
 
 		public void Init(string state)
 		{
@@ -52,6 +43,9 @@ namespace ExternalStorages
 			{
 				_state = new DropBoxState();
 			}
+
+			PersistentState = new ReactiveProperty<string>();
+			UpdatePersistentState();
 		}
 
 		private void UpdatePersistentState()

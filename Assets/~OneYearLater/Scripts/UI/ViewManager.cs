@@ -84,9 +84,9 @@ namespace OneYearLater.UI
 		}
 		#endregion
 
-		public void ProvideExternalStorageViewModels(ExternalStorageViewModel[] vmArray, EExternalStorageAppearance defaultState, string defaultStatus)
+		public void ProvideExternalStorageViewModels(IEnumerable<ExternalStorageViewModel> viewModels)
 		{
-			vmArray.ToList().ForEach(vm =>
+			viewModels.ToList().ForEach(vm =>
 			{
 				ExternalStorageView view = Instantiate(_externalStorageViewPrefab);
 				view.Text = vm.name;
@@ -101,16 +101,16 @@ namespace OneYearLater.UI
 				view.ConnectButtonClicked += (s, a) => ConnectToExternalStorageButtonClicked?.Invoke(this, vm.key);
 				view.SyncButtonClicked += (s, a) => SyncWithExternalStorageButtonClicked?.Invoke(this, vm.key);
 
-				view.ChangeAppearance(defaultState, defaultStatus);
+				view.ChangeAppearance(EExternalStorageAppearance.NotConnected);
 			});
 
 			_externalStoragesScreenView.PopulateExternalStoragesList(_externalStoragesViewData);
 		}
 
-		public void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance state, string status)
+		public void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance appearance, string status = null)
 		{
 			ExternalStorageView view = _externalStoragesViewData[key].view;
-			view.ChangeAppearance(state, status);
+			view.ChangeAppearance(appearance, status);
 		}
 
 		private void OnSwipeRight(object sender, bool fromBorder)

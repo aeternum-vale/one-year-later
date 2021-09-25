@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using NaughtyAttributes;
 using OneYearLater.LocalStorages.Models;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using SQLite;
-using UnityEngine;
-
-using static Utilities.Utils;
 
 using Debug = UnityEngine.Debug;
 
@@ -25,14 +20,11 @@ namespace OneYearLater.LocalStorages
 {
 	public class SQLiteLocalRecordStorage : ILocalRecordStorage
 	{
-
 		private SQLiteAsyncConnection _connectionToLocal;
 		private SQLiteAsyncConnection _connectionToExternalCopy;
 		private string _dbNameWithExtension = "records.bytes";
 		private string _backupPostfix = "_backup";
-		private string _extarnalDbLocalCopyPostfix = "_external";
-
-
+		private string _externalDbLocalCopyPostfix = "_external";
 
 		private bool _rollbackError = false;
 
@@ -49,7 +41,11 @@ namespace OneYearLater.LocalStorages
 			DateTime dayStartInc = date.Date;
 			DateTime dayEndExc = date.Date.AddDays(1);
 
-			var query = _connectionToLocal.Table<SQLiteRecordModel>().Where(r => (r.RecordDateTime >= dayStartInc) && (r.RecordDateTime < dayEndExc) && (!r.IsDeleted)).OrderBy(r => r.RecordDateTime);
+			var query = 
+				_connectionToLocal.Table<SQLiteRecordModel>()
+					.Where(r => (r.RecordDateTime >= dayStartInc) && (r.RecordDateTime < dayEndExc) && (!r.IsDeleted))
+					.OrderBy(r => r.RecordDateTime);
+					
 			return (await query.ToListAsync())
 				.Select(rm => new DiaryRecordViewModel(rm.RecordDateTime, rm.Content));
 		}
@@ -66,7 +62,7 @@ namespace OneYearLater.LocalStorages
 			string externalDbPath = $"/{_dbNameWithExtension}";
 
 			string externalDbLocalCopyNameWithExtension =
-				$"{Path.GetFileNameWithoutExtension(_dbNameWithExtension)}{_extarnalDbLocalCopyPostfix}{ Path.GetExtension(_dbNameWithExtension)}";
+				$"{Path.GetFileNameWithoutExtension(_dbNameWithExtension)}{_externalDbLocalCopyPostfix}{ Path.GetExtension(_dbNameWithExtension)}";
 
 			string externalDbLocalCopyPath = LocalStorageUtils.GetDbPathOnDevice(externalDbLocalCopyNameWithExtension);
 
@@ -74,13 +70,6 @@ namespace OneYearLater.LocalStorages
 				$"{Path.GetFileNameWithoutExtension(_dbNameWithExtension)}{_backupPostfix}{ Path.GetExtension(_dbNameWithExtension)}";
 
 			string backupDbPath = LocalStorageUtils.GetDbPathOnDevice(dbBackupNameWithExtension);
-
-			// Debug.Log($"originalLocalDbPath: {originalLocalDbPath}");
-			// Debug.Log($"externalDbPath: {externalDbPath}");
-			// Debug.Log($"externalDbLocalCopyNameWithExtension: {externalDbLocalCopyNameWithExtension}");
-			// Debug.Log($"externalDbLocalCopyPath: {externalDbLocalCopyPath}");
-			// Debug.Log($"dbBackupNameWithExtension: {dbBackupNameWithExtension}");
-			// Debug.Log($"backupDbPath: {backupDbPath}");
 
 			bool isExternalDbFileExisted = await externalStorage.IsFileExist(externalDbPath);
 			Debug.Log($"isExternalDbFileExisted={isExternalDbFileExisted}");

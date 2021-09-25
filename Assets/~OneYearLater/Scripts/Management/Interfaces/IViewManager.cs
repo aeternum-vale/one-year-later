@@ -11,8 +11,8 @@ namespace OneYearLater.Management.Interfaces
 		void SetIsDatePickingBlocked(bool isBlocked);
 		void DisplayFeedLoading();
 
-		void ProvideExternalStorageViewModels(ExternalStorageViewModel[] array, EExternalStorageAppearance defaultState, string defaultStatus);
-		void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance state, string status);
+		void ProvideExternalStorageViewModels(IEnumerable<ExternalStorageViewModel> viewModels);
+		void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance appearance, string status = null);
 
 		UniTask<string> ShowPromptPopupAsync(string messageText, string okButtonText, string placeholderText);
 

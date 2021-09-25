@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Newtonsoft.Json;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using UniRx;
@@ -38,53 +37,78 @@ namespace OneYearLater.Management
 					.ToList()
 					.Select(es => new ExternalStorageViewModel() { key = es.Key, name = es.Name })
 					.ToArray();
-			_viewManager.ProvideExternalStorageViewModels(vms, EExternalStorageAppearance.NotConnected, "not connected");
+			_viewManager.ProvideExternalStorageViewModels(vms);
 
 			foreach (var es in _externalStorages)
 			{
-				string stateJson = await _appLocalStorage.GetExternalStorageStateAsync(es.Key);
-				es.Init(stateJson);
-				es.PersistentState.Subscribe(ps => OnExternalStoragePersistentStateChanged(es.Key, ps));
+				var esm = await _appLocalStorage.GetExternalStorageAsync(es.Key);
+
+				es.Init(esm?.state);
+				es.PersistentState.Subscribe(s => OnExternalStorageStateChanged(es.Key, s));
 
 				if (await es.IsConnected())
-					_viewManager.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.Connected, "connected");
+				{
+					DateTime? lastSync = esm?.lastSync;
+
+					if (lastSync != null)
+						_viewManager.ChangeExternalStorageAppearance(
+							es.Key,
+							EExternalStorageAppearance.Connected,
+							GetLastSyncStatus(lastSync.Value)
+						);
+					else
+						_viewManager.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.Connected);
+				}
 			}
 
 			DisplayFeedFor(DateTime.Now);
 		}
 
-		private void OnExternalStoragePersistentStateChanged(EExternalStorageKey key, string ps)
+		private void OnExternalStorageStateChanged(EExternalStorageKey key, string state)
 		{
+			Debug.Log($"OnExternalStorageStateChanged key={key} state={state}");
 			_externalStoragePersistentStateSavingTask =
 				_externalStoragePersistentStateSavingTask.ContinueWith(
-					() => _appLocalStorage.SaveExternalStorageStateAsync(
-						new ExternalStorageModel() { key = key, serializedData = ps })
-				);
+					() => _appLocalStorage.UpdateExternalStorageStateAsync(key, state));
 		}
 
 		private async void OnConnectToExternalStorageButtonClicked(object sender, EExternalStorageKey key)
 		{
-			_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Connecting, "connecting...");
+			_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Connecting);
 			IExternalRecordStorage es = _externalStorageDict[key];
 			es.RequestAccessCode();
 			await Delay(2f);
 			string accessCode = await _viewManager.ShowPromptPopupAsync($"Paste access code for {es.Name} here", "Enter", "");
 			bool success = await es.Connect(accessCode);
 			if (success)
-				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Connected, "connected");
+				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Connected);
 			else
-				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.NotConnected, "error while connection");
+				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.NotConnected);
 		}
 
 		private async void OnSyncWithExternalStorageButtonClicked(object sender, EExternalStorageKey key)
 		{
 			IExternalRecordStorage es = _externalStorageDict[key];
-			_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Synchronizing, "syncing...");
+			_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Synchronizing);
 			bool success = await _localRecordStorage.SyncLocalAndExternalRecordStorages(es);
+
 			if (success)
-				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Connected, $"last sync: {DateTime.Now:g}");
+			{
+				DateTime syncDate = DateTime.Now;
+				await _appLocalStorage.UpdateExternalStorageSyncDateAsync(key, syncDate);
+
+				_viewManager.ChangeExternalStorageAppearance(
+					key,
+					EExternalStorageAppearance.Connected,
+					$"last sync: {syncDate:g}"
+				);
+			}
 			else
-				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.NotConnected, "error while syncing");
+				_viewManager.ChangeExternalStorageAppearance(
+					key,
+					EExternalStorageAppearance.NotConnected,
+					"error while syncing"
+				);
 		}
 
 		private void OnViewManagerDayChanged(object sender, DateTime date)
@@ -99,5 +123,7 @@ namespace OneYearLater.Management
 			await _viewManager.DisplayDayFeedAsync(date, await _localRecordStorage.GetAllDayRecordsAsync(date));
 			_viewManager.SetIsDatePickingBlocked(false);
 		}
+
+		private string GetLastSyncStatus(DateTime date) => $"last sync: {date:g}";
 	}
 }

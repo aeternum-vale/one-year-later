@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
+using System.Collections.Generic;
 
 namespace OneYearLater.Management
 {
@@ -10,9 +11,9 @@ namespace OneYearLater.Management
 
 	public enum EExternalStorageKey
 	{
-        None = 0,
-        DropBox,
-        PCloud
+		None = 0,
+		DropBox,
+		PCloud
 	}
 
 	public enum EScreenViewKey
@@ -23,7 +24,7 @@ namespace OneYearLater.Management
 		ExternalStorages
 	}
 
-	public enum EExternalStorageAppearance 
+	public enum EExternalStorageAppearance
 	{
 		None = 0,
 		NotConnected = 1,
@@ -32,8 +33,18 @@ namespace OneYearLater.Management
 		Synchronizing = 4
 	}
 
+
 	public static class Constants
 	{
+		public static Dictionary<EExternalStorageAppearance, string> ExternalStorageAppearanceStatuses = new Dictionary<EExternalStorageAppearance, string>()
+		{
+			[EExternalStorageAppearance.None] = "",
+			[EExternalStorageAppearance.NotConnected] = "not connected",
+			[EExternalStorageAppearance.Connecting] = "connecting...",
+			[EExternalStorageAppearance.Connected] = "connected",
+			[EExternalStorageAppearance.Synchronizing] = "synchronization..."
+		};
+
 		public static readonly Dictionary<ERecordKey, string> RecordTypeNames = new Dictionary<ERecordKey, string>()
 		{
 			[ERecordKey.Diary] = "diary"
