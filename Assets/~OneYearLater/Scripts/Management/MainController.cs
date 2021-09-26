@@ -17,9 +17,9 @@ namespace OneYearLater.Management
 		[Inject] private IViewManager _viewManager;
 		[Inject] private ILocalRecordStorage _localRecordStorage;
 		[Inject] private IAppLocalStorage _appLocalStorage;
-		[Inject] private IExternalRecordStorage[] _externalStorages;
-		private Dictionary<EExternalStorageKey, IExternalRecordStorage> _externalStorageDict;
-		private UniTask _externalStoragePersistentStateSavingTask = UniTask.CompletedTask;
+		[Inject] private IExternalStorage[] _externalStorages;
+		private Dictionary<EExternalStorageKey, IExternalStorage> _externalStorageDict;
+		private UniTask _externalStorageStateSavingTask = UniTask.CompletedTask;
 
 		private void Awake()
 		{
@@ -27,7 +27,7 @@ namespace OneYearLater.Management
 			_viewManager.ConnectToExternalStorageButtonClicked += OnConnectToExternalStorageButtonClicked;
 			_viewManager.SyncWithExternalStorageButtonClicked += OnSyncWithExternalStorageButtonClicked;
 
-			_externalStorageDict = _externalStorages.ToDictionary((es) => es.Key);
+			_externalStorageDict = _externalStorages.ToDictionary(es => es.Key);
 		}
 
 		private async void Start()
@@ -66,16 +66,14 @@ namespace OneYearLater.Management
 
 		private void OnExternalStorageStateChanged(EExternalStorageKey key, string state)
 		{
-			Debug.Log($"OnExternalStorageStateChanged key={key} state={state}");
-			_externalStoragePersistentStateSavingTask =
-				_externalStoragePersistentStateSavingTask.ContinueWith(
-					() => _appLocalStorage.UpdateExternalStorageStateAsync(key, state));
+			_externalStorageStateSavingTask = _externalStorageStateSavingTask
+				.ContinueWith(() => _appLocalStorage.UpdateExternalStorageStateAsync(key, state));
 		}
 
 		private async void OnConnectToExternalStorageButtonClicked(object sender, EExternalStorageKey key)
 		{
 			_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Connecting);
-			IExternalRecordStorage es = _externalStorageDict[key];
+			IExternalStorage es = _externalStorageDict[key];
 			es.RequestAccessCode();
 			await Delay(2f);
 			string accessCode = await _viewManager.ShowPromptPopupAsync($"Paste access code for {es.Name} here", "Enter", "");
@@ -88,9 +86,9 @@ namespace OneYearLater.Management
 
 		private async void OnSyncWithExternalStorageButtonClicked(object sender, EExternalStorageKey key)
 		{
-			IExternalRecordStorage es = _externalStorageDict[key];
+			IExternalStorage es = _externalStorageDict[key];
 			_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Synchronizing);
-			bool success = await _localRecordStorage.SyncLocalAndExternalRecordStorages(es);
+			bool success = await _localRecordStorage.SyncLocalAndExternalRecordStoragesAsync(es);
 
 			if (success)
 			{
@@ -98,17 +96,11 @@ namespace OneYearLater.Management
 				await _appLocalStorage.UpdateExternalStorageSyncDateAsync(key, syncDate);
 
 				_viewManager.ChangeExternalStorageAppearance(
-					key,
-					EExternalStorageAppearance.Connected,
-					$"last sync: {syncDate:g}"
-				);
+						key, EExternalStorageAppearance.Connected, GetLastSyncStatus(syncDate));
 			}
 			else
 				_viewManager.ChangeExternalStorageAppearance(
-					key,
-					EExternalStorageAppearance.NotConnected,
-					"error while syncing"
-				);
+					key, EExternalStorageAppearance.NotConnected, "error while syncing");
 		}
 
 		private void OnViewManagerDayChanged(object sender, DateTime date)

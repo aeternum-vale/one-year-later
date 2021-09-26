@@ -55,7 +55,7 @@ namespace OneYearLater.LocalStorages
 			return UniTask.CompletedTask;
 		}
 
-		public async UniTask<bool> SyncLocalAndExternalRecordStorages(IExternalRecordStorage externalStorage)
+		public async UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage)
 		{
 			string originalLocalDbPath = LocalStorageUtils.GetDbPathOnDevice(_dbNameWithExtension);
 

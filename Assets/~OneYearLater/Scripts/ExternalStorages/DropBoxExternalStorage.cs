@@ -16,7 +16,7 @@ using Debug = UnityEngine.Debug;
 
 namespace ExternalStorages
 {
-	public class DropBoxExternalStorage : IExternalRecordStorage
+	public class DropBoxExternalStorage : IExternalStorage
 	{
 		private struct DropBoxState
 		{
@@ -79,10 +79,7 @@ namespace ExternalStorages
 		public async UniTask<bool> IsTokenValid()
 		{
 
-			Dictionary<string, object> dropboxArgs = new Dictionary<string, object>()
-			{
-				["jack"] = "black",
-			};
+			Dictionary<string, object> dropboxArgs = new Dictionary<string, object>() { ["jack"] = "black", };
 
 			string dropboxArgsJson = JsonConvert.SerializeObject(dropboxArgs);
 			UnityWebRequest uwr = UnityWebRequest.Post("https://api.dropboxapi.com/2/check/user", "");
@@ -119,6 +116,8 @@ namespace ExternalStorages
 
 		public async UniTask<bool> RequestToken(string accessCode)
 		{
+			Debug.Log($"{GetType()}:{nameof(RequestToken)}");
+		 	
 			Dictionary<string, string> formFields = new Dictionary<string, string>();
 
 			formFields.Add("code", accessCode);
@@ -150,6 +149,8 @@ namespace ExternalStorages
 
 		public async UniTask<bool> RequestRefreshToken()
 		{
+			Debug.Log($"{GetType()}:{nameof(RequestRefreshToken)}");
+
 			Dictionary<string, string> formFields = new Dictionary<string, string>();
 
 			formFields.Add("grant_type", "refresh_token");
@@ -277,11 +278,14 @@ namespace ExternalStorages
 		}
 
 
-		public UniTask<bool> Connect(string code) => RequestToken(code);
-
-		public UniTask<bool> IsConnected()
+		public UniTask<bool> Connect(string code)
 		{
-			return IsTokenValid();
+			return RequestToken(code);
+		}
+
+		public async UniTask<bool> IsConnected()
+		{
+			return await IsTokenValid() || await RequestRefreshToken();
 		}
 	}
 }

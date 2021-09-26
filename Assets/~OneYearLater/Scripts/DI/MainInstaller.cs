@@ -40,14 +40,14 @@ namespace OneYearLater.DI
 				.AsSingle();
 
 			Container
-				.Bind<IExternalRecordStorage>()
+				.Bind<IExternalStorage>()
 				.FromMethodMultiple(GetExternalStorages)
 				.AsSingle();
 		}
 
-		IExternalRecordStorage[] GetExternalStorages(InjectContext context)
+		IExternalStorage[] GetExternalStorages(InjectContext context)
 		{
-			return new IExternalRecordStorage[]
+			return new IExternalStorage[]
 			{
 				new DropBoxExternalStorage(),
 				new PCloudExternalStorage()

@@ -3,7 +3,7 @@ using UniRx;
 
 namespace OneYearLater.Management.Interfaces
 {
-	public interface IExternalRecordStorage
+	public interface IExternalStorage
 	{
 		EExternalStorageKey Key { get; }
 		string Name { get; }

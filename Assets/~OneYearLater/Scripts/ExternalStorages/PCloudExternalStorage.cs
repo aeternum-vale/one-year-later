@@ -5,7 +5,7 @@ using UniRx;
 
 namespace ExternalStorages
 {
-	public class PCloudExternalStorage : IExternalRecordStorage
+	public class PCloudExternalStorage : IExternalStorage
 	{
 		public EExternalStorageKey Key => EExternalStorageKey.PCloud;
 		public string Name => "pCloud";
