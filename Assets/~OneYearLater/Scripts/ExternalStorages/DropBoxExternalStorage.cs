@@ -18,30 +18,32 @@ namespace ExternalStorages
 {
 	public class DropBoxExternalStorage : IExternalStorage
 	{
-		private struct DropBoxState
+		private struct DropBoxPersistentState
 		{
 			public string token;
 			public string refreshToken;
 			public string codeVerifier;
 			public string codeChallenge;
+			public bool isWaitingForAccessCode;
 		}
 
 		public EExternalStorageKey Key => EExternalStorageKey.DropBox;
 		public string Name => "DropBox";
 		public ReactiveProperty<string> PersistentState { get; private set; }
+		public bool IsWaitingForAccessCode => _state.isWaitingForAccessCode;
 
-		private DropBoxState _state;
+		private DropBoxPersistentState _state;
 		private string _appKey = "x74srqkscwb6d3o"; // aka client_id
 
 		public void Init(string state)
 		{
 			try
 			{
-				_state = JsonConvert.DeserializeObject<DropBoxState>(state);
+				_state = JsonConvert.DeserializeObject<DropBoxPersistentState>(state);
 			}
 			catch
 			{
-				_state = new DropBoxState();
+				_state = new DropBoxPersistentState();
 			}
 
 			PersistentState = new ReactiveProperty<string>();
@@ -78,6 +80,8 @@ namespace ExternalStorages
 
 		public async UniTask<bool> IsTokenValid()
 		{
+			if (string.IsNullOrEmpty(_state.token))
+				return false;
 
 			Dictionary<string, object> dropboxArgs = new Dictionary<string, object>() { ["jack"] = "black", };
 
@@ -104,6 +108,7 @@ namespace ExternalStorages
 		{
 			_state.codeVerifier = GeneratePKCECodeVerifier();
 			_state.codeChallenge = GeneratePKCECodeChallenge(_state.codeVerifier);
+			_state.isWaitingForAccessCode = true;
 			UpdatePersistentState();
 
 			Application.OpenURL($"https://www.dropbox.com/oauth2/authorize?"
@@ -114,10 +119,10 @@ namespace ExternalStorages
 				+ "code_challenge_method=S256");
 		}
 
-		public async UniTask<bool> RequestToken(string accessCode)
+		private async UniTask<bool> RequestToken(string accessCode)
 		{
 			Debug.Log($"{GetType()}:{nameof(RequestToken)}");
-		 	
+
 			Dictionary<string, string> formFields = new Dictionary<string, string>();
 
 			formFields.Add("code", accessCode);
@@ -147,9 +152,12 @@ namespace ExternalStorages
 			return true;
 		}
 
-		public async UniTask<bool> RequestRefreshToken()
+		private async UniTask<bool> RequestRefreshToken()
 		{
 			Debug.Log($"{GetType()}:{nameof(RequestRefreshToken)}");
+
+			if (string.IsNullOrEmpty(_state.refreshToken))
+				return false;
 
 			Dictionary<string, string> formFields = new Dictionary<string, string>();
 
@@ -278,8 +286,11 @@ namespace ExternalStorages
 		}
 
 
-		public UniTask<bool> Connect(string code)
+		public UniTask<bool> ConnectWithAccessCode(string code)
 		{
+			_state.isWaitingForAccessCode = false;
+			UpdatePersistentState();
+
 			return RequestToken(code);
 		}
 

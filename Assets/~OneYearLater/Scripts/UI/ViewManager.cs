@@ -22,7 +22,6 @@ namespace OneYearLater.UI
 	public class ViewManager : MonoBehaviour, IViewManager
 	{
 		public event EventHandler<DateTime> DayChanged;
-		public event EventHandler<EScreenViewKey> ScreenViewChanged;
 		public event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
 		public event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
 
@@ -171,7 +170,7 @@ namespace OneYearLater.UI
 			_feedView.SetIsDatePickingBlocked(isBlocked);
 		}
 
-		private void SetScreenView(EScreenViewKey screenViewKey)
+		public void SetScreenView(EScreenViewKey screenViewKey)
 		{
 			_screenViewChangeCTS?.Cancel();
 			_screenViewChangeCTS = new CancellationTokenSource();

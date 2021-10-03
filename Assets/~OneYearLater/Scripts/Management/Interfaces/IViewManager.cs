@@ -10,6 +10,8 @@ namespace OneYearLater.Management.Interfaces
 		UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records);
 		void SetIsDatePickingBlocked(bool isBlocked);
 		void DisplayFeedLoading();
+		void SetScreenView(EScreenViewKey screenViewKey);
+
 
 		void ProvideExternalStorageViewModels(IEnumerable<ExternalStorageViewModel> viewModels);
 		void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance appearance, string status = null);
@@ -17,7 +19,6 @@ namespace OneYearLater.Management.Interfaces
 		UniTask<string> ShowPromptPopupAsync(string messageText, string okButtonText, string placeholderText);
 
 		event EventHandler<DateTime> DayChanged;
-		event EventHandler<EScreenViewKey> ScreenViewChanged;
 
 		event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
 		event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;

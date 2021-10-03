@@ -46,6 +46,13 @@ namespace OneYearLater.Management
 				es.Init(esm?.state);
 				es.PersistentState.Subscribe(s => OnExternalStorageStateChanged(es.Key, s));
 
+				if (es.IsWaitingForAccessCode)
+				{
+					_viewManager.SetScreenView(EScreenViewKey.ExternalStorages);
+					ShowExternalStorageAccessCodePrompt(es);
+					continue;
+				}
+
 				if (await es.IsConnected())
 				{
 					DateTime? lastSync = esm?.lastSync;
@@ -76,12 +83,17 @@ namespace OneYearLater.Management
 			IExternalStorage es = _externalStorageDict[key];
 			es.RequestAccessCode();
 			await Delay(2f);
+			ShowExternalStorageAccessCodePrompt(es);
+		}
+
+		private async void ShowExternalStorageAccessCodePrompt(IExternalStorage es)
+		{
 			string accessCode = await _viewManager.ShowPromptPopupAsync($"Paste access code for {es.Name} here", "Enter", "");
-			bool success = await es.Connect(accessCode);
+			bool success = await es.ConnectWithAccessCode(accessCode);
 			if (success)
-				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Connected);
+				_viewManager.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.Connected);
 			else
-				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.NotConnected);
+				_viewManager.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.NotConnected);
 		}
 
 		private async void OnSyncWithExternalStorageButtonClicked(object sender, EExternalStorageKey key)

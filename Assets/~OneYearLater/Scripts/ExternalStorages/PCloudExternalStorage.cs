@@ -9,8 +9,9 @@ namespace ExternalStorages
 	{
 		public EExternalStorageKey Key => EExternalStorageKey.PCloud;
 		public string Name => "pCloud";
-
 		public ReactiveProperty<string> PersistentState => new ReactiveProperty<string>();
+		public bool IsWaitingForAccessCode => false;
+
 
 		public UniTask DownloadFile(string externalStoragePath, string localStoragePath)
 		{
@@ -22,7 +23,7 @@ namespace ExternalStorages
 			throw new System.NotImplementedException();
 		}
 
-		public UniTask<bool> Connect(string code)
+		public UniTask<bool> ConnectWithAccessCode(string code)
 		{
 			throw new System.NotImplementedException();
 		}
