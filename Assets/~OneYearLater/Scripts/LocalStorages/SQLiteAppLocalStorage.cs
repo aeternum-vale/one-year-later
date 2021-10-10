@@ -12,7 +12,7 @@ namespace OneYearLater.LocalStorages
 	{
 
 		private SQLiteAsyncConnection _connection;
-		[SerializeField] private string _dbNameWithExtension = "app.bytes";
+		private string _dbNameWithExtension = "app.bytes";
 
 
 		public SQLiteAppLocalStorage()
@@ -31,7 +31,7 @@ namespace OneYearLater.LocalStorages
 				.FirstOrDefaultAsync();
 
 			return sqliteModel != null ?
-				new ExternalStorageModel()
+				new ExternalStorageModel
 				{
 					key = key,
 					state = sqliteModel.State,
@@ -42,12 +42,12 @@ namespace OneYearLater.LocalStorages
 
 		public async UniTask UpdateExternalStorageStateAsync(EExternalStorageKey key, string state)
 		{
-			var dbModel = await _connection
+			SQLiteExternalStorageModel dbModel = await _connection
 				.Table<SQLiteExternalStorageModel>()
 				.Where(s => s.Id == (int)key)
 				.FirstOrDefaultAsync();
 
-			var modelToInsert = dbModel ?? new SQLiteExternalStorageModel() { Id = (int)key };
+			SQLiteExternalStorageModel modelToInsert = dbModel ?? new SQLiteExternalStorageModel { Id = (int)key };
 
 			modelToInsert.State = state;
 

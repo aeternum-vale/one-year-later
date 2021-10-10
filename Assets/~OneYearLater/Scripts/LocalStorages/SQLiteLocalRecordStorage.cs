@@ -43,7 +43,7 @@ namespace OneYearLater.LocalStorages
 
 			var query = 
 				_connectionToLocal.Table<SQLiteRecordModel>()
-					.Where(r => (r.RecordDateTime >= dayStartInc) && (r.RecordDateTime < dayEndExc) && (!r.IsDeleted))
+					.Where(r => r.RecordDateTime >= dayStartInc && (r.RecordDateTime < dayEndExc) && (!r.IsDeleted))
 					.OrderBy(r => r.RecordDateTime);
 					
 			return (await query.ToListAsync())
@@ -96,9 +96,7 @@ namespace OneYearLater.LocalStorages
 
 					_connectionToLocal = new SQLiteAsyncConnection(originalLocalDbPath);
 
-					AsyncTableQuery<SQLiteRecordModel> query;
-
-					query = _connectionToLocal.Table<SQLiteRecordModel>();
+					var query = _connectionToLocal.Table<SQLiteRecordModel>();
 					List<SQLiteRecordModel> allLocalDbRecords = await query.ToListAsync();
 					Dictionary<string, SQLiteRecordModel> localDbHashDictionary = new Dictionary<string, SQLiteRecordModel>();
 					List<SQLiteRecordModel> localRecordsToUpdate = new List<SQLiteRecordModel>();
@@ -111,7 +109,7 @@ namespace OneYearLater.LocalStorages
 
 					allLocalDbRecords.ForEach(r => localDbHashDictionary[r.Hash] = r);
 
-					foreach (var externalRecord in allExternalDbRecords)
+					foreach (SQLiteRecordModel externalRecord in allExternalDbRecords)
 					{
 						if (localDbHashDictionary.ContainsKey(externalRecord.Hash))
 						{
@@ -139,7 +137,7 @@ namespace OneYearLater.LocalStorages
 
 				await externalStorage.UploadFile(originalLocalDbPath, externalDbPath);
 
-				Debug.Log("Exterbal DB is Replaced by Local !");
+				Debug.Log("External DB is Replaced by Local !");
 				return true;
 			}
 

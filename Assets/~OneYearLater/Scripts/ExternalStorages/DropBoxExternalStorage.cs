@@ -14,26 +14,26 @@ using Utilities;
 
 using Debug = UnityEngine.Debug;
 
-namespace ExternalStorages
+namespace OneYearLater.ExternalStorages
 {
 	public class DropBoxExternalStorage : IExternalStorage
 	{
 		private struct DropBoxPersistentState
 		{
-			public string token;
-			public string refreshToken;
-			public string codeVerifier;
-			public string codeChallenge;
-			public bool isWaitingForAccessCode;
+			public string Token;
+			public string RefreshToken;
+			public string CodeVerifier;
+			public string CodeChallenge;
+			public bool IsWaitingForAccessCode;
 		}
 
 		public EExternalStorageKey Key => EExternalStorageKey.DropBox;
 		public string Name => "DropBox";
 		public ReactiveProperty<string> PersistentState { get; private set; }
-		public bool IsWaitingForAccessCode => _state.isWaitingForAccessCode;
+		public bool IsWaitingForAccessCode => _state.IsWaitingForAccessCode;
 
 		private DropBoxPersistentState _state;
-		private string _appKey = "x74srqkscwb6d3o"; // aka client_id
+		private const string AppKey = "x74srqkscwb6d3o"; // aka client_id
 
 		public void Init(string state)
 		{
@@ -78,16 +78,16 @@ namespace ExternalStorages
 			}
 		}
 
-		public async UniTask<bool> IsTokenValid()
+		private async UniTask<bool> IsTokenValid()
 		{
-			if (string.IsNullOrEmpty(_state.token))
+			if (string.IsNullOrEmpty(_state.Token))
 				return false;
 
 			Dictionary<string, object> dropboxArgs = new Dictionary<string, object>() { ["jack"] = "black", };
 
 			string dropboxArgsJson = JsonConvert.SerializeObject(dropboxArgs);
 			UnityWebRequest uwr = UnityWebRequest.Post("https://api.dropboxapi.com/2/check/user", "");
-			uwr.SetRequestHeader("Authorization", $"Bearer {_state.token}");
+			uwr.SetRequestHeader("Authorization", $"Bearer {_state.Token}");
 			uwr.SetRequestHeader("Content-Type", "application/json");
 
 			uwr.uploadHandler = new UploadHandlerRaw(Encoding.ASCII.GetBytes(dropboxArgsJson));
@@ -106,16 +106,16 @@ namespace ExternalStorages
 
 		public void RequestAccessCode()
 		{
-			_state.codeVerifier = GeneratePKCECodeVerifier();
-			_state.codeChallenge = GeneratePKCECodeChallenge(_state.codeVerifier);
-			_state.isWaitingForAccessCode = true;
+			_state.CodeVerifier = GeneratePKCECodeVerifier();
+			_state.CodeChallenge = GeneratePKCECodeChallenge(_state.CodeVerifier);
+			_state.IsWaitingForAccessCode = true;
 			UpdatePersistentState();
 
 			Application.OpenURL($"https://www.dropbox.com/oauth2/authorize?"
-				+ $"client_id={_appKey}&"
+				+ $"client_id={AppKey}&"
 				+ "response_type=code&"
 				+ "token_access_type=offline&"
-				+ $"code_challenge={_state.codeChallenge}&"
+				+ $"code_challenge={_state.CodeChallenge}&"
 				+ "code_challenge_method=S256");
 		}
 
@@ -127,8 +127,8 @@ namespace ExternalStorages
 
 			formFields.Add("code", accessCode);
 			formFields.Add("grant_type", "authorization_code");
-			formFields.Add("code_verifier", _state.codeVerifier);
-			formFields.Add("client_id", _appKey);
+			formFields.Add("code_verifier", _state.CodeVerifier);
+			formFields.Add("client_id", AppKey);
 
 			(string, Exception) response = await PostForm("https://api.dropboxapi.com/oauth2/token", formFields);
 
@@ -145,8 +145,8 @@ namespace ExternalStorages
 			foreach (var kvp in result)
 				Debug.Log($"{kvp.Key}:{kvp.Value}");
 
-			_state.refreshToken = result["refresh_token"];
-			_state.token = result["access_token"];
+			_state.RefreshToken = result["refresh_token"];
+			_state.Token = result["access_token"];
 			UpdatePersistentState();
 
 			return true;
@@ -156,14 +156,14 @@ namespace ExternalStorages
 		{
 			Debug.Log($"{GetType()}:{nameof(RequestRefreshToken)}");
 
-			if (string.IsNullOrEmpty(_state.refreshToken))
+			if (string.IsNullOrEmpty(_state.RefreshToken))
 				return false;
 
 			Dictionary<string, string> formFields = new Dictionary<string, string>();
 
 			formFields.Add("grant_type", "refresh_token");
-			formFields.Add("refresh_token", _state.refreshToken);
-			formFields.Add("client_id", _appKey);
+			formFields.Add("refresh_token", _state.RefreshToken);
+			formFields.Add("client_id", AppKey);
 
 			(string, Exception) response = await PostForm("https://api.dropboxapi.com/oauth2/token", formFields);
 			if (response.Item2 != null)
@@ -180,7 +180,7 @@ namespace ExternalStorages
 			foreach (var kvp in result)
 				Debug.Log($"{kvp.Key}:{kvp.Value}");
 
-			_state.token = result["access_token"];
+			_state.Token = result["access_token"];
 			UpdatePersistentState();
 
 			return true;
@@ -194,7 +194,7 @@ namespace ExternalStorages
 			Debug.Log(dropboxApiArgsJson);
 
 			UnityWebRequest uwr = UnityWebRequest.Post("https://content.dropboxapi.com/2/files/download", "");
-			uwr.SetRequestHeader("Authorization", $"Bearer {_state.token}");
+			uwr.SetRequestHeader("Authorization", $"Bearer {_state.Token}");
 			uwr.SetRequestHeader("Dropbox-API-Arg", dropboxApiArgsJson);
 			uwr.SetRequestHeader("Content-Type", "application/octet-stream");
 
@@ -216,14 +216,14 @@ namespace ExternalStorages
 				["path"] = externalStoragePath,
 				["mode"] = "overwrite",
 				["autorename"] = true,
-				["mute"] = false,
+				["mute"] = false
 			};
 
 			string dropboxApiArgsJson = JsonConvert.SerializeObject(dropboxApiArg);
 			Debug.Log(dropboxApiArgsJson);
 
 			UnityWebRequest uwr = UnityWebRequest.Post("https://content.dropboxapi.com/2/files/upload", "");
-			uwr.SetRequestHeader("Authorization", $"Bearer {_state.token}");
+			uwr.SetRequestHeader("Authorization", $"Bearer {_state.Token}");
 			uwr.SetRequestHeader("Dropbox-API-Arg", dropboxApiArgsJson);
 			uwr.SetRequestHeader("Content-Type", "application/octet-stream");
 
@@ -247,7 +247,7 @@ namespace ExternalStorages
 			};
 			string dropboxApiArgsJson = JsonConvert.SerializeObject(dropboxApiArg);
 			UnityWebRequest uwr = UnityWebRequest.Post("https://api.dropboxapi.com/2/files/get_metadata", "");
-			uwr.SetRequestHeader("Authorization", $"Bearer {_state.token}");
+			uwr.SetRequestHeader("Authorization", $"Bearer {_state.Token}");
 			uwr.SetRequestHeader("Content-Type", "application/json");
 			uwr.uploadHandler = new UploadHandlerRaw(Encoding.ASCII.GetBytes(dropboxApiArgsJson));
 
@@ -281,14 +281,13 @@ namespace ExternalStorages
 
 			if (uwr.result == UnityWebRequest.Result.ConnectionError)
 				return (null, new Exception(uwr.error));
-			else
-				return (uwr.downloadHandler.text, null);
+			return (uwr.downloadHandler.text, null);
 		}
 
 
 		public UniTask<bool> ConnectWithAccessCode(string code)
 		{
-			_state.isWaitingForAccessCode = false;
+			_state.IsWaitingForAccessCode = false;
 			UpdatePersistentState();
 
 			return RequestToken(code);

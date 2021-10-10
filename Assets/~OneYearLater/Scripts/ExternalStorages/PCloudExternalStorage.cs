@@ -3,7 +3,7 @@ using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using UniRx;
 
-namespace ExternalStorages
+namespace OneYearLater.ExternalStorages
 {
 	public class PCloudExternalStorage : IExternalStorage
 	{

@@ -13,7 +13,7 @@ namespace OneYearLater.LocalStorages
 		{
 
 #if UNITY_EDITOR
-			var dbPath = string.Format(@"Assets/StreamingAssets/{0}", dbNameWithExtension);
+			string dbPath = $@"Assets/StreamingAssets/{dbNameWithExtension}";
 #else
 			// check if file exists in Application.persistentDataPath
 			var filepath = string.Format("{0}/{1}", Application.persistentDataPath, dbNameWithExtension);
