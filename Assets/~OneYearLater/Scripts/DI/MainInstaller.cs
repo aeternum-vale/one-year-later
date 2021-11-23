@@ -36,9 +36,8 @@ namespace OneYearLater.DI
 			Container
 				.Bind<IMobileInputHandler>()
 				.To<LeanTouchFacade>()
-				.FromInstance(_leanTouchFacade)
-				.AsSingle();
-
+				.FromInstance(_leanTouchFacade);
+				
 			Container
 				.Bind<IExternalStorage>()
 				.FromMethodMultiple(GetExternalStorages)

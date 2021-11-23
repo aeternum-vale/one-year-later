@@ -23,6 +23,7 @@ namespace OneYearLater.UI
 	{
 		public event EventHandler<DateTime> DayChanged;
 		public event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
+		public event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageButtonClicked;
 		public event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
 
 		[Inject] private IMobileInputHandler _mobileInputHandler;
@@ -54,8 +55,8 @@ namespace OneYearLater.UI
 			_screenViewArray.ToDictionary(out _screenViewDictionary);
 
 			_feedView = _screenViewDictionary[EScreenViewKey.Feed].GetComponent<FeedScreenView>();
-			_externalStoragesScreenView =
-				_screenViewDictionary[EScreenViewKey.ExternalStorages].GetComponent<ExternalStoragesScreenView>();
+			_externalStoragesScreenView = _screenViewDictionary[EScreenViewKey.ExternalStorages]
+				.GetComponent<ExternalStoragesScreenView>();
 
 			_feedView.DayChanged += OnFeedViewDayChanged;
 
@@ -74,7 +75,8 @@ namespace OneYearLater.UI
 				_sideMenu.Close();
 			};
 
-			_externalStoragesScreenView.ConnectButtonClicked += (s, a) => _popupManager.ShowMessagePopupAsync("Hello World!", "hi!");
+			_externalStoragesScreenView.ConnectButtonClicked += (s, a) => 
+				_popupManager.ShowMessagePopupAsync("Hello World!", "hi!").Forget();
 		}
 
 		private void Start()
@@ -88,6 +90,7 @@ namespace OneYearLater.UI
 			viewModels.ToList().ForEach(vm =>
 			{
 				ExternalStorageView view = Instantiate(_externalStorageViewPrefab);
+				view.MobileInputHandler = _mobileInputHandler;
 				view.Text = vm.name;
 				_externalStoragesViewData.Add(
 					vm.key,
@@ -97,8 +100,14 @@ namespace OneYearLater.UI
 						viewModel = vm
 					});
 
-				view.ConnectButtonClicked += (s, a) => ConnectToExternalStorageButtonClicked?.Invoke(this, vm.key);
-				view.SyncButtonClicked += (s, a) => SyncWithExternalStorageButtonClicked?.Invoke(this, vm.key);
+				view.ConnectButtonClicked += (s, a) => 
+					ConnectToExternalStorageButtonClicked?.Invoke(this, vm.key);
+
+				view.DisconnectButtonClicked += (s, a) => 
+					DisconnectFromExternalStorageButtonClicked?.Invoke(this, vm.key);
+
+				view.SyncButtonClicked += (s, a) => 
+					SyncWithExternalStorageButtonClicked?.Invoke(this, vm.key);
 
 				view.ChangeAppearance(EExternalStorageAppearance.NotConnected);
 			});

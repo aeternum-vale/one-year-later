@@ -21,6 +21,7 @@ namespace OneYearLater.Management.Interfaces
 		event EventHandler<DateTime> DayChanged;
 
 		event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
+		event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageButtonClicked;
 		event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
 	}
 }

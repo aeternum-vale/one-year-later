@@ -13,25 +13,22 @@ namespace OneYearLater.UI
 
 		[SerializeField] private float _swipeBorderSize = 50f;
 		[SerializeField] private float _tapBorderSize = 200f;
+		[SerializeField] private float _longTapThreshold = 1f;
 
 		public float SwipeBorderSize { get => _swipeBorderSize; set => _swipeBorderSize = value; }
 		public float TapBorderSize { get => _tapBorderSize; set => _tapBorderSize = value; }
 
-
-		/// <summary>bool = is swipe made from border</summary>
 		public event EventHandler<bool> SwipeLeft;
-
-		/// <summary>bool = is swipe made from border</summary>
 		public event EventHandler<bool> SwipeRight;
-
 		public event EventHandler TapOnRightBorder;
-
+		public event EventHandler<Vector2> LongTap;
 
 		private void Awake()
 		{
 			_leanFingerSwipeLeft.OnFinger.AddListener(OnSwipeLeft);
 			_leanFingerSwipeRight.OnFinger.AddListener(OnSwipeRight);
 			LeanTouch.OnFingerTap += OnTap;
+			LeanTouch.OnFingerUp += OnFingerUp;
 		}
 
 		private void OnSwipeLeft(LeanFinger leanFinger)
@@ -50,9 +47,16 @@ namespace OneYearLater.UI
 
 		private void OnTap(LeanFinger leanFinger)
 		{
+
 			if (leanFinger.LastScreenPosition.x >= Screen.width - _tapBorderSize)
 				TapOnRightBorder?.Invoke(this, EventArgs.Empty);
 		}
 
+		
+		private void OnFingerUp(LeanFinger leanFinger)
+		{
+			if (leanFinger.Age >= _longTapThreshold && leanFinger.SwipeScreenDelta.magnitude == 0f)
+				LongTap?.Invoke(this, leanFinger.ScreenPosition);			
+		}
 	}
 }

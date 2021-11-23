@@ -14,6 +14,7 @@ namespace OneYearLater.Management.Interfaces
 		void RequestAccessCode();
 		UniTask<bool> ConnectWithAccessCode(string accessCode);
 		UniTask<bool> IsConnected();
+		UniTask Disconnect();
 		UniTask<bool> IsFileExist(string path);
 		UniTask DownloadFile(string externalStoragePath, string localStoragePath);
 		UniTask UploadFile(string localStoragePath, string externalStoragePath);

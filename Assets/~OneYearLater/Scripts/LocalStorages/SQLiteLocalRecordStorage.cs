@@ -83,7 +83,7 @@ namespace OneYearLater.LocalStorages
 				}
 				catch (Exception ex)
 				{
-					Debug.LogError($"There is an error while creating backup, sync aborted, try later. ({ex.Message}\n{ex.StackTrace})");
+					Debug.LogError($"There is an error while creating backup, sync aborted, try later. ({ex.Message})\n{ex.StackTrace})");
 					return false;
 				}
 			}
@@ -143,7 +143,7 @@ namespace OneYearLater.LocalStorages
 
 			catch (Exception ex)
 			{
-				Debug.LogError($"There is an error while sync, trying to rollback to backup. ({ex.Message}\n{ex.StackTrace})");
+				Debug.LogError($"There is an error while sync, trying to rollback to backup. ({ex.Message})\n{ex.StackTrace}");
 
 				try
 				{
@@ -153,7 +153,7 @@ namespace OneYearLater.LocalStorages
 
 				catch (Exception innerEx)
 				{
-					Debug.LogError($"There is some error while rolling back to backup. ({innerEx.Message}\n{innerEx.StackTrace})");
+					Debug.LogError($"There is some error while rolling back to backup. ({innerEx.Message})\n{innerEx.StackTrace}");
 					_rollbackError = true;
 					return false;
 				}

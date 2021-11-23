@@ -25,6 +25,7 @@ namespace OneYearLater.Management
 		{
 			_viewManager.DayChanged += OnViewManagerDayChanged;
 			_viewManager.ConnectToExternalStorageButtonClicked += OnConnectToExternalStorageButtonClicked;
+			_viewManager.DisconnectFromExternalStorageButtonClicked += OnDisconnectFromExternalStorageButtonClicked;
 			_viewManager.SyncWithExternalStorageButtonClicked += OnSyncWithExternalStorageButtonClicked;
 
 			_externalStorageDict = _externalStorages.ToDictionary(es => es.Key);
@@ -84,6 +85,13 @@ namespace OneYearLater.Management
 			es.RequestAccessCode();
 			await Delay(2f);
 			ShowExternalStorageAccessCodePrompt(es);
+		}
+
+		private void OnDisconnectFromExternalStorageButtonClicked(object sender, EExternalStorageKey key)
+		{
+			_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.NotConnected);
+			IExternalStorage es = _externalStorageDict[key];
+			es.Disconnect();
 		}
 
 		private async void ShowExternalStorageAccessCodePrompt(IExternalStorage es)

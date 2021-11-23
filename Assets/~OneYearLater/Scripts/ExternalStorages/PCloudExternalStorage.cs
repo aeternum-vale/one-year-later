@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using UniRx;
+using UnityEngine;
 
 namespace OneYearLater.ExternalStorages
 {
@@ -45,12 +46,17 @@ namespace OneYearLater.ExternalStorages
 
 		public void Init(string state)
 		{
-
+			Debug.Log($"<color=lightblue>{GetType().Name}:</color> Init");
 		}
 
 		public UniTask<bool> IsConnected()
 		{
 			return UniTask.FromResult(false);
+		}
+
+		public UniTask Disconnect()
+		{
+			throw new System.NotImplementedException();
 		}
 	}
 }

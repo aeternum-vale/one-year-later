@@ -297,5 +297,12 @@ namespace OneYearLater.ExternalStorages
 		{
 			return await IsTokenValid() || await RequestRefreshToken();
 		}
+
+		public UniTask Disconnect()
+		{
+			_state = new DropBoxPersistentState();
+			UpdatePersistentState();
+			return UniTask.CompletedTask;
+		}
 	}
 }
