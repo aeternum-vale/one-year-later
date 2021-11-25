@@ -87,11 +87,14 @@ namespace OneYearLater.Management
 			ShowExternalStorageAccessCodePrompt(es);
 		}
 
-		private void OnDisconnectFromExternalStorageButtonClicked(object sender, EExternalStorageKey key)
+		private async void OnDisconnectFromExternalStorageButtonClicked(object sender, EExternalStorageKey key)
 		{
-			_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.NotConnected);
 			IExternalStorage es = _externalStorageDict[key];
-			es.Disconnect();
+			if (await _viewManager.ShowConfirmPopupAsync($"Are you sure you want to disconnect from {es.Name}?"))
+			{
+				await es.Disconnect();
+				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.NotConnected);
+			}
 		}
 
 		private async void ShowExternalStorageAccessCodePrompt(IExternalStorage es)

@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
@@ -38,7 +37,7 @@ namespace OneYearLater.UI.Popups
 			_canvasGroupFader.OwnFadeDuration = Constants.PopupAppearDuration;
 		}
 
-		public void Init(string messageText, string okButtonText)
+		public void Init(string messageText, string okButtonText = "OK")
 		{
 			if (string.IsNullOrEmpty(messageText))
 				throw new Exception("Popup message text can't be null or empty");

@@ -17,6 +17,7 @@ namespace OneYearLater.Management.Interfaces
 		void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance appearance, string status = null);
 
 		UniTask<string> ShowPromptPopupAsync(string messageText, string okButtonText, string placeholderText);
+		UniTask<bool> ShowConfirmPopupAsync(string messageText);
 
 		event EventHandler<DateTime> DayChanged;
 

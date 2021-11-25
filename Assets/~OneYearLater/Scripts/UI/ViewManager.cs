@@ -75,7 +75,7 @@ namespace OneYearLater.UI
 				_sideMenu.Close();
 			};
 
-			_externalStoragesScreenView.ConnectButtonClicked += (s, a) => 
+			_externalStoragesScreenView.ConnectButtonClicked += (s, a) =>
 				_popupManager.ShowMessagePopupAsync("Hello World!", "hi!").Forget();
 		}
 
@@ -100,13 +100,13 @@ namespace OneYearLater.UI
 						viewModel = vm
 					});
 
-				view.ConnectButtonClicked += (s, a) => 
+				view.ConnectButtonClicked += (s, a) =>
 					ConnectToExternalStorageButtonClicked?.Invoke(this, vm.key);
 
-				view.DisconnectButtonClicked += (s, a) => 
+				view.DisconnectButtonClicked += (s, a) =>
 					DisconnectFromExternalStorageButtonClicked?.Invoke(this, vm.key);
 
-				view.SyncButtonClicked += (s, a) => 
+				view.SyncButtonClicked += (s, a) =>
 					SyncWithExternalStorageButtonClicked?.Invoke(this, vm.key);
 
 				view.ChangeAppearance(EExternalStorageAppearance.NotConnected);
@@ -204,12 +204,16 @@ namespace OneYearLater.UI
 			return _popupManager.ShowPromptPopupAsync(messageText, okButtonText, placeholderText);
 		}
 
+		public UniTask<bool> ShowConfirmPopupAsync(string messageText)
+		{
+			return _popupManager.ShowConfirmPopupAsync(messageText);
+		}
+
 		[SerializeField] private string _debugPopupMessage;
 		[Button] private void Debug_SetFeedScreenView() => SetScreenView(EScreenViewKey.Feed);
 		[Button] private void Debug_SetSettingsScreenView() => SetScreenView(EScreenViewKey.Settings);
 		[Button] private void Debug_SetExternalStoragesScreenView() => SetScreenView(EScreenViewKey.ExternalStorages);
 		[Button] private void Debug_ShowMessagePopup() => _popupManager.ShowMessagePopupAsync(_debugPopupMessage).Forget();
 		[Button] private void Debug_ShowPromptPopup() => _popupManager.ShowPromptPopupAsync(_debugPopupMessage).ContinueWith<string>((value) => Debug.Log(value)).Forget();
-
 	}
 }

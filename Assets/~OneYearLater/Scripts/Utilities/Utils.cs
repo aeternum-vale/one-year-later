@@ -23,13 +23,15 @@ namespace Utilities
 			return sb.ToString().ToLower();
 		}
 
-		public static UniTask Delay(float duration) {
+		public static UniTask Delay(float duration)
+		{
 			return UniTask.Delay(TimeSpan.FromSeconds(duration), DelayType.Realtime);
-		} 
-		
-		public static UniTask Delay(float duration, CancellationToken token) {
+		}
+
+		public static UniTask Delay(float duration, CancellationToken token)
+		{
 			return UniTask.Delay(TimeSpan.FromSeconds(duration), DelayType.Realtime, cancellationToken: token);
-		} 
+		}
 	}
 
 	[Serializable]
@@ -38,5 +40,5 @@ namespace Utilities
 		public TKey Key;
 		public TValue Value;
 	}
-	
+
 }

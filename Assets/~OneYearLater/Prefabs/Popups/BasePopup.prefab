@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6721309874290796620}
   - component: {fileID: 1520345344766953624}
   m_Layer: 5
-  m_Name: Button
+  m_Name: OkButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -282,7 +282,7 @@ GameObject:
   - component: {fileID: 3546909169659624620}
   - component: {fileID: 6382133777352078263}
   m_Layer: 5
-  m_Name: ButtonText
+  m_Name: OkButtonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -584,8 +584,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 514f952898a7fd84fbf1e0a82daec623, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ownFadeDuration: 1
-  _canvasGroup: {fileID: 4392178267808030273}
 --- !u!114 &7851187431997904494
 MonoBehaviour:
   m_ObjectHideFlags: 0

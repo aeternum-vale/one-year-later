@@ -7,7 +7,7 @@ using Utilities;
 
 namespace OneYearLater.UI.Popups
 {
-	public class PopupManager : MonoBehaviour
+	public class PopupManager : MonoBehaviour //TODO: remove code duplicating
 	{
 		[SerializeField] private PopupSPair[] _popupPrefabsArray;
 		private Dictionary<EPopupKey, Popup> _popupPrefabsDictionary;
@@ -49,41 +49,89 @@ namespace OneYearLater.UI.Popups
 			);
 		}
 
+
 		public async UniTask ShowMessagePopupAsync(string messageText, string okButtonText = "OK")
 		{
-			Popup messagePopup;
 			EPopupKey key = EPopupKey.Message;
-
-			if (_popupCache.TryGetValue(key, out messagePopup))
-				_popupCache.Remove(key);
-			else
-				messagePopup = Instantiate(_popupPrefabsDictionary[key], _container);
-
+			Popup messagePopup = InstantiatePopup(key);
 			messagePopup.Init(messageText, okButtonText);
-			await ShowPopupAsync(messagePopup);
 
+			await ShowPopupAsync(messagePopup);
 			_popupCache[key] = messagePopup;
 		}
 
 		public async UniTask<string> ShowPromptPopupAsync(string messageText, string okButtonText = "OK", string placeholderText = "")
 		{
-			Popup basePopup;
-			EPopupKey key = EPopupKey.Promt;
-
-			if (_popupCache.TryGetValue(key, out basePopup))
-				_popupCache.Remove(key);
-			else
-				basePopup = Instantiate(_popupPrefabsDictionary[key], _container);
-
-			PromptPopup promptPopup = basePopup.GetComponent<PromptPopup>();
+			var key = EPopupKey.Promt;
+			Popup abstractPopup = InstantiatePopup(EPopupKey.Promt);
+			PromptPopup promptPopup = abstractPopup.GetComponent<PromptPopup>();
 
 			promptPopup.Init(messageText, okButtonText, placeholderText);
 
-			await ShowPopupAsync(basePopup);
-			_popupCache[key] = basePopup;
+			await ShowPopupAsync(abstractPopup);
+			_popupCache[key] = abstractPopup;
 			return promptPopup.InputFieldText;
 		}
 
+		private ConfirmPopup InstantiateConfirmPopup(string messageText)
+		{
+			Popup abstractPopup = InstantiatePopup(EPopupKey.Confirm);
+			ConfirmPopup confirmPopup = abstractPopup.GetComponent<ConfirmPopup>();
+
+			confirmPopup.Init(messageText);
+			return confirmPopup;
+		}
+
+		private Popup InstantiatePopup(EPopupKey key)
+		{
+			Popup abstractPopup;
+
+			if (_popupCache.TryGetValue(key, out abstractPopup))
+				_popupCache.Remove(key);
+			else
+				abstractPopup = Instantiate(_popupPrefabsDictionary[key], _container);
+
+			return abstractPopup;
+		}
+
+		public async UniTask<bool> ShowConfirmPopupAsync(string messageText  = "Are you sure?")
+		{
+			ConfirmPopup confirmPopup = InstantiateConfirmPopup(messageText);
+			Popup abstractPopup = confirmPopup.AbstractPopup;
+
+			_background.UnfadeAsync(Constants.PopupBackgroundFadeDuration).Forget();
+
+			await UniTask.WhenAll(
+				abstractPopup.UnfadeAsync(),
+				abstractPopup.PlayShowAnimation()
+			);
+
+
+			bool isYesClicked = false;
+			bool isNoClicked = false;
+
+			EventHandler yesClickHandler = (s, a) => isYesClicked = true;
+			EventHandler noClickHandler = (s, a) => isNoClicked = true;
+
+			confirmPopup.YesButtonClicked += yesClickHandler;
+			confirmPopup.NoButtonClicked += noClickHandler;
+
+			await UniTask.WaitUntil(() => isYesClicked || isNoClicked);
+
+			confirmPopup.YesButtonClicked -= yesClickHandler;
+			confirmPopup.NoButtonClicked -= noClickHandler;
+
+
+			if (_container.ActiveChildCount() == 1)
+				_background.FadeAsync(Constants.PopupBackgroundFadeDuration).Forget();
+
+			await UniTask.WhenAll(
+				abstractPopup.FadeAsync(),
+				abstractPopup.PlayHideAnimation()
+			);
+
+			return isYesClicked;
+		}
 
 	}
 }
