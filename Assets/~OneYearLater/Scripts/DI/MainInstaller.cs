@@ -3,6 +3,7 @@ using OneYearLater.LocalStorages;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.UI;
 using OneYearLater.UI.Interfaces;
+using OneYearLater.UI.Popups;
 using UnityEngine;
 using Zenject;
 
@@ -10,8 +11,10 @@ namespace OneYearLater.DI
 {
 	public class MainInstaller : MonoInstaller
 	{
-		[SerializeField] ViewManager _viewManager;
-		[SerializeField] LeanTouchFacade _leanTouchFacade;
+		[SerializeField] private ViewManager _viewManager;
+		[SerializeField] private LeanTouchFacade _leanTouchFacade;
+		[SerializeField] private PopupManager _popupManager;
+
 
 		public override void InstallBindings()
 		{
@@ -36,11 +39,18 @@ namespace OneYearLater.DI
 			Container
 				.Bind<IMobileInputHandler>()
 				.To<LeanTouchFacade>()
-				.FromInstance(_leanTouchFacade);
+				.FromInstance(_leanTouchFacade)
+				.AsSingle();
 				
 			Container
 				.Bind<IExternalStorage>()
 				.FromMethodMultiple(GetExternalStorages)
+				.AsSingle();
+
+			Container
+				.Bind<IPopupManager>()
+				.To<PopupManager>()
+				.FromInstance(_popupManager)
 				.AsSingle();
 		}
 

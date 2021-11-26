@@ -18,6 +18,8 @@ namespace OneYearLater.Management
 		[Inject] private ILocalRecordStorage _localRecordStorage;
 		[Inject] private IAppLocalStorage _appLocalStorage;
 		[Inject] private IExternalStorage[] _externalStorages;
+		[Inject] private IPopupManager _popupManager;
+
 		private Dictionary<EExternalStorageKey, IExternalStorage> _externalStorageDict;
 		private UniTask _externalStorageStateSavingTask = UniTask.CompletedTask;
 
@@ -90,7 +92,7 @@ namespace OneYearLater.Management
 		private async void OnDisconnectFromExternalStorageButtonClicked(object sender, EExternalStorageKey key)
 		{
 			IExternalStorage es = _externalStorageDict[key];
-			if (await _viewManager.ShowConfirmPopupAsync($"Are you sure you want to disconnect from {es.Name}?"))
+			if (await _popupManager.RunConfirmPopupAsync($"Are you sure you want to disconnect from {es.Name}?"))
 			{
 				await es.Disconnect();
 				_viewManager.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.NotConnected);
@@ -99,7 +101,7 @@ namespace OneYearLater.Management
 
 		private async void ShowExternalStorageAccessCodePrompt(IExternalStorage es)
 		{
-			string accessCode = await _viewManager.ShowPromptPopupAsync($"Paste access code for {es.Name} here", "Enter", "");
+			string accessCode = await _popupManager.RunPromptPopupAsync($"Paste access code for {es.Name} here", "Enter", "");
 			bool success = await es.ConnectWithAccessCode(accessCode);
 			if (success)
 				_viewManager.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.Connected);

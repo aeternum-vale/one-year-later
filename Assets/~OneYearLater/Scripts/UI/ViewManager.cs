@@ -7,14 +7,12 @@ using NaughtyAttributes;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
-using OneYearLater.UI.Popups;
 using OneYearLater.UI.Views;
 using OneYearLater.UI.Views.ScreenViews;
 using UnityEngine;
 using Zenject;
 
-using static Utilities.Extensions;
-using OneYearLater.UI.Interfaces;
+using static Utilities.Extensions;using OneYearLater.UI.Interfaces;
 
 namespace OneYearLater.UI
 {
@@ -40,7 +38,6 @@ namespace OneYearLater.UI
 		private ExternalStoragesScreenView _externalStoragesScreenView;
 
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
-		[SerializeField] private PopupManager _popupManager;
 
 		[SerializeField] private SideMenu _sideMenu;
 
@@ -74,9 +71,6 @@ namespace OneYearLater.UI
 				SetScreenView(EScreenViewKey.ExternalStorages);
 				_sideMenu.Close();
 			};
-
-			_externalStoragesScreenView.ConnectButtonClicked += (s, a) =>
-				_popupManager.ShowMessagePopupAsync("Hello World!", "hi!").Forget();
 		}
 
 		private void Start()
@@ -199,21 +193,9 @@ namespace OneYearLater.UI
 			DayChanged?.Invoke(this, date);
 		}
 
-		public UniTask<string> ShowPromptPopupAsync(string messageText, string okButtonText, string placeholderText)
-		{
-			return _popupManager.ShowPromptPopupAsync(messageText, okButtonText, placeholderText);
-		}
-
-		public UniTask<bool> ShowConfirmPopupAsync(string messageText)
-		{
-			return _popupManager.ShowConfirmPopupAsync(messageText);
-		}
-
 		[SerializeField] private string _debugPopupMessage;
 		[Button] private void Debug_SetFeedScreenView() => SetScreenView(EScreenViewKey.Feed);
 		[Button] private void Debug_SetSettingsScreenView() => SetScreenView(EScreenViewKey.Settings);
 		[Button] private void Debug_SetExternalStoragesScreenView() => SetScreenView(EScreenViewKey.ExternalStorages);
-		[Button] private void Debug_ShowMessagePopup() => _popupManager.ShowMessagePopupAsync(_debugPopupMessage).Forget();
-		[Button] private void Debug_ShowPromptPopup() => _popupManager.ShowPromptPopupAsync(_debugPopupMessage).ContinueWith<string>((value) => Debug.Log(value)).Forget();
 	}
 }

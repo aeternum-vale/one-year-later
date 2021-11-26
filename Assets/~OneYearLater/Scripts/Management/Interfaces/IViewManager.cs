@@ -12,12 +12,8 @@ namespace OneYearLater.Management.Interfaces
 		void DisplayFeedLoading();
 		void SetScreenView(EScreenViewKey screenViewKey);
 
-
 		void ProvideExternalStorageViewModels(IEnumerable<ExternalStorageViewModel> viewModels);
 		void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance appearance, string status = null);
-
-		UniTask<string> ShowPromptPopupAsync(string messageText, string okButtonText, string placeholderText);
-		UniTask<bool> ShowConfirmPopupAsync(string messageText);
 
 		event EventHandler<DateTime> DayChanged;
 

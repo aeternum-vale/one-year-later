@@ -53,10 +53,10 @@ namespace OneYearLater.UI.Popups
 			OkButtonClicked?.Invoke(this, EventArgs.Empty);
 		}
 
-		public UniTask FadeAsync() => _canvasGroupFader.FadeAsync();
-		public UniTask UnfadeAsync() => _canvasGroupFader.UnfadeAsync();
+		private UniTask FadeAsync() => _canvasGroupFader.FadeAsync();
+		private UniTask UnfadeAsync() => _canvasGroupFader.UnfadeAsync();
 
-		public UniTask PlayShowAnimation()
+		private UniTask PlayShowAnimation()
 		{
 			transform.localScale = new Vector3(_fromScale, _fromScale, 1);
 			return transform.DOScale(Vector3.one, Constants.PopupAppearDuration)
@@ -64,7 +64,7 @@ namespace OneYearLater.UI.Popups
 				.ToUniTask();
 		}
 
-		public UniTask PlayHideAnimation()
+		private UniTask PlayHideAnimation()
 		{
 			transform.localScale = Vector3.one;
 			return transform.DOScale(new Vector3(_fromScale, _fromScale, 1), Constants.PopupAppearDuration)
@@ -72,5 +72,29 @@ namespace OneYearLater.UI.Popups
 				.ToUniTask();
 		}
 
+		public UniTask ShowAsync()
+		{
+			return UniTask.WhenAll(
+				UnfadeAsync(),
+				PlayShowAnimation()
+			);
+		}		
+		
+		public UniTask HideAsync()
+		{
+			return UniTask.WhenAll(
+				FadeAsync(),
+				PlayHideAnimation()
+			);
+		}
+
+		public async UniTask WaitForUserAnswerAsync()
+		{
+			bool isOkClicked = false;
+			EventHandler okClickHandler = (s, a) => isOkClicked = true;
+			OkButtonClicked += okClickHandler;
+			await UniTask.WaitUntil(() => isOkClicked);
+			OkButtonClicked -= okClickHandler;
+		}
 	}
 }

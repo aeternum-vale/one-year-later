@@ -23,7 +23,7 @@ namespace OneYearLater.UI
 		Message,
 		Alert,
 		Confirm,
-		Promt
+		Prompt
 	}
 
 	[Serializable]
