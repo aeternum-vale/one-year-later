@@ -71,7 +71,11 @@ namespace OneYearLater.Management
 				}
 			}
 
-			DisplayFeedFor(DateTime.Now);
+			await DisplayFeedFor(DateTime.Now);
+
+			Debug.Log($"<color=lightblue>{GetType().Name}:</color> App Initiated");
+
+			_viewManager.UnblockScreen();
 		}
 
 		private void OnExternalStorageStateChanged(EExternalStorageKey key, string state)
@@ -130,10 +134,10 @@ namespace OneYearLater.Management
 
 		private void OnViewManagerDayChanged(object sender, DateTime date)
 		{
-			DisplayFeedFor(date);
+			DisplayFeedFor(date).Forget();
 		}
 
-		private async void DisplayFeedFor(DateTime date)
+		private async UniTask DisplayFeedFor(DateTime date)
 		{
 			_viewManager.SetIsDatePickingBlocked(true);
 			_viewManager.DisplayFeedLoading();

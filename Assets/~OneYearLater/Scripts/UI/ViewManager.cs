@@ -27,21 +27,17 @@ namespace OneYearLater.UI
 		[Inject] private IMobileInputHandler _mobileInputHandler;
 
 		[SerializeField] private ScreenViewSPair[] _screenViewArray;
-		private Dictionary<EScreenViewKey, ScreenView> _screenViewDictionary;
-
-
 		[SerializeField] private ExternalStorageView _externalStorageViewPrefab;
+		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
+		[SerializeField] private SideMenu _sideMenu;
+		[SerializeField] private CanvasGroupFader _screenBlocker;
+
+
+		private Dictionary<EScreenViewKey, ScreenView> _screenViewDictionary;
 		private ExternalStorageViewDataDict _externalStoragesViewData
 			= new ExternalStorageViewDataDict();
-
 		private FeedScreenView _feedView;
 		private ExternalStoragesScreenView _externalStoragesScreenView;
-
-		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
-
-		[SerializeField] private SideMenu _sideMenu;
-
-
 		private EScreenViewKey _currentScreenViewKey = EScreenViewKey.None;
 		private CancellationTokenSource _screenViewChangeCTS;
 
@@ -192,6 +188,18 @@ namespace OneYearLater.UI
 		{
 			DayChanged?.Invoke(this, date);
 		}
+
+
+		public void BlockScreen()
+		{
+			_screenBlocker.UnfadeAsync().Forget();
+		}
+
+		public void UnblockScreen()
+		{
+			_screenBlocker.FadeAsync().Forget();
+		}
+
 
 		[SerializeField] private string _debugPopupMessage;
 		[Button] private void Debug_SetFeedScreenView() => SetScreenView(EScreenViewKey.Feed);
