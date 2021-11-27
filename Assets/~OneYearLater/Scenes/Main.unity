@@ -2927,6 +2927,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SideMenu
       objectReference: {fileID: 0}
+    - target: {fileID: 6684409867832976724, guid: a89315bfb736e6d40b4237a70c18d131, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6684409867832976725, guid: a89315bfb736e6d40b4237a70c18d131, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

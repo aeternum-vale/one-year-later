@@ -7,5 +7,7 @@ namespace OneYearLater.Management.Interfaces
 		UniTask RunMessagePopupAsync(string messageText, string okButtonText);
 		UniTask<string> RunPromptPopupAsync(string messageText, string okButtonText, string placeholderText);
 		UniTask<bool> RunConfirmPopupAsync(string messageText);
+
+		bool IsAnyPopupActive { get; }
 	}
 }

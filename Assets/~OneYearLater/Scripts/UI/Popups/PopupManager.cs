@@ -15,6 +15,8 @@ namespace OneYearLater.UI.Popups
 		[SerializeField] private CanvasGroupFader _background;
 		[SerializeField] private Transform _container;
 
+		public bool IsAnyPopupActive => _container.ActiveChildCount() > 0;
+
 
 		#region Unity Callbacks
 		private void Awake()

@@ -25,7 +25,9 @@ namespace OneYearLater.UI
 		public event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageButtonClicked;
 		public event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
 
+		[Inject] private IPopupManager _popupManager;
 		[Inject] private IMobileInputHandler _mobileInputHandler;
+
 
 		[SerializeField] private ScreenViewSPair[] _screenViewArray;
 		[SerializeField] private ExternalStorageView _externalStorageViewPrefab;
@@ -108,12 +110,13 @@ namespace OneYearLater.UI
 
 		private void OnSwipeRight(object sender, bool fromBorder)
 		{
-			if (fromBorder) _sideMenu.Open();
+			if (fromBorder && !_popupManager.IsAnyPopupActive) _sideMenu.Open();
 		}
 
 		private void OnTapOnRightBorder(object sender, EventArgs args)
 		{
-			_sideMenu.Close();
+			if (!_popupManager.IsAnyPopupActive)
+				_sideMenu.Close();
 		}
 
 		public async UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records)
