@@ -21,7 +21,8 @@ namespace OneYearLater.Management
 		None = 0,
 		Feed,
 		Settings,
-		ExternalStorages
+		ExternalStorages,
+		Import
 	}
 
 	public enum EExternalStorageAppearance

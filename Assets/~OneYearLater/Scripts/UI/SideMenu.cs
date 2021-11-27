@@ -1,19 +1,21 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using NaughtyAttributes;
+using OneYearLater.Management;
 using UnityEngine;
 using UnityEngine.UI;
-using static Utilities.Extensions;
+using Utilities;
 
 namespace OneYearLater.UI
 {
 	public class SideMenu : MonoBehaviour
 	{
-
-		public event EventHandler FeedButtonClick;
-		public event EventHandler ExternalStoragesButtonClick;
+		[SerializeField] private SideMenuButtonSPair[] _screenViewButtonArray;
+		private Dictionary<EScreenViewKey, Button> _screenViewButtonDict;
 
 		[SerializeField] RectTransform _panel;
 		[SerializeField] CanvasGroupFader _background;
@@ -25,20 +27,35 @@ namespace OneYearLater.UI
 		[Header("Animation")]
 		[SerializeField] Ease _easeOpen = Ease.InBounce;
 		[SerializeField] Ease _easeClose = Ease.OutBounce;
-
 		[SerializeField] float _duration = 1f;
+
+
+
+		public event EventHandler<EScreenViewKey> ScreenViewButtonClick;
 
 		public bool IsOpened { get; private set; } = false;
 
 		private CancellationTokenSource _openCloseAnimationCTS;
 
+		private void Awake()
+		{
+			_screenViewButtonDict = _screenViewButtonArray.ToDictionary(sp => sp.Key, sp => sp.Value);
+		}
+
 		private void Start()
 		{
 			_panel.anchoredPosition = new Vector2(-_panel.sizeDelta.x, 0f);
 
-			_feedButton.onClick.AddListener(() => { FeedButtonClick?.Invoke(this, EventArgs.Empty); });
+			AddListeners();
+		}
 
-			_externalStoragesButton.onClick.AddListener(() => { ExternalStoragesButtonClick?.Invoke(this, EventArgs.Empty); });
+		private void AddListeners()
+		{
+			_screenViewButtonDict.ToList().ForEach(
+				kvp => kvp.Value.onClick.AddListener(
+					() => ScreenViewButtonClick?.Invoke(this, kvp.Key)
+				)
+			);
 		}
 
 		[Button]
@@ -51,7 +68,6 @@ namespace OneYearLater.UI
 				var token = _openCloseAnimationCTS.Token;
 
 				_panel.gameObject.SetActive(true);
-
 
 				PlayPanelOpenAnimation(token).Forget();
 				_background.UnfadeAsync(token).Forget();

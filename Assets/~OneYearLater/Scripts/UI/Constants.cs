@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using OneYearLater.Management;
-using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using OneYearLater.UI.Popups;
 using OneYearLater.UI.Views;
 using OneYearLater.UI.Views.ScreenViews;
+using UnityEngine.UI;
 using Utilities;
 
 namespace OneYearLater.UI
@@ -39,4 +39,7 @@ namespace OneYearLater.UI
 	}
 
 	public class ExternalStorageViewDataDict : Dictionary<EExternalStorageKey, ExternalStorageViewData> { };
+	
+	[Serializable]
+	public class SideMenuButtonSPair : SerializableKeyValuePair<EScreenViewKey, Button> { }
 }

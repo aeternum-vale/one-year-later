@@ -7,12 +7,13 @@ using NaughtyAttributes;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
+using OneYearLater.UI.Interfaces;
 using OneYearLater.UI.Views;
 using OneYearLater.UI.Views.ScreenViews;
 using UnityEngine;
 using Zenject;
 
-using static Utilities.Extensions;using OneYearLater.UI.Interfaces;
+using static Utilities.Extensions;
 
 namespace OneYearLater.UI
 {
@@ -56,15 +57,9 @@ namespace OneYearLater.UI
 			_mobileInputHandler.SwipeRight += OnSwipeRight;
 			_mobileInputHandler.TapOnRightBorder += OnTapOnRightBorder;
 
-			_sideMenu.FeedButtonClick += (s, a) =>
+			_sideMenu.ScreenViewButtonClick += (s, key) =>
 			{
-				SetScreenView(EScreenViewKey.Feed);
-				_sideMenu.Close();
-			};
-
-			_sideMenu.ExternalStoragesButtonClick += (s, a) =>
-			{
-				SetScreenView(EScreenViewKey.ExternalStorages);
+				SetScreenView(key);
 				_sideMenu.Close();
 			};
 		}
