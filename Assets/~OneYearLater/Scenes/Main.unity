@@ -1542,6 +1542,7 @@ MonoBehaviour:
   _diaryRecordViewPrefab: {fileID: 7233143904756775791, guid: 3d40805061292044bbd766ac99355b39, type: 3}
   _sideMenu: {fileID: 1093613930}
   _screenBlocker: {fileID: 903555027}
+  _popupManager: {fileID: 1703173533}
   _debugPopupMessage: hello world!
 --- !u!4 &1102503725
 Transform:

@@ -8,6 +8,7 @@ using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using OneYearLater.UI.Interfaces;
+using OneYearLater.UI.Popups;
 using OneYearLater.UI.Views;
 using OneYearLater.UI.Views.ScreenViews;
 using UnityEngine;
@@ -25,7 +26,6 @@ namespace OneYearLater.UI
 		public event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageButtonClicked;
 		public event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
 
-		[Inject] private IPopupManager _popupManager;
 		[Inject] private IMobileInputHandler _mobileInputHandler;
 
 
@@ -34,6 +34,7 @@ namespace OneYearLater.UI
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
 		[SerializeField] private SideMenu _sideMenu;
 		[SerializeField] private CanvasGroupFader _screenBlocker;
+		[SerializeField] private PopupManager _popupManager;
 
 
 		private Dictionary<EScreenViewKey, ScreenView> _screenViewDictionary;
