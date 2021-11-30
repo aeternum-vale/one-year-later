@@ -20,6 +20,7 @@ namespace OneYearLater.Management.Interfaces
 		event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
 		event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageButtonClicked;
 		event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
+		event EventHandler ImportFromTxtButtonClick;
 
 		void BlockScreen();
 		void UnblockScreen();

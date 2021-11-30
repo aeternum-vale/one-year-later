@@ -10,6 +10,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using Utilities;
 
+using static Utilities.Extensions;
+
 namespace OneYearLater.UI
 {
 	public class SideMenu : MonoBehaviour
@@ -39,7 +41,7 @@ namespace OneYearLater.UI
 
 		private void Awake()
 		{
-			_screenViewButtonDict = _screenViewButtonArray.ToDictionary(sp => sp.Key, sp => sp.Value);
+			_screenViewButtonDict = _screenViewButtonArray.ToDictionary();
 		}
 
 		private void Start()

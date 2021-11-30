@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Keiwando.NFSO;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using UniRx;
@@ -25,12 +26,18 @@ namespace OneYearLater.Management
 
 		private void Awake()
 		{
+			_externalStorageDict = _externalStorages.ToDictionary(es => es.Key);
+
+			AddListeners();
+		}
+
+		private void AddListeners()
+		{
 			_viewManager.DayChanged += OnViewManagerDayChanged;
 			_viewManager.ConnectToExternalStorageButtonClicked += OnConnectToExternalStorageButtonClicked;
 			_viewManager.DisconnectFromExternalStorageButtonClicked += OnDisconnectFromExternalStorageButtonClicked;
 			_viewManager.SyncWithExternalStorageButtonClicked += OnSyncWithExternalStorageButtonClicked;
-
-			_externalStorageDict = _externalStorages.ToDictionary(es => es.Key);
+			_viewManager.ImportFromTxtButtonClick += OnImportFromTxtButtonClick;
 		}
 
 		private async void Start()
@@ -146,5 +153,24 @@ namespace OneYearLater.Management
 		}
 
 		private string GetLastSyncStatus(DateTime date) => $"last sync: {date:g}";
+
+		private void OnImportFromTxtButtonClick(object sender, EventArgs args)
+		{
+			NativeFileSO.shared.OpenFile(
+				new SupportedFileType[] { SupportedFileType.PlainText },
+				(isOpened, file) =>
+				{
+					if (isOpened)
+					{
+						Debug.Log($"<color=lightblue>{GetType().Name}:</color> OnImportFromTxtButtonClick file.Name={file.Name}");
+
+						Debug.Log($"<color=lightblue>{GetType().Name}:</color> content={file.ToUTF8String()}");
+					}
+					else
+					{
+						Debug.Log($"<color=lightblue>{GetType().Name}:</color> OnImportFromTxtButtonClick file dialog dismissed");
+					}
+				});
+		}
 	}
 }

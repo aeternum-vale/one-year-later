@@ -24,11 +24,9 @@ namespace Utilities
 			return tween.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(token);
 		}
 
-		public static void ToDictionary<TKey, TValue>(this SerializableKeyValuePair<TKey, TValue>[] array, out Dictionary<TKey, TValue> dictionary)
+		public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this SerializableKeyValuePair<TKey, TValue>[] array)
 		{
-			dictionary = new Dictionary<TKey, TValue>();
-			foreach (var item in array)
-				dictionary[item.Key] = item.Value;
+			return array.ToDictionary(sp => sp.Key, sp => sp.Value);
 		}
 
 		public static int ActiveChildCount(this Transform t)

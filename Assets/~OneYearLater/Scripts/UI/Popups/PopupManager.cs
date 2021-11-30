@@ -21,7 +21,7 @@ namespace OneYearLater.UI.Popups
 		#region Unity Callbacks
 		private void Awake()
 		{
-			_popupPrefabsArray.ToDictionary(out _popupPrefabsDictionary);
+			_popupPrefabsDictionary = _popupPrefabsArray.ToDictionary();
 		}
 
 		#endregion
