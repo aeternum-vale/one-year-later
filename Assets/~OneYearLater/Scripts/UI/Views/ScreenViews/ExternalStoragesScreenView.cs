@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using OneYearLater.UI.Interfaces;
 using UnityEngine;
 
 namespace OneYearLater.UI.Views.ScreenViews
 {
 	[RequireComponent(typeof(ScreenView))]
 
-	public class ExternalStoragesScreenView : MonoBehaviour
+	public class ExternalStoragesScreenView : MonoBehaviour, IScreenView
 	{
 		public event EventHandler ConnectButtonClicked;
 

@@ -1,15 +1,21 @@
 using System;
+using OneYearLater.Management;
+using OneYearLater.Management.Interfaces;
+using OneYearLater.UI.Interfaces;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace OneYearLater.UI.Views.ScreenViews
 {
 	[RequireComponent(typeof(ScreenView))]
-	public class ImportScreenView : MonoBehaviour
+	public class ImportScreenView : MonoBehaviour, IScreenView, IImportScreen
 	{
-		public event EventHandler ImportFromTxtButtonClick;
+		public EScreenViewKey key => EScreenViewKey.Import;
+
+		public event EventHandler ImportFromTextFileButtonClick;
 
 		[SerializeField] private Button _importFromTxtButton;
+
 
 		private void Awake()
 		{
@@ -18,7 +24,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 		private void OnImportFromTxtButtonClick()
 		{
-			ImportFromTxtButtonClick?.Invoke(this, EventArgs.Empty);
+			ImportFromTextFileButtonClick?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }

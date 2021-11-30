@@ -612,6 +612,10 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5040790434076292674, guid: 6d8b2fc1d5140684cb56dacbff319d5e, type: 3}
+      propertyPath: _key
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5040790434076292700, guid: 6d8b2fc1d5140684cb56dacbff319d5e, type: 3}
       propertyPath: m_Name
       value: SettingsScreenView

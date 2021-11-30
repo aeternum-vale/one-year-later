@@ -1,15 +1,22 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using OneYearLater.Management;
+using OneYearLater.Management.Interfaces;
+using OneYearLater.Management.ViewModels;
+using OneYearLater.UI.Interfaces;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Utilities;
 
 namespace OneYearLater.UI.Views.ScreenViews
 {
 	[RequireComponent(typeof(ScreenView))]
-	public class FeedScreenView : MonoBehaviour
+	public class FeedScreenView : MonoBehaviour, IScreenView, IFeedScreen
 	{
+		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
+
 		[SerializeField] private Transform _recordsContainer;
 
 		[SerializeField] private Button _nextDayButton;
@@ -27,15 +34,62 @@ namespace OneYearLater.UI.Views.ScreenViews
 		private DateTime _visibleDate;
 
 
+		public async UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records)
+		{
+			SetDate(date);
+
+			SetIsNoRecordsMessageActive(false);
+			SetIsLoadingImageActive(false);
+			ClearRecordsContainer();
+
+			if (records.IsAny())
+			{
+				SetIsLoadingImageActive(true);
+				List<GameObject> recordGameObjects = new List<GameObject>();
+				foreach (var record in records)
+				{
+					switch (record.Type)
+					{
+						case ERecordKey.Diary:
+
+							DiaryRecordView v = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
+							DiaryRecordViewModel vm = (DiaryRecordViewModel)record;
+							v.TimeText = vm.DateTime.ToString("HH:mm");
+							v.ContentText = vm.Text;
+							recordGameObjects.Add(v.gameObject);
+							break;
+						default:
+							throw new Exception("invalid record type");
+					}
+				}
+				await DisplayRecords(recordGameObjects);
+				SetIsLoadingImageActive(false);
+			}
+			else
+				SetIsNoRecordsMessageActive(true);
+		}
+
+		public void SetIsDatePickingBlocked(bool isBlocked)
+		{
+			bool interactable = !isBlocked;
+			_nextDayButton.interactable = interactable;
+			_prevDayButton.interactable = interactable;
+			_nextYearButton.interactable = interactable;
+			_prevYearButton.interactable = interactable;
+		}
+
+		public void DisplayFeedLoading()
+		{
+			SetIsNoRecordsMessageActive(false);
+			ClearRecordsContainer();
+			SetIsLoadingImageActive(true);
+		}
+
+
+
 		private void Awake()
 		{
 			AddListeners();
-		}
-
-		public void SetDate(DateTime date)
-		{
-			_visibleDate = date;
-			_dateText.text = _visibleDate.ToString("dd.MM.yyyy");
 		}
 
 		private void AddListeners()
@@ -46,7 +100,23 @@ namespace OneYearLater.UI.Views.ScreenViews
 			_prevYearButton.onClick.AddListener(PrevYearButtonClicked);
 		}
 
-		public async UniTask DisplayRecords(IEnumerable<GameObject> records)
+		private void SetIsLoadingImageActive(bool isActive)
+		{
+			_loadingImage.gameObject.SetActive(isActive);
+		}
+
+		private void SetIsNoRecordsMessageActive(bool isActive)
+		{
+			_noRecordsMessage.gameObject.SetActive(isActive);
+		}
+
+		private void SetDate(DateTime date)
+		{
+			_visibleDate = date;
+			_dateText.text = _visibleDate.ToString("dd.MM.yyyy");
+		}
+
+		private async UniTask DisplayRecords(IEnumerable<GameObject> records)
 		{
 			ClearRecordsContainer();
 
@@ -65,7 +135,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 			_feedScrollView.verticalNormalizedPosition = 1;
 		}
 
-		public void ClearRecordsContainer()
+		private void ClearRecordsContainer()
 		{
 			foreach (Transform child in _recordsContainer)
 				Destroy(child.gameObject);
@@ -94,24 +164,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 			DayChanged?.Invoke(this, _visibleDate.AddDays(1));
 		}
 
-		public void SetIsDatePickingBlocked(bool isBlocked)
-		{
-			bool interactable = !isBlocked;
-			_nextDayButton.interactable = interactable;
-			_prevDayButton.interactable = interactable;
-			_nextYearButton.interactable = interactable;
-			_prevYearButton.interactable = interactable;
-		}
 
-		public void SetIsLoadingImageActive(bool isActive)
-		{
-			_loadingImage.gameObject.SetActive(isActive);
-		}
-
-		public void SetIsNoRecordsMessageActive(bool isActive)
-		{
-			_noRecordsMessage.gameObject.SetActive(isActive);
-		}
 
 	}
 }

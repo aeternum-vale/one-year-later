@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Keiwando.NFSO;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using UniRx;
@@ -20,6 +19,10 @@ namespace OneYearLater.Management
 		[Inject] private IAppLocalStorage _appLocalStorage;
 		[Inject] private IExternalStorage[] _externalStorages;
 		[Inject] private IPopupManager _popupManager;
+		[Inject] private Importer _importer;
+
+		[Inject] private IFeedScreen _feedScreen;
+		[Inject] private IImportScreen _importScreen;
 
 		private Dictionary<EExternalStorageKey, IExternalStorage> _externalStorageDict;
 		private UniTask _externalStorageStateSavingTask = UniTask.CompletedTask;
@@ -33,11 +36,11 @@ namespace OneYearLater.Management
 
 		private void AddListeners()
 		{
-			_viewManager.DayChanged += OnViewManagerDayChanged;
+			_feedScreen.DayChanged += OnViewManagerDayChanged;
 			_viewManager.ConnectToExternalStorageButtonClicked += OnConnectToExternalStorageButtonClicked;
 			_viewManager.DisconnectFromExternalStorageButtonClicked += OnDisconnectFromExternalStorageButtonClicked;
 			_viewManager.SyncWithExternalStorageButtonClicked += OnSyncWithExternalStorageButtonClicked;
-			_viewManager.ImportFromTxtButtonClick += OnImportFromTxtButtonClick;
+			_importScreen.ImportFromTextFileButtonClick += OnImportFromTextFileButtonClick;
 		}
 
 		private async void Start()
@@ -146,31 +149,17 @@ namespace OneYearLater.Management
 
 		private async UniTask DisplayFeedFor(DateTime date)
 		{
-			_viewManager.SetIsDatePickingBlocked(true);
-			_viewManager.DisplayFeedLoading();
-			await _viewManager.DisplayDayFeedAsync(date, await _localRecordStorage.GetAllDayRecordsAsync(date));
-			_viewManager.SetIsDatePickingBlocked(false);
+			_feedScreen.SetIsDatePickingBlocked(true);
+			_feedScreen.DisplayFeedLoading();
+			await _feedScreen.DisplayDayFeedAsync(date, await _localRecordStorage.GetAllDayRecordsAsync(date));
+			_feedScreen.SetIsDatePickingBlocked(false);
 		}
 
 		private string GetLastSyncStatus(DateTime date) => $"last sync: {date:g}";
 
-		private void OnImportFromTxtButtonClick(object sender, EventArgs args)
+		private void OnImportFromTextFileButtonClick(object sender, EventArgs args)
 		{
-			NativeFileSO.shared.OpenFile(
-				new SupportedFileType[] { SupportedFileType.PlainText },
-				(isOpened, file) =>
-				{
-					if (isOpened)
-					{
-						Debug.Log($"<color=lightblue>{GetType().Name}:</color> OnImportFromTxtButtonClick file.Name={file.Name}");
-
-						Debug.Log($"<color=lightblue>{GetType().Name}:</color> content={file.ToUTF8String()}");
-					}
-					else
-					{
-						Debug.Log($"<color=lightblue>{GetType().Name}:</color> OnImportFromTxtButtonClick file dialog dismissed");
-					}
-				});
+			_importer.ImportFromTextFile();
 		}
 	}
 }
