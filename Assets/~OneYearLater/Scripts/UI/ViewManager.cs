@@ -25,29 +25,27 @@ namespace OneYearLater.UI
 		public event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
 
 		[Inject] private IMobileInputHandler _mobileInputHandler;
+		[Inject] private PopupManager _popupManager;
+
 
 		[Header("Screen Views")]
 		[SerializeField] private Transform _sceenViewContainer;
 
 		[Inject] private FeedScreenView _feedScreenView;
 		[Inject] private ImportScreenView _importScreenView;
-		[SerializeField] private ExternalStoragesScreenView _externalStoragesScreenView;
+		[Inject] private ExternalStoragesScreenView _externalStoragesScreenView;
 
 		[Space(10)]
 		[SerializeField] private ExternalStorageView _externalStorageViewPrefab;
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
 		[SerializeField] private SideMenu _sideMenu;
 		[SerializeField] private CanvasGroupFader _screenBlocker;
-		[SerializeField] private PopupManager _popupManager;
 
 
 		private Dictionary<EScreenViewKey, ScreenView> _screenViewKeyDictionary;
-		private ExternalStorageViewDataDict _externalStoragesViewData
-			= new ExternalStorageViewDataDict();
+		private ExternalStorageViewDataDict _externalStoragesViewData = new ExternalStorageViewDataDict();
 		private EScreenViewKey _currentScreenViewKey = EScreenViewKey.None;
 		private CancellationTokenSource _screenViewChangeCTS;
-
-
 
 
 		#region Unity Callbacks
@@ -55,7 +53,7 @@ namespace OneYearLater.UI
 		{
 			_screenViewKeyDictionary = 
 				_sceenViewContainer
-				.GetComponentsInChildren<ScreenView>()
+				.GetComponentsInChildren<ScreenView>(true)
 				.ToDictionary(sv => sv.Key);
 
 			AddListeners();

@@ -20,6 +20,7 @@ namespace OneYearLater.DI
 		[Header("Screen Views")]
 		[SerializeField] private FeedScreenView _feedScreenView;
 		[SerializeField] private ImportScreenView _importScreenView;
+		[SerializeField] private ExternalStoragesScreenView _externalStoragesScreenView;
 
 
 		public override void InstallBindings()
@@ -29,7 +30,10 @@ namespace OneYearLater.DI
 			Container.Bind<IAppLocalStorage>().To<SQLiteAppLocalStorage>().FromNew().AsSingle();
 			Container.Bind<IMobileInputHandler>().To<LeanTouchFacade>().FromInstance(_leanTouchFacade).AsSingle();
 			Container.Bind<IExternalStorage>().FromMethodMultiple(GetExternalStorages).AsSingle();
-			Container.Bind<IPopupManager>().To<PopupManager>().FromInstance(_popupManager).AsSingle();
+
+			Container.Bind<PopupManager>().FromInstance(_popupManager).AsSingle();
+			Container.Bind<IPopupManager>().To<PopupManager>().FromResolve();
+
 			Container.Bind<Importer>().FromNew().AsSingle();
 
 			Container.Bind<FeedScreenView>().FromInstance(_feedScreenView).AsSingle();
@@ -37,6 +41,8 @@ namespace OneYearLater.DI
 
 			Container.Bind<ImportScreenView>().FromInstance(_importScreenView).AsSingle();
 			Container.Bind<IImportScreen>().To<ImportScreenView>().FromResolve();
+
+			Container.Bind<ExternalStoragesScreenView>().FromInstance(_externalStoragesScreenView).AsSingle();
 		}
 
 		IExternalStorage[] GetExternalStorages(InjectContext context)

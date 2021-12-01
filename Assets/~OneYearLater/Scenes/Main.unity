@@ -276,6 +276,7 @@ MonoBehaviour:
   _popupManager: {fileID: 1703173533}
   _feedScreenView: {fileID: 2038687321}
   _importScreenView: {fileID: 245002424}
+  _externalStoragesScreenView: {fileID: 234615181}
 --- !u!4 &121249038
 Transform:
   m_ObjectHideFlags: 0
@@ -1625,12 +1626,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _sceenViewContainer: {fileID: 30507375}
-  _externalStoragesScreenView: {fileID: 234615181}
   _externalStorageViewPrefab: {fileID: 5345048187069249228, guid: ed0656cb177d89e41a73c7874d5f8651, type: 3}
   _diaryRecordViewPrefab: {fileID: 7233143904756775791, guid: 3d40805061292044bbd766ac99355b39, type: 3}
   _sideMenu: {fileID: 1093613930}
   _screenBlocker: {fileID: 903555027}
-  _popupManager: {fileID: 1703173533}
 --- !u!4 &1102503725
 Transform:
   m_ObjectHideFlags: 0
