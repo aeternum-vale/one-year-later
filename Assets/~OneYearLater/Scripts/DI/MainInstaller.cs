@@ -1,6 +1,7 @@
 using OneYearLater.ExternalStorages;
 using OneYearLater.LocalStorages;
 using OneYearLater.Management;
+using OneYearLater.Management.Controllers;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.UI;
 using OneYearLater.UI.Interfaces;
@@ -37,12 +38,16 @@ namespace OneYearLater.DI
 			Container.Bind<Importer>().FromNew().AsSingle();
 
 			Container.Bind<FeedScreenView>().FromInstance(_feedScreenView).AsSingle();
-			Container.Bind<IFeedScreen>().To<FeedScreenView>().FromResolve();
+			Container.Bind<IFeedScreenView>().To<FeedScreenView>().FromResolve();
 
 			Container.Bind<ImportScreenView>().FromInstance(_importScreenView).AsSingle();
-			Container.Bind<IImportScreen>().To<ImportScreenView>().FromResolve();
+			Container.Bind<IImportScreenView>().To<ImportScreenView>().FromResolve();
 
 			Container.Bind<ExternalStoragesScreenView>().FromInstance(_externalStoragesScreenView).AsSingle();
+			Container.Bind<IExternalStoragesScreenView>().To<ExternalStoragesScreenView>().FromResolve();
+
+			Container.Bind<FeedScreenController>().FromNew().AsSingle();
+			Container.Bind<ExternalStoragesScreenController>().FromNew().AsSingle();
 		}
 
 		IExternalStorage[] GetExternalStorages(InjectContext context)

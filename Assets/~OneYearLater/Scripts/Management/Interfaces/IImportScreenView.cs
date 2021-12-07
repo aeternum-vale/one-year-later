@@ -1,7 +1,7 @@
 using System;
 namespace OneYearLater.Management.Interfaces
 {
-	public interface IImportScreen
+	public interface IImportScreenView
 	{
 		event EventHandler ImportFromTextFileButtonClick;
 	}

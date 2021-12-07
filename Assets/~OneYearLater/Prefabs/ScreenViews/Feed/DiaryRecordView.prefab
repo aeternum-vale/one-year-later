@@ -478,7 +478,7 @@ GameObject:
   - component: {fileID: 573226946440262224}
   - component: {fileID: 7691238290794373613}
   m_Layer: 5
-  m_Name: DiaryRecord
+  m_Name: DiaryRecordView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

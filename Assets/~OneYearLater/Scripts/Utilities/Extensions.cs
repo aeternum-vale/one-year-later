@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Utilities
 {
@@ -37,6 +38,12 @@ namespace Utilities
 				if (c.gameObject.activeSelf) k++;
 
 			return k;
+		}
+
+		public static async UniTask RebuildLayout(this RectTransform layoutGroup)
+		{
+			await UniTask.WaitForEndOfFrame();
+			LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup);
 		}
 
 	}

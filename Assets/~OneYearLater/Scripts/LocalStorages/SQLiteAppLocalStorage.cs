@@ -3,8 +3,8 @@ using Cysharp.Threading.Tasks;
 using OneYearLater.LocalStorages.Models;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
+using OneYearLater.Management.ViewModels;
 using SQLite;
-using UnityEngine;
 
 namespace OneYearLater.LocalStorages
 {
@@ -23,7 +23,7 @@ namespace OneYearLater.LocalStorages
 			_connection.CreateTableAsync<SQLiteExternalStorageModel>().Forget();
 		}
 
-		public async UniTask<ExternalStorageModel?> GetExternalStorageAsync(EExternalStorageKey key)
+		public async UniTask<ExternalStorageViewModel?> GetExternalStorageAsync(EExternalStorageKey key)
 		{
 			SQLiteExternalStorageModel sqliteModel = await _connection
 				.Table<SQLiteExternalStorageModel>()
@@ -31,13 +31,13 @@ namespace OneYearLater.LocalStorages
 				.FirstOrDefaultAsync();
 
 			return sqliteModel != null ?
-				new ExternalStorageModel
+				new ExternalStorageViewModel
 				{
 					key = key,
 					state = sqliteModel.State,
 					lastSync = sqliteModel.LastSync
 				} :
-				(ExternalStorageModel?)null;
+				(ExternalStorageViewModel?)null;
 		}
 
 		public async UniTask UpdateExternalStorageStateAsync(EExternalStorageKey key, string state)

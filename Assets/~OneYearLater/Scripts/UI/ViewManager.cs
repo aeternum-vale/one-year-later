@@ -5,12 +5,12 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
-using OneYearLater.Management.ViewModels;
 using OneYearLater.UI.Interfaces;
 using OneYearLater.UI.Popups;
 using OneYearLater.UI.Views;
 using OneYearLater.UI.Views.ScreenViews;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Zenject;
 
 using static Utilities.Extensions;
@@ -20,30 +20,21 @@ namespace OneYearLater.UI
 
 	public class ViewManager : MonoBehaviour, IViewManager
 	{
-		public event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
-		public event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageButtonClicked;
-		public event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
 
-		[Inject] private IMobileInputHandler _mobileInputHandler;
 		[Inject] private PopupManager _popupManager;
+		[Inject] private IMobileInputHandler _mobileInputHandler;
 
 
 		[Header("Screen Views")]
-		[SerializeField] private Transform _sceenViewContainer;
+		[SerializeField] [FormerlySerializedAs("_sceenViewContainer")] private Transform _screenViewContainer;
 
-		[Inject] private FeedScreenView _feedScreenView;
-		[Inject] private ImportScreenView _importScreenView;
-		[Inject] private ExternalStoragesScreenView _externalStoragesScreenView;
 
 		[Space(10)]
-		[SerializeField] private ExternalStorageView _externalStorageViewPrefab;
-		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
 		[SerializeField] private SideMenu _sideMenu;
 		[SerializeField] private CanvasGroupFader _screenBlocker;
 
 
 		private Dictionary<EScreenViewKey, ScreenView> _screenViewKeyDictionary;
-		private ExternalStorageViewDataDict _externalStoragesViewData = new ExternalStorageViewDataDict();
 		private EScreenViewKey _currentScreenViewKey = EScreenViewKey.None;
 		private CancellationTokenSource _screenViewChangeCTS;
 
@@ -52,7 +43,7 @@ namespace OneYearLater.UI
 		private void Awake()
 		{
 			_screenViewKeyDictionary = 
-				_sceenViewContainer
+				_screenViewContainer
 				.GetComponentsInChildren<ScreenView>(true)
 				.ToDictionary(sv => sv.Key);
 
@@ -61,7 +52,6 @@ namespace OneYearLater.UI
 
 		private void Start()
 		{
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> _feedScreenView={_feedScreenView}");
 			SetScreenView(EScreenViewKey.Feed);
 		}
 
@@ -79,42 +69,7 @@ namespace OneYearLater.UI
 			};
 		}
 
-		public void ProvideExternalStorageViewModels(IEnumerable<ExternalStorageViewModel> viewModels)
-		{
-			viewModels.ToList().ForEach(vm =>
-			{
-				ExternalStorageView view = Instantiate(_externalStorageViewPrefab);
-				view.MobileInputHandler = _mobileInputHandler;
-				view.Text = vm.name;
-				_externalStoragesViewData.Add(
-					vm.key,
-					new ExternalStorageViewData()
-					{
-						view = view,
-						viewModel = vm
-					});
-
-				view.ConnectButtonClicked += (s, a) =>
-					ConnectToExternalStorageButtonClicked?.Invoke(this, vm.key);
-
-				view.DisconnectButtonClicked += (s, a) =>
-					DisconnectFromExternalStorageButtonClicked?.Invoke(this, vm.key);
-
-				view.SyncButtonClicked += (s, a) =>
-					SyncWithExternalStorageButtonClicked?.Invoke(this, vm.key);
-
-				view.ChangeAppearance(EExternalStorageAppearance.NotConnected);
-			});
-
-			_externalStoragesScreenView.PopulateExternalStoragesList(_externalStoragesViewData);
-		}
-
-		public void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance appearance, string status = null)
-		{
-			ExternalStorageView view = _externalStoragesViewData[key].view;
-			view.ChangeAppearance(appearance, status);
-		}
-
+	
 		private void OnSwipeRight(object sender, bool fromBorder)
 		{
 			if (fromBorder && !_popupManager.IsAnyPopupActive) _sideMenu.Open();

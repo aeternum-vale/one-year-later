@@ -615,10 +615,10 @@ RectTransform:
   m_Father: {fileID: 43558542}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 10, y: 0}
-  m_SizeDelta: {x: 20, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 10, y: -10}
+  m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1952847161
 MonoBehaviour:
@@ -672,7 +672,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1d884ecf053b504e962eefafba2ad64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _diaryRecordViewPrefab: {fileID: 7233143904756775791, guid: 3d40805061292044bbd766ac99355b39, type: 3}
   _recordsContainer: {fileID: 1952847160}
+  _scrollViewContent: {fileID: 43558542}
+  _feedScrollRect: {fileID: 1518136358}
   _nextDayButton: {fileID: 4800800965242876781}
   _prevDayButton: {fileID: 2092252419980775157}
   _nextYearButton: {fileID: 6735306864971803671}
@@ -680,8 +683,6 @@ MonoBehaviour:
   _dateText: {fileID: 1171921990}
   _loadingImage: {fileID: 1162122044}
   _noRecordsMessage: {fileID: 325410533}
-  _feedScrollView: {fileID: 1518136358}
-  _scrollViewContent: {fileID: 43558542}
 --- !u!114 &889642557
 MonoBehaviour:
   m_ObjectHideFlags: 0

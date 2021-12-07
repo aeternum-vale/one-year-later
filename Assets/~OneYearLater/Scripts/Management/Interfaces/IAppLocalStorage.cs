@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using OneYearLater.Management.ViewModels;
 
 namespace OneYearLater.Management.Interfaces
 {
@@ -7,6 +8,6 @@ namespace OneYearLater.Management.Interfaces
 	{
 		UniTask UpdateExternalStorageStateAsync(EExternalStorageKey key, string state);
 		UniTask UpdateExternalStorageSyncDateAsync(EExternalStorageKey key, DateTime syncDate);
-		UniTask<ExternalStorageModel?> GetExternalStorageAsync(EExternalStorageKey key);
+		UniTask<ExternalStorageViewModel?> GetExternalStorageAsync(EExternalStorageKey key);
 	}
 }

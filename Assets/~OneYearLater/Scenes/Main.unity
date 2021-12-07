@@ -483,7 +483,7 @@ GameObject:
   - component: {fileID: 190962633}
   - component: {fileID: 190962632}
   m_Layer: 0
-  m_Name: MainController
+  m_Name: App
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -513,7 +513,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &234615181 stripped
 MonoBehaviour:
@@ -930,7 +930,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &609013916
 GameObject:
@@ -1625,9 +1625,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc13167a66aa4e44b87b8bf364b237f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _sceenViewContainer: {fileID: 30507375}
-  _externalStorageViewPrefab: {fileID: 5345048187069249228, guid: ed0656cb177d89e41a73c7874d5f8651, type: 3}
-  _diaryRecordViewPrefab: {fileID: 7233143904756775791, guid: 3d40805061292044bbd766ac99355b39, type: 3}
+  _screenViewContainer: {fileID: 30507375}
   _sideMenu: {fileID: 1093613930}
   _screenBlocker: {fileID: 903555027}
 --- !u!4 &1102503725
@@ -3133,11 +3131,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_SizeDelta.x
@@ -3145,7 +3143,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -3153,7 +3151,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 4861109902166809486, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_Pivot.x

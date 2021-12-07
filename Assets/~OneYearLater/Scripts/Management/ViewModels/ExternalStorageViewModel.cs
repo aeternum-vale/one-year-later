@@ -6,5 +6,7 @@ namespace OneYearLater.Management.ViewModels
 	{
 		public EExternalStorageKey key;
 		public string name;
+		public string state;
+		public DateTime? lastSync;
 	}
 }

@@ -13,11 +13,13 @@ using Utilities;
 namespace OneYearLater.UI.Views.ScreenViews
 {
 	[RequireComponent(typeof(ScreenView))]
-	public class FeedScreenView : MonoBehaviour, IScreenView, IFeedScreen
+	public class FeedScreenView : MonoBehaviour, IScreenView, IFeedScreenView
 	{
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
 
-		[SerializeField] private Transform _recordsContainer;
+		[SerializeField] private RectTransform _recordsContainer;
+		[SerializeField] private RectTransform _scrollViewContent;
+		[SerializeField] private ScrollRect _feedScrollRect;
 
 		[SerializeField] private Button _nextDayButton;
 		[SerializeField] private Button _prevDayButton;
@@ -27,15 +29,13 @@ namespace OneYearLater.UI.Views.ScreenViews
 		[SerializeField] private TextMeshProUGUI _dateText;
 		[SerializeField] private GameObject _loadingImage;
 		[SerializeField] private GameObject _noRecordsMessage;
-		[SerializeField] private ScrollRect _feedScrollView;
-		[SerializeField] private RectTransform _scrollViewContent;
 
 		public event EventHandler<DateTime> DayChanged;
 		private DateTime _visibleDate;
 
 
 		public async UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records)
-		{
+		{ 
 			SetDate(date);
 
 			SetIsNoRecordsMessageActive(false);
@@ -78,7 +78,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 			_prevYearButton.interactable = interactable;
 		}
 
-		public void DisplayFeedLoading()
+		public void DisplayThatFeedIsLoading()
 		{
 			SetIsNoRecordsMessageActive(false);
 			ClearRecordsContainer();
@@ -123,16 +123,10 @@ namespace OneYearLater.UI.Views.ScreenViews
 			foreach (var record in records)
 				record.transform.SetParent(_recordsContainer);
 
-			await UniTask.WaitForEndOfFrame();
+			await _recordsContainer.RebuildLayout();
+			await _scrollViewContent.RebuildLayout();
 
-			var feedViewLayoutGroup = _recordsContainer.GetComponent<LayoutGroup>();
-			LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)feedViewLayoutGroup.transform);
-
-			await UniTask.WaitForEndOfFrame();
-			var contentLayoutGroup = _scrollViewContent.GetComponent<LayoutGroup>();
-			LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)contentLayoutGroup.transform);
-
-			_feedScrollView.verticalNormalizedPosition = 1;
+			_feedScrollRect.verticalNormalizedPosition = 1;
 		}
 
 		private void ClearRecordsContainer()
@@ -150,21 +144,16 @@ namespace OneYearLater.UI.Views.ScreenViews
 		private void PrevYearButtonClicked()
 		{
 			DayChanged?.Invoke(this, _visibleDate.AddYears(-1));
-
 		}
 
 		private void PrevDayButtonClicked()
 		{
 			DayChanged?.Invoke(this, _visibleDate.AddDays(-1));
-
 		}
 
 		private void NextDayButtonClicked()
 		{
 			DayChanged?.Invoke(this, _visibleDate.AddDays(1));
 		}
-
-
-
 	}
 }

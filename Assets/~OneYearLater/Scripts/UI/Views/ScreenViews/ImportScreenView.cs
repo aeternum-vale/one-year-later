@@ -8,7 +8,7 @@ using UnityEngine.UI;
 namespace OneYearLater.UI.Views.ScreenViews
 {
 	[RequireComponent(typeof(ScreenView))]
-	public class ImportScreenView : MonoBehaviour, IScreenView, IImportScreen
+	public class ImportScreenView : MonoBehaviour, IScreenView, IImportScreenView
 	{
 		public EScreenViewKey key => EScreenViewKey.Import;
 

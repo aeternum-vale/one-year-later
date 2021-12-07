@@ -75,6 +75,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _settingParametersContainer: {fileID: 1470154910}
+  _externalStorageViewPrefab: {fileID: 5345048187069249228, guid: ed0656cb177d89e41a73c7874d5f8651, type: 3}
 --- !u!1001 &7519755101260122862
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -5,11 +5,11 @@ using OneYearLater.Management.ViewModels;
 
 namespace OneYearLater.Management.Interfaces
 {
-	public interface IFeedScreen
+	public interface IFeedScreenView
 	{
 		event EventHandler<DateTime> DayChanged;
 		UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records);
 		void SetIsDatePickingBlocked(bool isBlocked);
-		void DisplayFeedLoading();
+		void DisplayThatFeedIsLoading();
 	}
 }
