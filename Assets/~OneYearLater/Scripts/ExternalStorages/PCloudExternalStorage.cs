@@ -46,7 +46,6 @@ namespace OneYearLater.ExternalStorages
 
 		public void Init(string state)
 		{
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> Init");
 		}
 
 		public UniTask<bool> IsConnected()

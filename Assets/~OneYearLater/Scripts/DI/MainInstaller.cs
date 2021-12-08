@@ -22,6 +22,7 @@ namespace OneYearLater.DI
 		[SerializeField] private FeedScreenView _feedScreenView;
 		[SerializeField] private ImportScreenView _importScreenView;
 		[SerializeField] private ExternalStoragesScreenView _externalStoragesScreenView;
+		[SerializeField] private RecordEditorScreenView _recordEditorScreenView;
 
 
 		public override void InstallBindings()
@@ -39,15 +40,18 @@ namespace OneYearLater.DI
 
 			Container.Bind<FeedScreenView>().FromInstance(_feedScreenView).AsSingle();
 			Container.Bind<IFeedScreenView>().To<FeedScreenView>().FromResolve();
+			Container.Bind<FeedScreenController>().FromNew().AsSingle();
 
 			Container.Bind<ImportScreenView>().FromInstance(_importScreenView).AsSingle();
 			Container.Bind<IImportScreenView>().To<ImportScreenView>().FromResolve();
 
 			Container.Bind<ExternalStoragesScreenView>().FromInstance(_externalStoragesScreenView).AsSingle();
 			Container.Bind<IExternalStoragesScreenView>().To<ExternalStoragesScreenView>().FromResolve();
-
-			Container.Bind<FeedScreenController>().FromNew().AsSingle();
 			Container.Bind<ExternalStoragesScreenController>().FromNew().AsSingle();
+
+			Container.Bind<RecordEditorScreenView>().FromInstance(_recordEditorScreenView).AsSingle();
+			Container.Bind<IRecordEditorScreenView>().To<RecordEditorScreenView>().FromResolve();
+			Container.Bind<RecordEditorScreenController>().FromNew().AsSingle().NonLazy();
 		}
 
 		IExternalStorage[] GetExternalStorages(InjectContext context)

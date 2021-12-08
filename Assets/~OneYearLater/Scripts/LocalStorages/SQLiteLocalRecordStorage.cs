@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Net.Mime;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,9 @@ using OneYearLater.Management.ViewModels;
 using SQLite;
 
 using Debug = UnityEngine.Debug;
+using Utilities;
+using System.Globalization;
+using UnityEngine;
 
 #if !UNITY_EDITOR
 using System.Collections;
@@ -50,12 +54,40 @@ namespace OneYearLater.LocalStorages
 				.Select(rm => new DiaryRecordViewModel(rm.RecordDateTime, rm.Content));
 		}
 
-		public UniTask SaveRecordsAsync(IEnumerable<BaseRecordViewModel> records)
+		public async UniTask SaveRecordsAsync(IEnumerable<BaseRecordViewModel> records)
 		{
-			return UniTask.CompletedTask;
+			foreach (var record in records)
+			{
+				switch (record.Type)
+				{
+					case Management.ERecordKey.Diary:
+
+						var diaryRecord = (DiaryRecordViewModel)record;
+						int type = (int)diaryRecord.Type;
+						DateTime created = DateTime.Now;
+
+						var sqliteRecord = new SQLiteRecordModel()
+						{
+							Type = type,
+							RecordDateTime = record.DateTime,
+							Content = diaryRecord.Text,
+							Hash = Utils.GetSHA256Hash(
+								type +
+								record.DateTime.ToString(CultureInfo.InvariantCulture) +
+								diaryRecord.Text +
+								created.ToString(CultureInfo.InvariantCulture)
+							),
+							AdditionalInfo = $"buildGUID={Application.buildGUID}"
+						};
+
+						
+						await _connectionToLocal.InsertAsync(sqliteRecord);
+						break;
+				}
+			}
 		}
 
-		public async UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage)
+		public async UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage) //TODO refactor
 		{
 			string originalLocalDbPath = LocalStorageUtils.GetDbPathOnDevice(_dbNameWithExtension);
 

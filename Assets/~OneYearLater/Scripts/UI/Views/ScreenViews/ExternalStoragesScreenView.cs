@@ -26,9 +26,6 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 		private ExternalStorageViewDataDict _externalStoragesViewData = new ExternalStorageViewDataDict();
 
-
-
-
 		public void ProvideExternalStorageViewModels(IEnumerable<ExternalStorageViewModel> viewModels)
 		{
 			viewModels.ToList().ForEach(vm =>

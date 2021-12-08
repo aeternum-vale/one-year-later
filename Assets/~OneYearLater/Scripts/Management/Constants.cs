@@ -22,7 +22,8 @@ namespace OneYearLater.Management
 		Feed,
 		Settings,
 		ExternalStorages,
-		Import
+		Import,
+		RecordEditor
 	}
 
 	public enum EExternalStorageAppearance

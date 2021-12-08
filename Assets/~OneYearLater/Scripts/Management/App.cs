@@ -9,10 +9,7 @@ namespace OneYearLater.Management
 	public class App : MonoBehaviour
 	{
 		[Inject] private IViewManager _viewManager;
-		[Inject] private ILocalRecordStorage _localRecordStorage;
-		[Inject] private IAppLocalStorage _appLocalStorage;
 
-		[Inject] private IPopupManager _popupManager;
 		[Inject] private Importer _importer;
 		[Inject] private FeedScreenController _feedScreenController;
 		[Inject] private ExternalStoragesScreenController _externalStoragesScreenController;

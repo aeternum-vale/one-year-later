@@ -29,13 +29,15 @@ namespace OneYearLater.UI.Views.ScreenViews
 		[SerializeField] private TextMeshProUGUI _dateText;
 		[SerializeField] private GameObject _loadingImage;
 		[SerializeField] private GameObject _noRecordsMessage;
+		[SerializeField] private Button _addRecordButton;
 
 		public event EventHandler<DateTime> DayChanged;
+		public event EventHandler AddRecordButtonClicked;
 		private DateTime _visibleDate;
 
 
 		public async UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records)
-		{ 
+		{
 			SetDate(date);
 
 			SetIsNoRecordsMessageActive(false);
@@ -85,8 +87,6 @@ namespace OneYearLater.UI.Views.ScreenViews
 			SetIsLoadingImageActive(true);
 		}
 
-
-
 		private void Awake()
 		{
 			AddListeners();
@@ -98,6 +98,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 			_prevDayButton.onClick.AddListener(PrevDayButtonClicked);
 			_nextYearButton.onClick.AddListener(NextYearButtonClicked);
 			_prevYearButton.onClick.AddListener(PrevYearButtonClicked);
+			_addRecordButton.onClick.AddListener(OnAddRecordButtonClicked);
 		}
 
 		private void SetIsLoadingImageActive(bool isActive)
@@ -154,6 +155,11 @@ namespace OneYearLater.UI.Views.ScreenViews
 		private void NextDayButtonClicked()
 		{
 			DayChanged?.Invoke(this, _visibleDate.AddDays(1));
+		}
+
+		private void OnAddRecordButtonClicked()
+		{
+			AddRecordButtonClicked?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }

@@ -15,11 +15,11 @@ namespace OneYearLater.Management.Controllers
 {
 	public class ExternalStoragesScreenController
 	{
+		[Inject] IViewManager _viewManager;
 		[Inject] IPopupManager _popupManager;
 		[Inject] ILocalRecordStorage _localRecordStorage;
 		[Inject] IAppLocalStorage _appLocalStorage;
 		[Inject] IExternalStorage[] _externalStorages;
-		[Inject] IViewManager _viewManager;
 
 
 		private IExternalStoragesScreenView _view;
@@ -35,6 +35,7 @@ namespace OneYearLater.Management.Controllers
 			_externalStorages = externalStorages;
 			_externalStorageDict = externalStorages.ToDictionary(es => es.Key);
 			_view = externalStoragesScreenView;
+			
 			AddListeners();
 		}
 
