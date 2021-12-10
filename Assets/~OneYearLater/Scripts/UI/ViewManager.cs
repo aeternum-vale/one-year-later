@@ -7,10 +7,8 @@ using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.UI.Interfaces;
 using OneYearLater.UI.Popups;
-using OneYearLater.UI.Views;
 using OneYearLater.UI.Views.ScreenViews;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Zenject;
 
 using static Utilities.Extensions;
@@ -26,7 +24,7 @@ namespace OneYearLater.UI
 
 
 		[Header("Screen Views")]
-		[SerializeField] [FormerlySerializedAs("_sceenViewContainer")] private Transform _screenViewContainer;
+		[SerializeField] private Transform _screenViewContainer;
 
 
 		[Space(10)]
@@ -42,17 +40,13 @@ namespace OneYearLater.UI
 		#region Unity Callbacks
 		private void Awake()
 		{
-			_screenViewKeyDictionary = 
+			Debug.Log($"<color=green>{GetType().Name}:</color> Awake");
+			_screenViewKeyDictionary =
 				_screenViewContainer
 				.GetComponentsInChildren<ScreenView>(true)
 				.ToDictionary(sv => sv.Key);
 
 			AddListeners();
-		}
-
-		private void Start()
-		{
-			SetScreenView(EScreenViewKey.Feed);
 		}
 
 		#endregion
@@ -69,7 +63,7 @@ namespace OneYearLater.UI
 			};
 		}
 
-	
+
 		private void OnSwipeRight(object sender, bool fromBorder)
 		{
 			if (fromBorder && !_popupManager.IsAnyPopupActive) _sideMenu.Open();

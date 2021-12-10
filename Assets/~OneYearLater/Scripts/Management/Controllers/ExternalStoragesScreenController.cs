@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,36 +7,23 @@ using OneYearLater.Management.ViewModels;
 using Zenject;
 using UniRx;
 
-
 using static Utilities.Utils;
 
 namespace OneYearLater.Management.Controllers
 {
 	public class ExternalStoragesScreenController
 	{
-		[Inject] IViewManager _viewManager;
-		[Inject] IPopupManager _popupManager;
-		[Inject] ILocalRecordStorage _localRecordStorage;
-		[Inject] IAppLocalStorage _appLocalStorage;
-		[Inject] IExternalStorage[] _externalStorages;
+		[Inject] private IPopupManager _popupManager;
+		[Inject] private ILocalRecordStorage _localRecordStorage;
+		[Inject] private IAppLocalStorage _appLocalStorage;
+		[Inject] private IExternalStorage[] _externalStorages;
+		[Inject] private IScreensMediator _screensMediator;
 
 
 		private IExternalStoragesScreenView _view;
 		private Dictionary<EExternalStorageKey, IExternalStorage> _externalStorageDict;
 		private UniTask _externalStorageStateSavingTask = UniTask.CompletedTask;
 
-
-		public ExternalStoragesScreenController(
-			IExternalStoragesScreenView externalStoragesScreenView,
-			IExternalStorage[] externalStorages
-		)
-		{
-			_externalStorages = externalStorages;
-			_externalStorageDict = externalStorages.ToDictionary(es => es.Key);
-			_view = externalStoragesScreenView;
-			
-			AddListeners();
-		}
 
 		public async UniTask InitEachExternalStorage()
 		{
@@ -48,7 +34,7 @@ namespace OneYearLater.Management.Controllers
 					.ToArray();
 
 			_view.ProvideExternalStorageViewModels(vms);
-			
+
 			foreach (var es in _externalStorages)
 			{
 				var esvm = await _appLocalStorage.GetExternalStorageAsync(es.Key);
@@ -58,8 +44,8 @@ namespace OneYearLater.Management.Controllers
 
 				if (es.IsWaitingForAccessCode)
 				{
-					_viewManager.SetScreenView(EScreenViewKey.ExternalStorages);
-					ShowExternalStorageAccessCodePrompt(es);
+					await _screensMediator.ActivateExternalStoragesScreens();
+					await ShowExternalStorageAccessCodePrompt(es);
 					continue;
 				}
 
@@ -79,6 +65,18 @@ namespace OneYearLater.Management.Controllers
 			}
 		}
 
+		public ExternalStoragesScreenController(
+			IExternalStoragesScreenView externalStoragesScreenView,
+			IExternalStorage[] externalStorages
+		)
+		{
+			_externalStorages = externalStorages;
+			_externalStorageDict = externalStorages.ToDictionary(es => es.Key);
+			_view = externalStoragesScreenView;
+
+			AddListeners();
+		}
+
 		private void AddListeners()
 		{
 			_view.ConnectToExternalStorageButtonClicked += OnConnectToExternalStorageButtonClicked;
@@ -86,16 +84,17 @@ namespace OneYearLater.Management.Controllers
 			_view.SyncWithExternalStorageButtonClicked += OnSyncWithExternalStorageButtonClicked;
 		}
 
+
 		private async void OnConnectToExternalStorageButtonClicked(object sender, EExternalStorageKey key)
 		{
 			_view.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Connecting);
 			IExternalStorage es = _externalStorageDict[key];
 			es.RequestAccessCode();
 			await Delay(2f);
-			ShowExternalStorageAccessCodePrompt(es);
+			ShowExternalStorageAccessCodePrompt(es).Forget();
 		}
 
-		private async void ShowExternalStorageAccessCodePrompt(IExternalStorage es)
+		private async UniTask ShowExternalStorageAccessCodePrompt(IExternalStorage es)
 		{
 			string accessCode = await _popupManager.RunPromptPopupAsync($"Paste access code for {es.Name} here", "Enter", "");
 			bool success = await es.ConnectWithAccessCode(accessCode);

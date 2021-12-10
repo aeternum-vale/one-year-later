@@ -54,6 +54,16 @@ namespace OneYearLater.LocalStorages
 				.Select(rm => new DiaryRecordViewModel(rm.RecordDateTime, rm.Content));
 		}
 
+
+
+		public async UniTask<BaseRecordViewModel> GetRecordAsync(int recordId)
+		{
+			var sqliteRecord = new SQLiteRecordModel() {Id = recordId};
+			sqliteRecord = await _connectionToLocal.GetAsync<SQLiteRecordModel>(sqliteRecord);
+
+			return SQLiteRecordModelToDiaryRecordViewModel(sqliteRecord);
+		}
+
 		public async UniTask SaveRecordsAsync(IEnumerable<BaseRecordViewModel> records)
 		{
 			foreach (var record in records)
@@ -86,6 +96,7 @@ namespace OneYearLater.LocalStorages
 				}
 			}
 		}
+
 
 		public async UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage) //TODO refactor
 		{
@@ -193,5 +204,12 @@ namespace OneYearLater.LocalStorages
 
 			return false;
 		}
+
+
+		private DiaryRecordViewModel SQLiteRecordModelToDiaryRecordViewModel(SQLiteRecordModel sqliteRecord)
+		{
+			return new DiaryRecordViewModel(sqliteRecord.RecordDateTime, sqliteRecord.Content);
+		}
+
 	}
 }

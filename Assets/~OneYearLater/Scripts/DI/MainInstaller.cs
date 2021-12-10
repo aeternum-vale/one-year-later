@@ -51,7 +51,9 @@ namespace OneYearLater.DI
 
 			Container.Bind<RecordEditorScreenView>().FromInstance(_recordEditorScreenView).AsSingle();
 			Container.Bind<IRecordEditorScreenView>().To<RecordEditorScreenView>().FromResolve();
-			Container.Bind<RecordEditorScreenController>().FromNew().AsSingle().NonLazy();
+			Container.Bind<RecordEditorScreenController>().FromNew().AsSingle();
+
+			Container.Bind<IScreensMediator>().To<ScreensMediator>().FromNew().AsSingle();
 		}
 
 		IExternalStorage[] GetExternalStorages(InjectContext context)

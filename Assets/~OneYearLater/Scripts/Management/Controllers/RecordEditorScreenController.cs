@@ -1,5 +1,6 @@
 
 using System;
+using Cysharp.Threading.Tasks;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using UnityEngine;
@@ -9,15 +10,17 @@ namespace OneYearLater.Management.Controllers
 {
 	public class RecordEditorScreenController
 	{
-		[Inject] private IViewManager _viewManager;
-		[Inject] private ILocalRecordStorage _localRecordStorage;
+		private IRecordEditorScreenView _view;
 
-		IRecordEditorScreenView _view;
+		[Inject] 
+		private IScreensMediator _screensMediator;
+		
+		[Inject] 
+		private ILocalRecordStorage _localRecordStorage;
+
 
 		public RecordEditorScreenController(IRecordEditorScreenView view)
 		{
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> ctor, view={view}");
-
 			_view = view;
 			_view.ApplyButtonClicked += OnApplyButtonClicked;
 			_view.CancelButtonClicked += OnCancelButtonClicked;
@@ -31,12 +34,36 @@ namespace OneYearLater.Management.Controllers
 			await _localRecordStorage.SaveRecordsAsync(
 				new[] { new DiaryRecordViewModel(_view.DateTime, _view.Text) }
 			);
-			_viewManager.SetScreenView(EScreenViewKey.Feed);
+			_screensMediator.ActivateFeedScreenForToday().Forget();
 		}
 
 		private void OnCancelButtonClicked(object sender, EventArgs args)
 		{
-			_viewManager.SetScreenView(EScreenViewKey.Feed);
+			_screensMediator.ActivateFeedScreenForToday().Forget();
 		}
+
+		public async UniTask GoToExistingRecordEditingMode(int recordId)
+		{
+			var now = DateTime.Now;
+			_view.DateTime = now;
+			var record = await _localRecordStorage.GetRecordAsync(recordId);
+
+			_view.DateTime = record.DateTime;
+
+			switch (record.Type)
+			{
+				case ERecordKey.Diary:
+					var diaryRecord = (DiaryRecordViewModel)record;
+					_view.Text = diaryRecord.Text;
+					break;
+			}
+		}
+
+		public void GoToBlankRecordMode()
+		{
+			_view.DateTime = DateTime.Now;
+			_view.Text = string.Empty;
+		}
+
 	}
 }
