@@ -31,7 +31,6 @@ namespace OneYearLater.UI.Views.ScreenViews
 			viewModels.ToList().ForEach(vm =>
 			{
 				ExternalStorageView view = Instantiate(_externalStorageViewPrefab);
-				view.MobileInputHandler = _mobileInputHandler;
 				view.Text = vm.name;
 				_externalStoragesViewData.Add(
 					vm.key,

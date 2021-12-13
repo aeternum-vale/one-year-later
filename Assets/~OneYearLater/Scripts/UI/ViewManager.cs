@@ -40,7 +40,6 @@ namespace OneYearLater.UI
 		#region Unity Callbacks
 		private void Awake()
 		{
-			Debug.Log($"<color=green>{GetType().Name}:</color> Awake");
 			_screenViewKeyDictionary =
 				_screenViewContainer
 				.GetComponentsInChildren<ScreenView>(true)
@@ -89,7 +88,6 @@ namespace OneYearLater.UI
 
 			_currentScreenViewKey = screenViewKey;
 		}
-
 
 		public void BlockScreen()
 		{

@@ -24,8 +24,6 @@ namespace OneYearLater.UI.Views
 		[SerializeField] private Button _syncButton;
 		[SerializeField] private TMP_Text _statusText;
 
-		private IMobileInputHandler _mobileInputHandler;
-		public IMobileInputHandler MobileInputHandler { set => _mobileInputHandler = value; }
 
 		private EExternalStorageAppearance _currentViewAppearance;
 		private CanvasGroupFader _fader;
@@ -49,11 +47,6 @@ namespace OneYearLater.UI.Views
 			_connectButton.onClick.AddListener(OnConnectButtonClick);
 			_disconnectButton.onClick.AddListener(OnDisconnectButtonClick);
 			_syncButton.onClick.AddListener(OnSyncButtonClick);
-		}
-
-		private void Start()
-		{
-			_mobileInputHandler.LongTap += OnScreenLongTap;
 		}
 
 		private void OnConnectButtonClick()
@@ -130,26 +123,6 @@ namespace OneYearLater.UI.Views
 			_statusText.text = status;
 		}
 
-		private void OnScreenLongTap(object sender, Vector2 tapScreenPos)
-		{
-			if (IsPointInRectTransform((RectTransform)transform, tapScreenPos))
-				LongTap?.Invoke(this, EventArgs.Empty);
-		}
-
-		bool IsPointInRectTransform(RectTransform rt, Vector2 point)
-		{
-			return GetRectTransformBounds(rt).Contains(point);
-		}
-
-		public static Bounds GetRectTransformBounds(RectTransform transform)
-		{
-			Vector3[] worldCorners = new Vector3[4];
-			transform.GetWorldCorners(worldCorners);
-			Bounds bounds = new Bounds(worldCorners[0], Vector3.zero);
-			for (int i = 1; i < 4; ++i)
-				bounds.Encapsulate(worldCorners[i]);
-
-			return bounds;
-		}
+		
 	}
 }

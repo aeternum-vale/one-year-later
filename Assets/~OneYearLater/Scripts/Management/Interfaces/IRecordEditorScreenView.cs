@@ -7,7 +7,8 @@ namespace OneYearLater.Management.Interfaces
 		DateTime DateTime { get; set; }
 		string Text { get; set; }
 
-		event EventHandler ApplyButtonClicked;
-		event EventHandler CancelButtonClicked;
+		event EventHandler ApplyIntent;
+		event EventHandler CancelIntent;
+		event EventHandler DeleteIntent;
 	}
 }

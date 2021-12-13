@@ -1,51 +1,38 @@
-
 using System;
 using Cysharp.Threading.Tasks;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
-using UnityEngine;
 using Zenject;
 
 namespace OneYearLater.Management.Controllers
 {
+	public enum EEditorMode { None = 0, Create = 1, Edit = 2 }
 	public class RecordEditorScreenController
 	{
+		public EEditorMode Mode { get; private set; } = EEditorMode.None;
+
+		[Inject] private IScreensMediator _screensMediator;
+		[Inject] private ILocalRecordStorage _localRecordStorage;
+		[Inject] private IPopupManager _popupManager;
+
 		private IRecordEditorScreenView _view;
-
-		[Inject] 
-		private IScreensMediator _screensMediator;
-		
-		[Inject] 
-		private ILocalRecordStorage _localRecordStorage;
-
+		private int _editingRecordId;
 
 		public RecordEditorScreenController(IRecordEditorScreenView view)
 		{
 			_view = view;
-			_view.ApplyButtonClicked += OnApplyButtonClicked;
-			_view.CancelButtonClicked += OnCancelButtonClicked;
+			_view.ApplyIntent += OnApplyIntent;
+			_view.CancelIntent += OnCancelIntent;
+			_view.DeleteIntent += OnDeleteIntent;
 
 			_view.DateTime = DateTime.Now;
 		}
 
-		private async void OnApplyButtonClicked(object sender, EventArgs args)
+		public async UniTask SetEditRecordMode(int recordId)
 		{
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> OnApplyButtonClicked");
-			await _localRecordStorage.SaveRecordsAsync(
-				new[] { new DiaryRecordViewModel(_view.DateTime, _view.Text) }
-			);
-			_screensMediator.ActivateFeedScreenForToday().Forget();
-		}
+			Mode = EEditorMode.Edit;
+			_editingRecordId = recordId;
 
-		private void OnCancelButtonClicked(object sender, EventArgs args)
-		{
-			_screensMediator.ActivateFeedScreenForToday().Forget();
-		}
-
-		public async UniTask GoToExistingRecordEditingMode(int recordId)
-		{
-			var now = DateTime.Now;
-			_view.DateTime = now;
 			var record = await _localRecordStorage.GetRecordAsync(recordId);
 
 			_view.DateTime = record.DateTime;
@@ -59,10 +46,57 @@ namespace OneYearLater.Management.Controllers
 			}
 		}
 
-		public void GoToBlankRecordMode()
+		public void SetCreateRecordMode()
 		{
+			Mode = EEditorMode.Create;
 			_view.DateTime = DateTime.Now;
 			_view.Text = string.Empty;
+		}
+
+		private void OnApplyIntent(object sender, EventArgs args)
+		{
+			switch (Mode)
+			{
+				case EEditorMode.Create:
+					CreateRecord();
+					break;
+				case EEditorMode.Edit:
+					EditRecord();
+					break;
+				default:
+					throw new Exception("invalid editor mode");
+			}
+		}
+
+		private async void CreateRecord()
+		{
+			if (string.IsNullOrWhiteSpace(_view.Text)) return;
+
+			await _localRecordStorage.InsertRecordAsync(
+				new DiaryRecordViewModel(_view.DateTime, _view.Text));
+			_screensMediator.ActivateFeedScreenForToday().Forget();
+		}
+
+		private async void EditRecord()
+		{
+			await _localRecordStorage.UpdateRecordAsync(
+				new DiaryRecordViewModel(_editingRecordId, _view.DateTime, _view.Text));
+			_screensMediator.ActivateFeedScreenFor(_view.DateTime).Forget();
+		}
+
+
+		private void OnCancelIntent(object sender, EventArgs args)
+		{
+			_screensMediator.ActivateFeedScreen().Forget();
+		}
+
+		private async void OnDeleteIntent(object sender, EventArgs args)
+		{
+			if (await _popupManager.RunConfirmPopupAsync("Are you sure you want to delete this record?"))
+			{
+				await _localRecordStorage.DeleteRecordAsync(_editingRecordId);
+				_screensMediator.ActivateFeedScreen().Forget();
+			}
 		}
 
 	}

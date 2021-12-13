@@ -10,11 +10,13 @@ namespace OneYearLater.Management.Controllers
 	{
 		private IFeedScreenView _view;
 
-		[Inject] 
+		[Inject]
 		private ILocalRecordStorage _localRecordStorage;
-		
-		[Inject] 
+
+		[Inject]
 		private IScreensMediator _screensMediator;
+
+		public DateTime CurrentDate { get; private set; }
 
 		public FeedScreenController(IFeedScreenView feedScreenView)
 		{
@@ -22,7 +24,8 @@ namespace OneYearLater.Management.Controllers
 			_view = feedScreenView;
 
 			_view.DayChanged += OnDayChanged;
-			_view.AddRecordButtonClicked += OnAddRecordButtonClicked;
+			_view.AddRecordIntent += OnAddRecordIntent;
+			_view.EditRecordIntent += OnEditRecordIntent;
 		}
 
 		private void OnDayChanged(object sender, DateTime date)
@@ -32,7 +35,7 @@ namespace OneYearLater.Management.Controllers
 
 		public async UniTask DisplayFeedFor(DateTime date)
 		{
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> DisplayFeedFor {date} _view={_view}");
+			CurrentDate = date;
 
 			_view.SetIsDatePickingBlocked(true);
 			_view.DisplayThatFeedIsLoading();
@@ -41,9 +44,14 @@ namespace OneYearLater.Management.Controllers
 			_view.SetIsDatePickingBlocked(false);
 		}
 
-		private void OnAddRecordButtonClicked(object sender, EventArgs args)
+		private void OnAddRecordIntent(object sender, EventArgs args)
 		{
 			_screensMediator.ActivateRecordEditorScreenInBlankMode();
+		}
+
+		private void OnEditRecordIntent(object sender, int recordId)
+		{
+			_screensMediator.ActivateRecordEditorScreen(recordId);
 		}
 	}
 

@@ -8,7 +8,8 @@ namespace OneYearLater.Management.Interfaces
 	public interface IFeedScreenView
 	{
 		event EventHandler<DateTime> DayChanged;
-		event EventHandler AddRecordButtonClicked;
+		event EventHandler AddRecordIntent;
+		event EventHandler<int> EditRecordIntent;
 
 		UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records);
 		void SetIsDatePickingBlocked(bool isBlocked);

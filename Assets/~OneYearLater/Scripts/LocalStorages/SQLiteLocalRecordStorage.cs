@@ -1,5 +1,4 @@
-﻿using System.Net.Mime;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,9 +9,10 @@ using OneYearLater.Management.ViewModels;
 using SQLite;
 
 using Debug = UnityEngine.Debug;
-using Utilities;
 using System.Globalization;
 using UnityEngine;
+using Utilities;
+using OneYearLater.Management;
 
 #if !UNITY_EDITOR
 using System.Collections;
@@ -45,58 +45,72 @@ namespace OneYearLater.LocalStorages
 			DateTime dayStartInc = date.Date;
 			DateTime dayEndExc = date.Date.AddDays(1);
 
-			var query = 
+			var query =
 				_connectionToLocal.Table<SQLiteRecordModel>()
 					.Where(r => r.RecordDateTime >= dayStartInc && (r.RecordDateTime < dayEndExc) && (!r.IsDeleted))
 					.OrderBy(r => r.RecordDateTime);
-					
+
 			return (await query.ToListAsync())
-				.Select(rm => new DiaryRecordViewModel(rm.RecordDateTime, rm.Content));
+				.Select(rm => GetDiaryRecordViewModel(rm));
 		}
-
-
 
 		public async UniTask<BaseRecordViewModel> GetRecordAsync(int recordId)
 		{
-			var sqliteRecord = new SQLiteRecordModel() {Id = recordId};
-			sqliteRecord = await _connectionToLocal.GetAsync<SQLiteRecordModel>(sqliteRecord);
+			var sqliteRecord =
+				await _connectionToLocal.Table<SQLiteRecordModel>()
+					.Where(r => (r.Id == recordId) && (!r.IsDeleted))
+					.FirstAsync();
 
-			return SQLiteRecordModelToDiaryRecordViewModel(sqliteRecord);
+			return GetDiaryRecordViewModel(sqliteRecord);
 		}
 
-		public async UniTask SaveRecordsAsync(IEnumerable<BaseRecordViewModel> records)
+		public UniTask InsertRecordAsync(BaseRecordViewModel record)
 		{
-			foreach (var record in records)
+			switch (record.Type)
 			{
-				switch (record.Type)
-				{
-					case Management.ERecordKey.Diary:
-
-						var diaryRecord = (DiaryRecordViewModel)record;
-						int type = (int)diaryRecord.Type;
-						DateTime created = DateTime.Now;
-
-						var sqliteRecord = new SQLiteRecordModel()
-						{
-							Type = type,
-							RecordDateTime = record.DateTime,
-							Content = diaryRecord.Text,
-							Hash = Utils.GetSHA256Hash(
-								type +
-								record.DateTime.ToString(CultureInfo.InvariantCulture) +
-								diaryRecord.Text +
-								created.ToString(CultureInfo.InvariantCulture)
-							),
-							AdditionalInfo = $"buildGUID={Application.buildGUID}"
-						};
-
-						
-						await _connectionToLocal.InsertAsync(sqliteRecord);
-						break;
-				}
+				case ERecordKey.Diary:
+					return _connectionToLocal.InsertAsync(GetSQLiteRecordModel((DiaryRecordViewModel)record));
+				default:
+					throw new Exception("invalid record type");
 			}
 		}
 
+		public UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records)
+		{
+			List<SQLiteRecordModel> sqliteRecordModels = new List<SQLiteRecordModel>();
+			foreach (var record in records)
+				switch (record.Type)
+				{
+					case ERecordKey.Diary:
+						sqliteRecordModels.Add(GetSQLiteRecordModel((DiaryRecordViewModel)record));
+						break;
+				}
+
+			return _connectionToLocal.InsertAllAsync(sqliteRecordModels);
+		}
+
+		public UniTask UpdateRecordAsync(BaseRecordViewModel record)
+		{
+			switch (record.Type)
+			{
+				case ERecordKey.Diary:
+					return _connectionToLocal.UpdateAsync(GetSQLiteRecordModel((DiaryRecordViewModel)record));
+				default:
+					throw new Exception("invalid record type");
+			}
+		}
+
+		public async UniTask DeleteRecordAsync(int recordId)
+		{
+			var sqliteRecord =
+				await _connectionToLocal.Table<SQLiteRecordModel>()
+					.Where(r => r.Id == recordId)
+					.FirstAsync();
+
+			sqliteRecord.IsDeleted = true;
+
+			await _connectionToLocal.UpdateAsync(sqliteRecord);
+		}
 
 		public async UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage) //TODO refactor
 		{
@@ -205,10 +219,33 @@ namespace OneYearLater.LocalStorages
 			return false;
 		}
 
-
-		private DiaryRecordViewModel SQLiteRecordModelToDiaryRecordViewModel(SQLiteRecordModel sqliteRecord)
+		private SQLiteRecordModel GetSQLiteRecordModel(DiaryRecordViewModel diaryViewModel)
 		{
-			return new DiaryRecordViewModel(sqliteRecord.RecordDateTime, sqliteRecord.Content);
+			int type = (int)diaryViewModel.Type;
+			DateTime created = DateTime.Now;
+
+			var sqliteRecord = new SQLiteRecordModel()
+			{
+				Id = diaryViewModel.Id,
+				Type = type,
+				RecordDateTime = diaryViewModel.DateTime,
+				Content = diaryViewModel.Text,
+				Created = created,
+				Hash = Utils.GetSHA256Hash(
+					type +
+					diaryViewModel.DateTime.ToString(CultureInfo.InvariantCulture) +
+					diaryViewModel.Text +
+					created.ToString(CultureInfo.InvariantCulture)
+				),
+				AdditionalInfo = $"buildGUID={Application.buildGUID}"
+			};
+
+			return sqliteRecord;
+		}
+
+		private DiaryRecordViewModel GetDiaryRecordViewModel(SQLiteRecordModel sqliteRecord)
+		{
+			return new DiaryRecordViewModel(sqliteRecord.Id, sqliteRecord.RecordDateTime, sqliteRecord.Content);
 		}
 
 	}

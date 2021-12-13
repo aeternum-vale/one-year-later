@@ -13,13 +13,15 @@ namespace OneYearLater.UI.Views.ScreenViews
 		[SerializeField] private TMP_InputField _inputField;
 		[SerializeField] private Button _applyButton;
 		[SerializeField] private Button _cancelButton;
+		[SerializeField] private Button _deleteButton;
 		private DateTime _currentDate;
 
 		public DateTime DateTime { get => _currentDate; set => SetDate(value); }
 		public string Text { get => _inputField.text; set => _inputField.text = value; }
 
-		public event EventHandler ApplyButtonClicked;
-		public event EventHandler CancelButtonClicked;
+		public event EventHandler ApplyIntent;
+		public event EventHandler CancelIntent;
+		public event EventHandler DeleteIntent;
 
 
 		private void Awake()
@@ -30,8 +32,9 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 		private void AddListeners()
 		{
-			_applyButton.onClick.AddListener(() => ApplyButtonClicked?.Invoke(this, EventArgs.Empty));
-			_cancelButton.onClick.AddListener(() => CancelButtonClicked?.Invoke(this, EventArgs.Empty));
+			_applyButton.onClick.AddListener(() => ApplyIntent?.Invoke(this, EventArgs.Empty));
+			_cancelButton.onClick.AddListener(() => CancelIntent?.Invoke(this, EventArgs.Empty));
+			_deleteButton.onClick.AddListener(() => DeleteIntent?.Invoke(this, EventArgs.Empty));
 		}
 
 		private void SetDate(DateTime date)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Lean.Touch;
 using OneYearLater.UI.Interfaces;
 using UnityEngine;
@@ -22,6 +23,9 @@ namespace OneYearLater.UI
 		public event EventHandler<bool> SwipeRight;
 		public event EventHandler TapOnRightBorder;
 		public event EventHandler<Vector2> LongTap;
+
+
+		private List<(RectTransform, Action)> _longTapSubscribers = new List<(RectTransform, Action)>();
 
 		private void Awake()
 		{
@@ -47,16 +51,41 @@ namespace OneYearLater.UI
 
 		private void OnTap(LeanFinger leanFinger)
 		{
-
 			if (leanFinger.LastScreenPosition.x >= Screen.width - _tapBorderSize)
 				TapOnRightBorder?.Invoke(this, EventArgs.Empty);
 		}
 
-		
+
 		private void OnFingerUp(LeanFinger leanFinger)
 		{
 			if (leanFinger.Age >= _longTapThreshold && leanFinger.SwipeScreenDelta.magnitude == 0f)
-				LongTap?.Invoke(this, leanFinger.ScreenPosition);			
+			{
+				LongTap?.Invoke(this, leanFinger.ScreenPosition);
+
+				NotifyLongTapSubscribers(leanFinger.ScreenPosition);
+			}
 		}
+
+		public void SubscribeToLongTap(RectTransform rectTransform, Action onLongTap)
+		{
+			_longTapSubscribers.Add((rectTransform, onLongTap));
+		}
+
+		private void NotifyLongTapSubscribers(Vector2 longTapPosition)
+		{
+			foreach (var subscribersData in _longTapSubscribers)
+			{
+				RectTransform rectTransform = subscribersData.Item1;
+				Action callback = subscribersData.Item2;
+
+				if (rectTransform == null) continue;
+				if (!rectTransform.gameObject.activeInHierarchy) continue;
+
+				if (Utils.IsContainPoint(rectTransform, longTapPosition))
+					callback?.Invoke();
+			}
+		}
+
+
 	}
 }

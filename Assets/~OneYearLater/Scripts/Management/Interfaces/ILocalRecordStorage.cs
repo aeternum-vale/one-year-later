@@ -7,9 +7,17 @@ namespace OneYearLater.Management.Interfaces
 {
 	public interface ILocalRecordStorage
 	{
-		UniTask SaveRecordsAsync(IEnumerable<BaseRecordViewModel> records);
 		UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date);
 		UniTask<BaseRecordViewModel> GetRecordAsync(int recordId);
+
+		UniTask InsertRecordAsync(BaseRecordViewModel record);
+		UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records);
+
+		UniTask DeleteRecordAsync(int recordId);
+
+		UniTask UpdateRecordAsync(BaseRecordViewModel record);
+
+
 		UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage);
 	}
 }

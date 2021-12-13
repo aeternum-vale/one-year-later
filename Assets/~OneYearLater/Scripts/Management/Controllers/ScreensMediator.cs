@@ -29,10 +29,10 @@ namespace OneYearLater.Management.Controllers
 
 		public UniTask ActivateFeedScreenForToday()
 		{
-			return ActivateFeedScreen(DateTime.Now);
+			return ActivateFeedScreenFor(DateTime.Now);
 		}
 
-		public UniTask ActivateFeedScreen(DateTime date)
+		public UniTask ActivateFeedScreenFor(DateTime date)
 		{
 			_viewManager.SetScreenView(EScreenViewKey.Feed);
 			return _feedScreenController.DisplayFeedFor(date);
@@ -40,15 +40,21 @@ namespace OneYearLater.Management.Controllers
 
 		public async UniTask ActivateRecordEditorScreen(int recordId)
 		{
-			await _recordEditorScreenController.GoToExistingRecordEditingMode(recordId);
+			await _recordEditorScreenController.SetEditRecordMode(recordId);
 			_viewManager.SetScreenView(EScreenViewKey.RecordEditor);
 		}
 
 		public UniTask ActivateRecordEditorScreenInBlankMode()
 		{
-			_recordEditorScreenController.GoToBlankRecordMode();
+			_recordEditorScreenController.SetCreateRecordMode();
 			_viewManager.SetScreenView(EScreenViewKey.RecordEditor);
 			return UniTask.CompletedTask; 
+		}
+
+		public UniTask ActivateFeedScreen()
+		{
+			_viewManager.SetScreenView(EScreenViewKey.Feed);
+			return _feedScreenController.DisplayFeedFor(_feedScreenController.CurrentDate);
 		}
 	}
 }

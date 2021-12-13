@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utilities;
+using Zenject;
 
 namespace OneYearLater.UI.Views.ScreenViews
 {
@@ -32,7 +33,8 @@ namespace OneYearLater.UI.Views.ScreenViews
 		[SerializeField] private Button _addRecordButton;
 
 		public event EventHandler<DateTime> DayChanged;
-		public event EventHandler AddRecordButtonClicked;
+		public event EventHandler AddRecordIntent;
+		public event EventHandler<int> EditRecordIntent;
 		private DateTime _visibleDate;
 
 
@@ -56,8 +58,13 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 							DiaryRecordView v = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
 							DiaryRecordViewModel vm = (DiaryRecordViewModel)record;
+
+							v.Id = vm.Id;
 							v.TimeText = vm.DateTime.ToString("HH:mm");
 							v.ContentText = vm.Text;
+
+							v.LongTap += (s, a) => EditRecordIntent?.Invoke(this, vm.Id);
+
 							recordGameObjects.Add(v.gameObject);
 							break;
 						default:
@@ -159,7 +166,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 		private void OnAddRecordButtonClicked()
 		{
-			AddRecordButtonClicked?.Invoke(this, EventArgs.Empty);
+			AddRecordIntent?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }

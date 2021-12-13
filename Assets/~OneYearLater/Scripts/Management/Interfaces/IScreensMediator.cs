@@ -10,8 +10,9 @@ namespace OneYearLater.Management.Interfaces
 
 		UniTask ActivateRecordEditorScreenInBlankMode();
 		UniTask ActivateRecordEditorScreen(int recordId);
+		UniTask ActivateFeedScreen();
 		UniTask ActivateFeedScreenForToday();
-		UniTask ActivateFeedScreen(DateTime date);
+		UniTask ActivateFeedScreenFor(DateTime date);
 
 
 	}
