@@ -16,8 +16,5 @@ namespace OneYearLater.Management.Interfaces
 		UniTask DeleteRecordAsync(int recordId);
 
 		UniTask UpdateRecordAsync(BaseRecordViewModel record);
-
-
-		UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage);
 	}
 }

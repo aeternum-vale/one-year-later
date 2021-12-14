@@ -14,7 +14,7 @@ namespace OneYearLater.Management.Controllers
 	public class ExternalStoragesScreenController
 	{
 		[Inject] private IPopupManager _popupManager;
-		[Inject] private ILocalRecordStorage _localRecordStorage;
+		[Inject] private IRecordStorageSynchronizer _synchronizer;
 		[Inject] private IAppLocalStorage _appLocalStorage;
 		[Inject] private IExternalStorage[] _externalStorages;
 		[Inject] private IScreensMediator _screensMediator;
@@ -118,7 +118,7 @@ namespace OneYearLater.Management.Controllers
 		{
 			IExternalStorage es = _externalStorageDict[key];
 			_view.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Synchronizing);
-			bool success = await _localRecordStorage.SyncLocalAndExternalRecordStoragesAsync(es);
+			bool success = await _synchronizer.SyncLocalAndExternalRecordStoragesAsync(es);
 
 			if (success)
 			{

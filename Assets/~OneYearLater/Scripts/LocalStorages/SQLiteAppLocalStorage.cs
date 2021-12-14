@@ -6,18 +6,20 @@ using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using SQLite;
 
+using static OneYearLater.LocalStorages.Constants;
+using static OneYearLater.LocalStorages.Utils;
+
 namespace OneYearLater.LocalStorages
 {
 	public class SQLiteAppLocalStorage : IAppLocalStorage
 	{
 
 		private SQLiteAsyncConnection _connection;
-		private string _dbNameWithExtension = "app.bytes";
-
+		
 
 		public SQLiteAppLocalStorage()
 		{
-			string dbPath = LocalStorageUtils.GetDbPathOnDevice(_dbNameWithExtension);
+			string dbPath = GetDbPathOnDevice(AppDbNameWithExtension);
 			_connection = new SQLiteAsyncConnection(dbPath);
 
 			_connection.CreateTableAsync<SQLiteExternalStorageModel>().Forget();

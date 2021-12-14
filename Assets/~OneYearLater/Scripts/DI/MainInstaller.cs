@@ -28,10 +28,13 @@ namespace OneYearLater.DI
 		public override void InstallBindings()
 		{
 			Container.Bind<IViewManager>().To<ViewManager>().FromInstance(_viewManager).AsSingle();
+			Container.Bind<IMobileInputHandler>().To<LeanTouchFacade>().FromInstance(_leanTouchFacade).AsSingle();
+
 			Container.Bind<ILocalRecordStorage>().To<SQLiteLocalRecordStorage>().FromNew().AsSingle();
 			Container.Bind<IAppLocalStorage>().To<SQLiteAppLocalStorage>().FromNew().AsSingle();
-			Container.Bind<IMobileInputHandler>().To<LeanTouchFacade>().FromInstance(_leanTouchFacade).AsSingle();
 			Container.Bind<IExternalStorage>().FromMethodMultiple(GetExternalStorages).AsSingle();
+
+			Container.Bind<IRecordStorageSynchronizer>().To<SQLiteSynchronizer>().FromNew().AsSingle();
 
 			Container.Bind<PopupManager>().FromInstance(_popupManager).AsSingle();
 			Container.Bind<IPopupManager>().To<PopupManager>().FromResolve();
