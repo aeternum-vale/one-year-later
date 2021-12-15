@@ -80,7 +80,7 @@ namespace OneYearLater.LocalStorages
 			try
 			{
 				if (_isExternalDbFileExisted)
-					await ApplyToLocalDbChangesFrom(_externalStorage);
+					await ApplyToLocalDbChangesFromExternal();
 
 				await CloseAllConnections();
 				await _externalStorage.UploadFile(_originalLocalDbPath, _externalDbPath);
@@ -97,9 +97,9 @@ namespace OneYearLater.LocalStorages
 			}
 		}
 
-		private async UniTask ApplyToLocalDbChangesFrom(IExternalStorage externalStorage)
+		private async UniTask ApplyToLocalDbChangesFromExternal()
 		{
-			await externalStorage.DownloadFile(_externalDbPath, _externalDbLocalCopyPath);
+			await _externalStorage.DownloadFile(_externalDbPath, _externalDbLocalCopyPath);
 
 			_connectionToLocal = new SQLiteAsyncConnection(_originalLocalDbPath);
 
