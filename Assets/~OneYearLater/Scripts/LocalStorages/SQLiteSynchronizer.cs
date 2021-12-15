@@ -13,7 +13,7 @@ using static OneYearLater.LocalStorages.Utils;
 
 namespace OneYearLater.LocalStorages
 {
-	public class SQLiteSynchronizer: IRecordStorageSynchronizer
+	public class SQLiteSynchronizer : IRecordStorageSynchronizer
 	{
 		private SQLiteAsyncConnection _connectionToLocal;
 		private SQLiteAsyncConnection _connectionToExternalCopy;
@@ -46,7 +46,7 @@ namespace OneYearLater.LocalStorages
 			_backupDbPath = GetDbPathOnDevice(_dbBackupNameWithExtension);
 		}
 
-		public async UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage) //TODO refactor
+		public async UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage)
 		{
 			_externalStorage = externalStorage;
 			_isExternalDbFileExisted = await _externalStorage.IsFileExist(_externalDbPath);
@@ -54,7 +54,7 @@ namespace OneYearLater.LocalStorages
 			if (_isExternalDbFileExisted)
 			{
 				bool isBackupCreated = TryCreateBackup();
-				if (!isBackupCreated) 
+				if (!isBackupCreated)
 					return false;
 			}
 
@@ -121,13 +121,23 @@ namespace OneYearLater.LocalStorages
 				if (localDbHashDictionary.ContainsKey(externalRecord.Hash))
 				{
 					var localRecord = localDbHashDictionary[externalRecord.Hash];
-					if (externalRecord.IsDeleted && !localRecord.IsDeleted)
-					{
-						localRecord.IsDeleted = true;
-						localRecordsToUpdate.Add(localRecord);
-					}
+
+					bool isExternalNewer = externalRecord.LastEdited > localRecord.LastEdited;
+
+					if (isExternalNewer)
+						localRecord.LastEdited = externalRecord.LastEdited;
+					else
+						continue;
+
+					localRecord.Content = externalRecord.Content;
+					localRecord.RecordDateTime = externalRecord.RecordDateTime;
+					localRecord.IsDeleted = externalRecord.IsDeleted;
+
+					localRecordsToUpdate.Add(localRecord);
+
 					continue;
 				}
+
 				localRecordsToInsert.Add(externalRecord);
 			}
 

@@ -14,6 +14,7 @@ namespace OneYearLater.LocalStorages.Models
 		public bool IsLocal { get; set; }
 		public bool IsDeleted { get; set; }
 		public DateTime Created { get; set; }
+		public DateTime LastEdited { get; set; }
 		public string AdditionalInfo { get; set; }
 	}
 }
