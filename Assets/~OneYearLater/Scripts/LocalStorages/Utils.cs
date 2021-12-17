@@ -1,4 +1,5 @@
 #if !UNITY_EDITOR
+using UnityEngine;
 using System.Collections;
 using System.IO;
 #endif

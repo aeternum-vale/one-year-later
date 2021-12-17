@@ -54,5 +54,4 @@ namespace OneYearLater.Management.Controllers
 			_screensMediator.ActivateRecordEditorScreen(recordId);
 		}
 	}
-
 }

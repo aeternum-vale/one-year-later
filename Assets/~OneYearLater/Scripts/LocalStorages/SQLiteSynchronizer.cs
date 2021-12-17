@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,6 +17,8 @@ namespace OneYearLater.LocalStorages
 		private SQLiteAsyncConnection _connectionToLocal;
 		private SQLiteAsyncConnection _connectionToExternalCopy;
 
+		private IExternalStorage _externalStorage;
+
 		private string _originalLocalDbPath;
 		private string _externalDbPath;
 		private string _externalDbLocalCopyNameWithExtension;
@@ -25,9 +26,11 @@ namespace OneYearLater.LocalStorages
 		private string _dbBackupNameWithExtension;
 		private string _backupDbPath;
 
-		private IExternalStorage _externalStorage;
+
 		private bool _isExternalDbFileExisted;
-		private bool _rollbackError = false;
+		private bool _isRollbackError = false;
+		private bool _isSyncInProcess = false;
+
 
 		public SQLiteSynchronizer()
 		{
@@ -48,6 +51,11 @@ namespace OneYearLater.LocalStorages
 
 		public async UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage)
 		{
+			if (_isSyncInProcess)
+				await UniTask.WaitUntil(() => !_isSyncInProcess);
+
+			_isSyncInProcess = true;
+
 			_externalStorage = externalStorage;
 			_isExternalDbFileExisted = await _externalStorage.IsFileExist(_externalDbPath);
 
@@ -58,7 +66,9 @@ namespace OneYearLater.LocalStorages
 					return false;
 			}
 
-			return await TrySync();
+			bool success = await TrySync();
+			_isSyncInProcess = false;
+			return success;
 		}
 
 		private bool TryCreateBackup()
@@ -70,7 +80,7 @@ namespace OneYearLater.LocalStorages
 			}
 			catch (Exception ex)
 			{
-				Debug.LogError($"There is an error while creating backup ({ex.Message})\n{ex.StackTrace}");
+				Debug.LogError($"Error while creating backup ({ex.Message})\n{ex.StackTrace}");
 				return false;
 			}
 		}
@@ -79,19 +89,27 @@ namespace OneYearLater.LocalStorages
 		{
 			try
 			{
+				_connectionToLocal = new SQLiteAsyncConnection(_originalLocalDbPath);
+
+				await MarkAllRecordsAsNonLocal();
+
 				if (_isExternalDbFileExisted)
+				{
+					await _externalStorage.DownloadFile(_externalDbPath, _externalDbLocalCopyPath);
 					await ApplyToLocalDbChangesFromExternal();
+				}
 
 				await CloseAllConnections();
 				await _externalStorage.UploadFile(_originalLocalDbPath, _externalDbPath);
 
 				Debug.Log("External DB is Replaced by Local!");
+				
 				return true;
 			}
 
 			catch (Exception ex)
 			{
-				Debug.LogError($"There is an error while sync, trying to rollback to backup. ({ex.Message})\n{ex.StackTrace}");
+				Debug.LogError($"Error while sync, trying to rollback to backup. ({ex.Message})\n{ex.StackTrace}");
 				TryRollbackToBackup();
 				return false;
 			}
@@ -99,13 +117,10 @@ namespace OneYearLater.LocalStorages
 
 		private async UniTask ApplyToLocalDbChangesFromExternal()
 		{
-			await _externalStorage.DownloadFile(_externalDbPath, _externalDbLocalCopyPath);
-
-			_connectionToLocal = new SQLiteAsyncConnection(_originalLocalDbPath);
-
 			var query = _connectionToLocal.Table<SQLiteRecordModel>();
 			List<SQLiteRecordModel> allLocalDbRecords = await query.ToListAsync();
-			Dictionary<string, SQLiteRecordModel> localDbHashDictionary = new Dictionary<string, SQLiteRecordModel>();
+			Dictionary<string, SQLiteRecordModel> localDbHashDictionary =
+				new Dictionary<string, SQLiteRecordModel>();
 			List<SQLiteRecordModel> localRecordsToUpdate = new List<SQLiteRecordModel>();
 			List<SQLiteRecordModel> localRecordsToInsert = new List<SQLiteRecordModel>();
 
@@ -145,6 +160,14 @@ namespace OneYearLater.LocalStorages
 			var insertedRowsNumber = await _connectionToLocal.InsertAllAsync(localRecordsToInsert);
 		}
 
+		private UniTask MarkAllRecordsAsNonLocal()
+		{
+			return _connectionToLocal
+				.ExecuteAsync(
+					$"UPDATE {nameof(SQLiteRecordModel)} SET {nameof(SQLiteRecordModel.IsLocal)} = 0"
+				);
+		}
+
 		private async UniTask CloseAllConnections()
 		{
 			if (_connectionToLocal != null)
@@ -164,8 +187,8 @@ namespace OneYearLater.LocalStorages
 
 			catch (Exception ex)
 			{
-				Debug.LogError($"There is some error while rolling back to backup. ({ex.Message})\n{ex.StackTrace}");
-				_rollbackError = true;
+				Debug.LogError($"Error while rolling back ({ex.Message})\n{ex.StackTrace}");
+				_isRollbackError = true;
 				return false;
 			}
 		}
