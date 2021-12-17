@@ -1,8 +1,7 @@
 {
-    "name": "Zenject-TestFramework",
-    "rootNamespace": "",
+    "name": "OneYearLater.EditModeTests",
+    "rootNamespace": "OneYearLater",
     "references": [
-        "Zenject",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
@@ -13,13 +12,10 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll",
-        "Moq.dll"
+        "nunit.framework.dll"
     ],
     "autoReferenced": false,
-    "defineConstraints": [
-        "UNITY_INCLUDE_TESTS"
-    ],
+    "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false
 }
