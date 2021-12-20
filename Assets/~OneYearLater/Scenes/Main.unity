@@ -275,6 +275,7 @@ MonoBehaviour:
   _viewManager: {fileID: 1102503724}
   _leanTouchFacade: {fileID: 609013917}
   _popupManager: {fileID: 1703173533}
+  _sideMenu: {fileID: 1093613930}
   _feedScreenView: {fileID: 2038687321}
   _importScreenView: {fileID: 245002424}
   _externalStoragesScreenView: {fileID: 234615181}
@@ -1697,7 +1698,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _screenViewContainer: {fileID: 30507375}
-  _sideMenu: {fileID: 1093613930}
   _screenBlocker: {fileID: 903555027}
 --- !u!4 &1102503725
 Transform:
@@ -3123,27 +3123,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1952847160, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4861109902166809486, guid: d9a59567d386ec6468799064795fe6aa, type: 3}
       propertyPath: m_Pivot.x

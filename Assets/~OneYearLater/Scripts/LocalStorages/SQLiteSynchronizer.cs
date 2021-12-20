@@ -63,7 +63,7 @@ namespace OneYearLater.LocalStorages
 			_externalStorage = externalStorage;
 			_isExternalDbFileExisted = await _externalStorage.IsFileExist(_externalDbPath);
 
-			await UniTask.Delay(TimeSpan.FromSeconds(10f), DelayType.Realtime);
+			//await UniTask.Delay(TimeSpan.FromSeconds(10f), DelayType.Realtime);
 
 			bool? isSuccess = null;
 

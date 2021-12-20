@@ -18,6 +18,8 @@ namespace OneYearLater.DI
 		[SerializeField] private LeanTouchFacade _leanTouchFacade;
 		[SerializeField] private PopupManager _popupManager;
 
+		[SerializeField] private SideMenuView _sideMenu;
+
 		[Header("Screen Views")]
 		[SerializeField] private FeedScreenView _feedScreenView;
 		[SerializeField] private ImportScreenView _importScreenView;
@@ -27,6 +29,9 @@ namespace OneYearLater.DI
 
 		public override void InstallBindings()
 		{
+			Container.Bind<SideMenuView>().FromInstance(_sideMenu).AsSingle();
+			Container.Bind<IScreensMenuView>().To<SideMenuView>().FromResolve();
+			
 			Container.Bind<IViewManager>().To<ViewManager>().FromInstance(_viewManager).AsSingle();
 			Container.Bind<IMobileInputHandler>().To<LeanTouchFacade>().FromInstance(_leanTouchFacade).AsSingle();
 			

@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using NaughtyAttributes;
 using OneYearLater.Management;
+using OneYearLater.Management.Interfaces;
 using UnityEngine;
 using UnityEngine.UI;
 using Utilities;
@@ -14,16 +15,13 @@ using static Utilities.Extensions;
 
 namespace OneYearLater.UI
 {
-	public class SideMenu : MonoBehaviour
+	public class SideMenuView : MonoBehaviour, IScreensMenuView
 	{
 		[SerializeField] private SideMenuButtonSPair[] _screenViewButtonArray;
 		private Dictionary<EScreenViewKey, Button> _screenViewButtonDict;
 
 		[SerializeField] RectTransform _panel;
 		[SerializeField] CanvasGroupFader _background;
-
-		[SerializeField] Button _feedButton;
-		[SerializeField] Button _externalStoragesButton;
 
 
 		[Header("Animation")]
@@ -32,8 +30,7 @@ namespace OneYearLater.UI
 		[SerializeField] float _duration = 1f;
 
 
-
-		public event EventHandler<EScreenViewKey> ScreenViewButtonClick;
+		public event EventHandler<EScreenViewKey> ScreenChangeIntent;
 
 		public bool IsOpened { get; private set; } = false;
 
@@ -55,7 +52,7 @@ namespace OneYearLater.UI
 		{
 			_screenViewButtonDict.ToList().ForEach(
 				kvp => kvp.Value.onClick.AddListener(
-					() => ScreenViewButtonClick?.Invoke(this, kvp.Key)
+					() => ScreenChangeIntent?.Invoke(this, kvp.Key)
 				)
 			);
 		}

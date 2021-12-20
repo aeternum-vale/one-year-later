@@ -7,11 +7,32 @@ namespace OneYearLater.Management.Controllers
 {
 	public class ScreensMediator : IScreensMediator
 	{
-		[Inject] private FeedScreenController _feedScreenController; 
-		[Inject] private ExternalStoragesScreenController _externalStoragesScreenController; 
-		[Inject] private RecordEditorScreenController _recordEditorScreenController; 
+		[Inject] private FeedScreenController _feedScreenController;
+		[Inject] private ExternalStoragesScreenController _externalStoragesScreenController;
+		[Inject] private RecordEditorScreenController _recordEditorScreenController;
+
+		private IScreensMenuView _screensMenu;
 		[Inject] private IViewManager _viewManager;
 
+		public ScreensMediator(IScreensMenuView screensMenu)
+		{
+			_screensMenu = screensMenu;
+			_screensMenu.ScreenChangeIntent += OnScreenChangeIntent;
+		}
+
+		private async void OnScreenChangeIntent(object sender, EScreenViewKey screenKey)
+		{
+			_screensMenu.Close();
+			_viewManager.SetScreenView(screenKey);
+			
+			switch (screenKey)
+			{
+				case EScreenViewKey.Feed:
+					await _feedScreenController.DisplayFeedFor(_feedScreenController.CurrentDate);
+					break;
+			}
+
+		}
 
 		public async UniTask InitializeScreens()
 		{
@@ -27,15 +48,21 @@ namespace OneYearLater.Management.Controllers
 			return UniTask.CompletedTask;
 		}
 
+		public async UniTask ActivateFeedScreen()
+		{
+			await _feedScreenController.DisplayFeedFor(_feedScreenController.CurrentDate);
+			_viewManager.SetScreenView(EScreenViewKey.Feed);
+		}
+
 		public UniTask ActivateFeedScreenForToday()
 		{
 			return ActivateFeedScreenFor(DateTime.Now);
 		}
 
-		public UniTask ActivateFeedScreenFor(DateTime date)
+		public async UniTask ActivateFeedScreenFor(DateTime date)
 		{
+			await _feedScreenController.DisplayFeedFor(date);
 			_viewManager.SetScreenView(EScreenViewKey.Feed);
-			return _feedScreenController.DisplayFeedFor(date);
 		}
 
 		public async UniTask ActivateRecordEditorScreen(int recordId)
@@ -48,13 +75,8 @@ namespace OneYearLater.Management.Controllers
 		{
 			_recordEditorScreenController.SetCreateRecordMode();
 			_viewManager.SetScreenView(EScreenViewKey.RecordEditor);
-			return UniTask.CompletedTask; 
+			return UniTask.CompletedTask;
 		}
 
-		public UniTask ActivateFeedScreen()
-		{
-			_viewManager.SetScreenView(EScreenViewKey.Feed);
-			return _feedScreenController.DisplayFeedFor(_feedScreenController.CurrentDate);
-		}
 	}
 }

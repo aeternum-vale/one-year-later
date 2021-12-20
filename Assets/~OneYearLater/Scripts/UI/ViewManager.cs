@@ -21,6 +21,7 @@ namespace OneYearLater.UI
 
 		[Inject] private PopupManager _popupManager;
 		[Inject] private IMobileInputHandler _mobileInputHandler;
+		[Inject] private SideMenuView _sideMenu;
 
 
 		[Header("Screen Views")]
@@ -28,7 +29,6 @@ namespace OneYearLater.UI
 
 
 		[Space(10)]
-		[SerializeField] private SideMenu _sideMenu;
 		[SerializeField] private CanvasGroupFader _screenBlocker;
 
 
@@ -54,14 +54,7 @@ namespace OneYearLater.UI
 		{
 			_mobileInputHandler.SwipeRight += OnSwipeRight;
 			_mobileInputHandler.TapOnRightBorder += OnTapOnRightBorder;
-
-			_sideMenu.ScreenViewButtonClick += (s, key) =>
-			{
-				SetScreenView(key);
-				_sideMenu.Close();
-			};
 		}
-
 
 		private void OnSwipeRight(object sender, bool fromBorder)
 		{
