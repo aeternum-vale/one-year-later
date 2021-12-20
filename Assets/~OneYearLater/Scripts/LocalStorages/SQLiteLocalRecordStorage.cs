@@ -7,7 +7,6 @@ using OneYearLater.LocalStorages.Models;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
-using SQLite;
 using UnityEngine;
 
 #if !UNITY_EDITOR
@@ -15,30 +14,33 @@ using System.Collections;
 using System.IO;
 #endif
 
-using static OneYearLater.LocalStorages.Constants;
-using static OneYearLater.LocalStorages.Utils;
-
 namespace OneYearLater.LocalStorages
 {
 	public class SQLiteLocalRecordStorage : ILocalRecordStorage
 	{
-		private SQLiteAsyncConnection _conn;
+		private RecordStorageConnector _recordStorageConnector;
 
-		public SQLiteLocalRecordStorage()
+		public SQLiteLocalRecordStorage(RecordStorageConnector recordStorageConnector)
 		{
-			string localDbPath = GetDbPathOnDevice(RecordsDbNameWithExtension);
-			_conn = new SQLiteAsyncConnection(localDbPath);
+			_recordStorageConnector = recordStorageConnector;
+			InitDb();
+		}
 
-			_conn.CreateTableAsync<SQLiteRecordModel>().Forget();
+		private async void InitDb()
+		{
+			var conn = await _recordStorageConnector.GetConnectionFor(this);
+			conn.CreateTableAsync<SQLiteRecordModel>().Forget();
 		}
 
 		public async UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date)
 		{
+			var conn = await _recordStorageConnector.GetConnectionFor(this);
+
 			DateTime dayStartInc = date.Date;
 			DateTime dayEndExc = date.Date.AddDays(1);
 
 			var query =
-				_conn.Table<SQLiteRecordModel>()
+				conn.Table<SQLiteRecordModel>()
 					.Where(r => r.RecordDateTime >= dayStartInc && (r.RecordDateTime < dayEndExc) && (!r.IsDeleted))
 					.OrderBy(r => r.RecordDateTime);
 
@@ -48,26 +50,33 @@ namespace OneYearLater.LocalStorages
 
 		public async UniTask<BaseRecordViewModel> GetRecordAsync(int recordId)
 		{
+			var conn = await _recordStorageConnector.GetConnectionFor(this);
+
 			var sqliteRecord =
-				await _conn.Table<SQLiteRecordModel>()
+				await conn.Table<SQLiteRecordModel>()
 					.Where(r => (r.Id == recordId) && (!r.IsDeleted))
 					.FirstAsync();
 
 			return ConvertToDiaryRecordViewModelFrom(sqliteRecord);
 		}
 
-		public UniTask InsertRecordAsync(BaseRecordViewModel record)
+		public async UniTask InsertRecordAsync(BaseRecordViewModel record)
 		{
+			var conn = await _recordStorageConnector.GetConnectionFor(this);
+
 			switch (record.Type)
 			{
 				case ERecordKey.Diary:
-					return _conn.InsertAsync(ConvertToSQLiteRecordModelFrom((DiaryRecordViewModel)record));
+					await conn.InsertAsync(ConvertToSQLiteRecordModelFrom((DiaryRecordViewModel)record));
+				break;
 				default: throw new Exception("invalid record type");
 			}
 		}
 
-		public UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records)
+		public async UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records)
 		{
+			var conn = await _recordStorageConnector.GetConnectionFor(this);
+
 			List<SQLiteRecordModel> sqliteRecordModels = new List<SQLiteRecordModel>();
 			foreach (var record in records)
 				switch (record.Type)
@@ -77,11 +86,13 @@ namespace OneYearLater.LocalStorages
 						break;
 				}
 
-			return _conn.InsertAllAsync(sqliteRecordModels);
+			await conn.InsertAllAsync(sqliteRecordModels);
 		}
 
 		public async UniTask UpdateRecordAsync(BaseRecordViewModel recordVM)
 		{
+			var conn = await _recordStorageConnector.GetConnectionFor(this);
+
 			switch (recordVM.Type)
 			{
 				case ERecordKey.Diary:
@@ -94,7 +105,7 @@ namespace OneYearLater.LocalStorages
 					record.Content = diaryVM.Text;
 					record.LastEdited = DateTime.Now;
 
-					await _conn.UpdateAsync(record);
+					await conn.UpdateAsync(record);
 
 					break;
 			
@@ -104,24 +115,27 @@ namespace OneYearLater.LocalStorages
 
 		public async UniTask DeleteRecordAsync(int recordId)
 		{
+			var conn = await _recordStorageConnector.GetConnectionFor(this);
+
 			var sqliteRecord = await RetrieveSQLiteRecordModelBy(recordId);
 
 			if (sqliteRecord.IsLocal)
 			{
-				await _conn.DeleteAsync(sqliteRecord);
+				await conn.DeleteAsync(sqliteRecord);
 			}
 			else
 			{
 				sqliteRecord.IsDeleted = true;
 				sqliteRecord.LastEdited = DateTime.Now;
-				await _conn.UpdateAsync(sqliteRecord);
+				await conn.UpdateAsync(sqliteRecord);
 			}
 		}
 
 
-		private UniTask<SQLiteRecordModel> RetrieveSQLiteRecordModelBy(int id)
+		private async UniTask<SQLiteRecordModel> RetrieveSQLiteRecordModelBy(int id)
 		{
-			return _conn.Table<SQLiteRecordModel>().Where(r => r.Id == id).FirstAsync();
+			var conn = await _recordStorageConnector.GetConnectionFor(this);
+			return await conn.Table<SQLiteRecordModel>().Where(r => r.Id == id).FirstAsync();
 		}
 
 		private SQLiteRecordModel ConvertToSQLiteRecordModelFrom(DiaryRecordViewModel diaryViewModel)

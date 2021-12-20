@@ -29,6 +29,8 @@ namespace OneYearLater.DI
 		{
 			Container.Bind<IViewManager>().To<ViewManager>().FromInstance(_viewManager).AsSingle();
 			Container.Bind<IMobileInputHandler>().To<LeanTouchFacade>().FromInstance(_leanTouchFacade).AsSingle();
+			
+			Container.Bind<RecordStorageConnector>().FromNew().AsSingle();
 
 			Container.Bind<ILocalRecordStorage>().To<SQLiteLocalRecordStorage>().FromNew().AsSingle();
 			Container.Bind<IAppLocalStorage>().To<SQLiteAppLocalStorage>().FromNew().AsSingle();
@@ -57,6 +59,7 @@ namespace OneYearLater.DI
 			Container.Bind<RecordEditorScreenController>().FromNew().AsSingle();
 
 			Container.Bind<IScreensMediator>().To<ScreensMediator>().FromNew().AsSingle();
+
 		}
 
 		IExternalStorage[] GetExternalStorages(InjectContext context)

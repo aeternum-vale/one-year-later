@@ -6,6 +6,7 @@ using OneYearLater.LocalStorages.Models;
 using OneYearLater.Management.Interfaces;
 using SQLite;
 using UnityEngine;
+using Zenject;
 
 using static OneYearLater.LocalStorages.Constants;
 using static OneYearLater.LocalStorages.Utils;
@@ -14,8 +15,10 @@ namespace OneYearLater.LocalStorages
 {
 	public class SQLiteSynchronizer : IRecordStorageSynchronizer
 	{
-		private SQLiteAsyncConnection _connectionToLocal;
+		[Inject] private RecordStorageConnector _recordStorageConnector;
+
 		private SQLiteAsyncConnection _connectionToExternalCopy;
+
 
 		private IExternalStorage _externalStorage;
 
@@ -55,20 +58,56 @@ namespace OneYearLater.LocalStorages
 				await UniTask.WaitUntil(() => !_isSyncInProcess);
 
 			_isSyncInProcess = true;
+			await _recordStorageConnector.OccupyConnection(this);
 
 			_externalStorage = externalStorage;
 			_isExternalDbFileExisted = await _externalStorage.IsFileExist(_externalDbPath);
 
-			if (_isExternalDbFileExisted)
+			await UniTask.Delay(TimeSpan.FromSeconds(10f), DelayType.Realtime);
+
+			bool? isSuccess = null;
+
+			if (IsLocalDbMustAndCanBeRestored())
+				isSuccess = await TryRestoreLocalDb();
+			
+			if (_isExternalDbFileExisted && isSuccess == null)
 			{
 				bool isBackupCreated = TryCreateBackup();
 				if (!isBackupCreated)
-					return false;
+					isSuccess = false;
 			}
 
-			bool success = await TrySync();
+			if (isSuccess == null)
+				isSuccess = await TrySync();
+
 			_isSyncInProcess = false;
-			return success;
+			_recordStorageConnector.DeoccupyConnection(this);
+			return isSuccess.GetValueOrDefault();
+		}
+
+		private bool IsLocalDbMustAndCanBeRestored()
+		{
+			bool isLocalDbFileExisted = File.Exists(_originalLocalDbPath);
+			Debug.Log($"<color=lightblue>{GetType().Name}:</color> _originalLocalDbPath={_originalLocalDbPath}");
+			Debug.Log($"<color=lightblue>{GetType().Name}:</color> IsLocalDbMustAndCanBeRestored={!isLocalDbFileExisted && _isExternalDbFileExisted}");
+			return !isLocalDbFileExisted && _isExternalDbFileExisted;
+		}
+
+		private async UniTask<bool> TryRestoreLocalDb()
+		{
+			Debug.Log($"<color=lightblue>{GetType().Name}:</color> TryRestoreLocalDb");
+			try
+			{
+				await _externalStorage.DownloadFile(_externalDbPath, _originalLocalDbPath);
+				Debug.Log($"<color=lightblue>{GetType().Name}:</color> db restored!");
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError($"Error while restoring missing local db ({ex.Message})\n{ex.StackTrace}");
+				return false;
+			}
 		}
 
 		private bool TryCreateBackup()
@@ -89,7 +128,7 @@ namespace OneYearLater.LocalStorages
 		{
 			try
 			{
-				_connectionToLocal = new SQLiteAsyncConnection(_originalLocalDbPath);
+				var conn = await _recordStorageConnector.GetConnectionFor(this);
 
 				await MarkAllRecordsAsNonLocal();
 
@@ -103,7 +142,7 @@ namespace OneYearLater.LocalStorages
 				await _externalStorage.UploadFile(_originalLocalDbPath, _externalDbPath);
 
 				Debug.Log("External DB is Replaced by Local!");
-				
+
 				return true;
 			}
 
@@ -117,7 +156,9 @@ namespace OneYearLater.LocalStorages
 
 		private async UniTask ApplyToLocalDbChangesFromExternal()
 		{
-			var query = _connectionToLocal.Table<SQLiteRecordModel>();
+			var connectionToLocal = await _recordStorageConnector.GetConnectionFor(this);
+
+			var query = connectionToLocal.Table<SQLiteRecordModel>();
 			List<SQLiteRecordModel> allLocalDbRecords = await query.ToListAsync();
 			Dictionary<string, SQLiteRecordModel> localDbHashDictionary =
 				new Dictionary<string, SQLiteRecordModel>();
@@ -156,13 +197,15 @@ namespace OneYearLater.LocalStorages
 				localRecordsToInsert.Add(externalRecord);
 			}
 
-			var updatedRowsNumber = await _connectionToLocal.UpdateAllAsync(localRecordsToUpdate);
-			var insertedRowsNumber = await _connectionToLocal.InsertAllAsync(localRecordsToInsert);
+			var updatedRowsNumber = await connectionToLocal.UpdateAllAsync(localRecordsToUpdate);
+			var insertedRowsNumber = await connectionToLocal.InsertAllAsync(localRecordsToInsert);
 		}
 
-		private UniTask MarkAllRecordsAsNonLocal()
+		private async UniTask MarkAllRecordsAsNonLocal()
 		{
-			return _connectionToLocal
+			var connectionToLocal = await _recordStorageConnector.GetConnectionFor(this);
+
+			await connectionToLocal
 				.ExecuteAsync(
 					$"UPDATE {nameof(SQLiteRecordModel)} SET {nameof(SQLiteRecordModel.IsLocal)} = 0"
 				);
@@ -170,8 +213,8 @@ namespace OneYearLater.LocalStorages
 
 		private async UniTask CloseAllConnections()
 		{
-			if (_connectionToLocal != null)
-				await _connectionToLocal.CloseAsync();
+			await _recordStorageConnector.CloseConnection(this);
+
 			if (_connectionToExternalCopy != null)
 				await _connectionToExternalCopy.CloseAsync();
 		}
