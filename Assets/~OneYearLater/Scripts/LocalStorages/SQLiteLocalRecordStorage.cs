@@ -22,14 +22,8 @@ namespace OneYearLater.LocalStorages
 
 		public SQLiteLocalRecordStorage(RecordStorageConnector recordStorageConnector)
 		{
+			Debug.Log($"<color=lightblue>{GetType().Name}:</color> ctor");
 			_recordStorageConnector = recordStorageConnector;
-			InitDb();
-		}
-
-		private async void InitDb()
-		{
-			var conn = await _recordStorageConnector.GetConnectionFor(this);
-			conn.CreateTableAsync<SQLiteRecordModel>().Forget();
 		}
 
 		public async UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date)

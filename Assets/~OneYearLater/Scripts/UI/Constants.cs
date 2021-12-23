@@ -12,7 +12,7 @@ namespace OneYearLater.UI
 {
 	public static class Constants
 	{
-		public const float ScreenViewFadeDuration = 0.5f;
+		public const float ScreenViewFadeDuration = 0.15f;
 		public const float PopupAppearDuration = 0.3f;
 		public const float PopupBackgroundFadeDuration = 0.2f;
 	}

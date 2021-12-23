@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using OneYearLater.Management.Interfaces;
+using UnityEngine;
 using Zenject;
 
 namespace OneYearLater.Management.Controllers
@@ -16,6 +17,7 @@ namespace OneYearLater.Management.Controllers
 
 		public ScreensMediator(IScreensMenuView screensMenu)
 		{
+			Debug.Log($"<color=lightblue>{GetType().Name}:</color> ctor");
 			_screensMenu = screensMenu;
 			_screensMenu.ScreenChangeIntent += OnScreenChangeIntent;
 		}

@@ -118,7 +118,7 @@ namespace OneYearLater.Management.Controllers
 		{
 			IExternalStorage es = _externalStorageDict[key];
 			_view.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Synchronizing);
-			bool success = await _synchronizer.SyncLocalAndExternalRecordStoragesAsync(es);
+			bool success = await _synchronizer.TrySyncLocalAndExternalRecordStorages(es);
 
 			if (success)
 			{

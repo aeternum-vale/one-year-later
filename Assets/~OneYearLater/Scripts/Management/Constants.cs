@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System;
 using System.Collections.Generic;
 
 namespace OneYearLater.Management
@@ -51,5 +51,41 @@ namespace OneYearLater.Management
 		{
 			[ERecordKey.Diary] = "diary"
 		};
+	}
+
+	public interface IAsyncResult
+	{
+		Exception Error { get; set; }
+	}
+
+	public struct AsyncResult : IAsyncResult
+	{
+		public Exception Error { get; set; }
+	}
+
+
+	public struct AsyncResult<T> : IAsyncResult where T : class
+	{
+		public T Data { get; set; }
+		public Exception Error { get; set; }
+	}
+
+	public struct SimpleAsyncResult<T> : IAsyncResult where T : struct
+	{
+		public T? Data { get; set; }
+		public Exception Error { get; set; }
+	}
+
+	public static class AsyncResultExtensions
+	{
+		public static bool IsSuccessful(this IAsyncResult ar)
+		{
+			return ar.Error == null;
+		}
+
+		public static bool IsError(this IAsyncResult ar)
+		{
+			return ar.Error != null;
+		}
 	}
 }

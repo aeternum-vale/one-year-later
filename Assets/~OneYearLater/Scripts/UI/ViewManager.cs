@@ -58,7 +58,7 @@ namespace OneYearLater.UI
 
 		private void OnSwipeRight(object sender, bool fromBorder)
 		{
-			if (fromBorder && !_popupManager.IsAnyPopupActive) _sideMenu.Open();
+			if (fromBorder && !_popupManager.IsAnyPopupActive) _sideMenu.Open(); //TODO maybe sidemenu must do it by itself
 		}
 
 		private void OnTapOnRightBorder(object sender, EventArgs args)

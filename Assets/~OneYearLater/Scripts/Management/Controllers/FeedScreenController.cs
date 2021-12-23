@@ -11,7 +11,7 @@ namespace OneYearLater.Management.Controllers
 		private IFeedScreenView _view;
 
 		[Inject]
-		private ILocalRecordStorage _localRecordStorage;
+		private LocalStorageWithExceptionHandling _localRecordStorage;
 
 		[Inject]
 		private IScreensMediator _screensMediator;

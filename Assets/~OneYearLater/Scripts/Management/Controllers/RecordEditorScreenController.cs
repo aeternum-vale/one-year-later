@@ -12,7 +12,7 @@ namespace OneYearLater.Management.Controllers
 		public EEditorMode Mode { get; private set; } = EEditorMode.None;
 
 		[Inject] private IScreensMediator _screensMediator;
-		[Inject] private ILocalRecordStorage _localRecordStorage;
+		[Inject] private LocalStorageWithExceptionHandling _localRecordStorage;
 		[Inject] private IPopupManager _popupManager;
 
 		private IRecordEditorScreenView _view;

@@ -52,13 +52,13 @@ namespace OneYearLater.LocalStorages
 			_backupDbPath = GetDbPathOnDevice(_dbBackupNameWithExtension);
 		}
 
-		public async UniTask<bool> SyncLocalAndExternalRecordStoragesAsync(IExternalStorage externalStorage)
+		public async UniTask<bool> TrySyncLocalAndExternalRecordStorages(IExternalStorage externalStorage)
 		{
 			if (_isSyncInProcess)
 				await UniTask.WaitUntil(() => !_isSyncInProcess);
 
 			_isSyncInProcess = true;
-			await _recordStorageConnector.OccupyConnection(this);
+			await _recordStorageConnector.OccupyConnectionBy(this);
 
 			_externalStorage = externalStorage;
 			_isExternalDbFileExisted = await _externalStorage.IsFileExist(_externalDbPath);
@@ -67,9 +67,9 @@ namespace OneYearLater.LocalStorages
 
 			bool? isSuccess = null;
 
-			if (IsLocalDbMustAndCanBeRestored())
+			if (await IsLocalDbMustAndCanBeRestored())
 				isSuccess = await TryRestoreLocalDb();
-			
+
 			if (_isExternalDbFileExisted && isSuccess == null)
 			{
 				bool isBackupCreated = TryCreateBackup();
@@ -81,16 +81,19 @@ namespace OneYearLater.LocalStorages
 				isSuccess = await TrySync();
 
 			_isSyncInProcess = false;
-			_recordStorageConnector.DeoccupyConnection(this);
+			_recordStorageConnector.DeoccupyConnectionBy(this);
 			return isSuccess.GetValueOrDefault();
 		}
 
-		private bool IsLocalDbMustAndCanBeRestored()
+		private async UniTask<bool> IsLocalDbMustAndCanBeRestored()
 		{
 			bool isLocalDbFileExisted = File.Exists(_originalLocalDbPath);
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> _originalLocalDbPath={_originalLocalDbPath}");
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> IsLocalDbMustAndCanBeRestored={!isLocalDbFileExisted && _isExternalDbFileExisted}");
-			return !isLocalDbFileExisted && _isExternalDbFileExisted;
+			bool isDatabaseValid = false;
+
+			if (isLocalDbFileExisted)
+				isDatabaseValid = await _recordStorageConnector.IsDatabaseValid();
+
+			return (!isLocalDbFileExisted || !isDatabaseValid) && _isExternalDbFileExisted;
 		}
 
 		private async UniTask<bool> TryRestoreLocalDb()
@@ -98,6 +101,8 @@ namespace OneYearLater.LocalStorages
 			Debug.Log($"<color=lightblue>{GetType().Name}:</color> TryRestoreLocalDb");
 			try
 			{
+				await _recordStorageConnector.CloseConnectionBy(this);
+
 				await _externalStorage.DownloadFile(_externalDbPath, _originalLocalDbPath);
 				Debug.Log($"<color=lightblue>{GetType().Name}:</color> db restored!");
 
@@ -213,7 +218,7 @@ namespace OneYearLater.LocalStorages
 
 		private async UniTask CloseAllConnections()
 		{
-			await _recordStorageConnector.CloseConnection(this);
+			await _recordStorageConnector.CloseConnectionBy(this);
 
 			if (_connectionToExternalCopy != null)
 				await _connectionToExternalCopy.CloseAsync();
