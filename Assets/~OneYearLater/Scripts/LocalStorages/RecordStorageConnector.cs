@@ -2,26 +2,24 @@ using System;
 using System.IO;
 using Cysharp.Threading.Tasks;
 using OneYearLater.LocalStorages.Models;
+using OneYearLater.Management.Interfaces;
 using SQLite;
 using UnityEngine;
 
 using static OneYearLater.LocalStorages.Constants;
 using static OneYearLater.LocalStorages.Utils;
 
-public class RecordStorageConnector
+public class RecordStorageConnector: IRecordStorageConnector
 {
 	private SQLiteAsyncConnection _rwConnection;
 	private object _occupier;
 	private bool _isDbInitiated = false;
 
-	public RecordStorageConnector()
-	{
-		InitDatabase().Forget();
-	}
-
-	private async UniTask InitDatabase()
+	public async UniTask<EInitResult> InitDatabase()
 	{
 		Debug.Log($"<color=lightblue>{GetType().Name}:</color> InitDatabase");
+
+		EInitResult? result = null;
 
 		if (_isDbInitiated)
 			throw new Exception("db has already been initiated");
@@ -30,18 +28,27 @@ public class RecordStorageConnector
 
 		if (File.Exists(dbPath))
 		{
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> db file exists");
 			bool isDatabaseValid = await IsDatabaseValid();
 
 			if (!isDatabaseValid)
+			{
 				File.Delete(dbPath);
-		}
+				result = EInitResult.InvalidDatabase;
+			}
+
+		} else
+			result = EInitResult.NoDatabase;
 
 		var tempConnection = new SQLiteAsyncConnection(dbPath);
 		await tempConnection.CreateTableAsync<SQLiteRecordModel>();
 		await tempConnection.CloseAsync();
 
 		_isDbInitiated = true;
+
+		if (result == null)
+			result = EInitResult.ValidDatabase;
+
+		return result.Value;
 	}
 
 	public async UniTask CloseConnectionBy(object requester)
@@ -112,7 +119,6 @@ public class RecordStorageConnector
 
 	public async UniTask<bool> IsDatabaseValid()
 	{
-		Debug.Log($"<color=lightblue>{GetType().Name}:</color> IsDatabaseValid()");
 		SQLiteAsyncConnection conn = null;
 		try
 		{
@@ -120,10 +126,9 @@ public class RecordStorageConnector
 			await conn.Table<SQLiteRecordModel>().FirstOrDefaultAsync();
 			await conn.CloseAsync();
 
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> IsDatabaseValid=true");
 			return true;
-
 		}
+
 		catch (Exception) { return false; }
 
 		finally

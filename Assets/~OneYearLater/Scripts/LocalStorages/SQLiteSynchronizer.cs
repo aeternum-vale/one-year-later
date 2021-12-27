@@ -82,7 +82,7 @@ namespace OneYearLater.LocalStorages
 
 			_isSyncInProcess = false;
 			_recordStorageConnector.DeoccupyConnectionBy(this);
-			return isSuccess.GetValueOrDefault();
+			return isSuccess.Value;
 		}
 
 		private async UniTask<bool> IsLocalDbMustAndCanBeRestored()

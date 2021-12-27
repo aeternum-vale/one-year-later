@@ -73,7 +73,7 @@ namespace OneYearLater.Management
 		private async UniTask HandleException(Exception ex)
 		{
 			Debug.LogError(ex.Message);
-			await _popupManager.RunMessagePopupAsync("Couldn't connect to record storage... Try to synchronize with some of the external storages", "Okay");
+			await _popupManager.RunMessagePopupAsync("Couldn't connect to record storage... Try to synchronize with some of the external storages or relaunch the app.");
 		}
 	}
 }

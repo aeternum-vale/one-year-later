@@ -26,7 +26,12 @@ namespace OneYearLater.UI.Popups
 
 		#endregion
 
-		public async UniTask RunMessagePopupAsync(string messageText, string okButtonText = "OK")
+		public UniTask RunMessagePopupAsync(string messageText)
+		{
+			return RunMessagePopupAsync(messageText, "OK");
+		}
+
+		public async UniTask RunMessagePopupAsync(string messageText, string okButtonText)
 		{
 			MessagePopup messagePopup = GetPopupInstance<MessagePopup>(EPopupKey.Message);
 			messagePopup.Init(messageText, okButtonText);

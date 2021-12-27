@@ -12,6 +12,7 @@ namespace OneYearLater.Management.Controllers
 		[Inject] private ExternalStoragesScreenController _externalStoragesScreenController;
 		[Inject] private RecordEditorScreenController _recordEditorScreenController;
 
+
 		private IScreensMenuView _screensMenu;
 		[Inject] private IViewManager _viewManager;
 
@@ -38,6 +39,7 @@ namespace OneYearLater.Management.Controllers
 
 		public async UniTask InitializeScreens()
 		{
+
 			await ActivateFeedScreenForToday();
 			await _externalStoragesScreenController.InitEachExternalStorage();
 
