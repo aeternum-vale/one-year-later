@@ -1,12 +1,14 @@
 {
-    "name": "OneYearLater.Management",
+    "name": "OneYearLater.Import",
     "rootNamespace": "",
     "references": [
         "GUID:d3291a5bbecad8a429c65a70cac5d476",
         "GUID:776d03a35f1b52c4a9aed9f56d7b4229",
         "GUID:560b04d1a97f54a4e82edc0cbbb69285",
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
-        "GUID:3493e9cea28e0f440bb51af08f2a35e3"
+        "GUID:3493e9cea28e0f440bb51af08f2a35e3",
+        "GUID:6e5063adab271564ba0098a06a8cebda",
+        "GUID:33a987035f3377f4a97dd44c35525d18"
     ],
     "includePlatforms": [
         "Android",

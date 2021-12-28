@@ -11,6 +11,7 @@ namespace OneYearLater.Management.Controllers
 		[Inject] private FeedScreenController _feedScreenController;
 		[Inject] private ExternalStoragesScreenController _externalStoragesScreenController;
 		[Inject] private RecordEditorScreenController _recordEditorScreenController;
+		[Inject] private ImportScreenController _importScreenController;
 
 
 		private IScreensMenuView _screensMenu;

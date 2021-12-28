@@ -23,13 +23,8 @@ namespace OneYearLater.UI.Popups
 		{
 			_popupPrefabsDictionary = _popupPrefabsArray.ToDictionary();
 		}
-
 		#endregion
 
-		public UniTask RunMessagePopupAsync(string messageText)
-		{
-			return RunMessagePopupAsync(messageText, "OK");
-		}
 
 		public async UniTask RunMessagePopupAsync(string messageText, string okButtonText)
 		{
@@ -37,22 +32,36 @@ namespace OneYearLater.UI.Popups
 			messagePopup.Init(messageText, okButtonText);
 			await RunSpecificPopupAsync(messagePopup);
 		}
+		public UniTask RunMessagePopupAsync(string messageText) =>
+			RunMessagePopupAsync(messageText, "OK");
 
-		public async UniTask<string> RunPromptPopupAsync(string messageText, string okButtonText = "OK", string placeholderText = "")
+
+
+		public async UniTask<string> RunPromptPopupAsync(string messageText, string placeholderText, string okButtonText)
 		{
 			PromptPopup promptPopup = GetPopupInstance<PromptPopup>(EPopupKey.Prompt);
 			promptPopup.Init(messageText, okButtonText, placeholderText);
 			await RunSpecificPopupAsync(promptPopup);
 			return promptPopup.InputFieldText;
 		}
+		public UniTask<string> RunPromptPopupAsync(string messageText, string placeholderText) =>
+			RunPromptPopupAsync(messageText, placeholderText, "OK");
+		public UniTask<string> RunPromptPopupAsync(string messageText) =>
+			RunPromptPopupAsync(messageText, "Enter value here...");
 
-		public async UniTask<bool> RunConfirmPopupAsync(string messageText = "Are you sure?")
+
+
+		public async UniTask<bool> RunConfirmPopupAsync(string messageText)
 		{
 			ConfirmPopup confirmPopup = GetPopupInstance<ConfirmPopup>(EPopupKey.Confirm);
 			confirmPopup.Init(messageText);
 			await RunSpecificPopupAsync(confirmPopup);
 			return confirmPopup.Answer;
 		}
+		public UniTask<bool> RunConfirmPopupAsync() =>
+			RunConfirmPopupAsync("Are you sure?");
+
+
 
 		private async UniTask RunSpecificPopupAsync<T>(T specificPopup) where T : ISpecificPopup
 		{

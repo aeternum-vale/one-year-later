@@ -96,7 +96,7 @@ namespace OneYearLater.Management.Controllers
 
 		private async UniTask ShowExternalStorageAccessCodePrompt(IExternalStorage es)
 		{
-			string accessCode = await _popupManager.RunPromptPopupAsync($"Paste access code for {es.Name} here", "Enter", "");
+			string accessCode = await _popupManager.RunPromptPopupAsync($"Paste access code for {es.Name} here", "", "Enter");
 			bool success = await es.ConnectWithAccessCode(accessCode);
 			if (success)
 				_view.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.Connected);

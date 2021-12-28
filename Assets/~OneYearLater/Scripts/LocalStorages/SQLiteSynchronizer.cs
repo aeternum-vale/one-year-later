@@ -52,10 +52,16 @@ namespace OneYearLater.LocalStorages
 			_backupDbPath = GetDbPathOnDevice(_dbBackupNameWithExtension);
 		}
 
-		public async UniTask<bool> TrySyncLocalAndExternalRecordStorages(IExternalStorage externalStorage)
+		private UniTask WaitUntilSyncIsNotInProcess()
 		{
 			if (_isSyncInProcess)
-				await UniTask.WaitUntil(() => !_isSyncInProcess);
+				return UniTask.WaitUntil(() => !_isSyncInProcess);
+			return UniTask.CompletedTask;
+		}
+
+		public async UniTask<bool> TrySyncLocalAndExternalRecordStorages(IExternalStorage externalStorage)
+		{
+			await WaitUntilSyncIsNotInProcess();
 
 			_isSyncInProcess = true;
 			await _recordStorageConnector.OccupyConnectionBy(this);

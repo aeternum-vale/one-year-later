@@ -1,8 +1,9 @@
 using OneYearLater.ExternalStorages;
+using OneYearLater.Import;
 using OneYearLater.LocalStorages;
-using OneYearLater.Management;
 using OneYearLater.Management.Controllers;
 using OneYearLater.Management.Interfaces;
+using OneYearLater.Management.LocalStorage;
 using OneYearLater.UI;
 using OneYearLater.UI.Interfaces;
 using OneYearLater.UI.Popups;
@@ -29,6 +30,7 @@ namespace OneYearLater.DI
 
 		public override void InstallBindings()
 		{
+
 			Container.Bind<SideMenuView>().FromInstance(_sideMenu).AsSingle();
 			Container.Bind<IScreensMenuView>().To<SideMenuView>().FromResolve();
 			
@@ -38,8 +40,9 @@ namespace OneYearLater.DI
 			Container.Bind<RecordStorageConnector>().FromNew().AsSingle();
 			Container.Bind<IRecordStorageConnector>().To<RecordStorageConnector>().FromResolve();
 
-			Container.Bind<ILocalRecordStorage>().To<SQLiteLocalRecordStorage>().FromNew().AsSingle();
-			Container.Bind<LocalStorageWithExceptionHandling>().FromNew().AsSingle();
+			Container.Bind<SQLiteLocalRecordStorage>().FromNew().AsSingle();
+			Container.Bind<ILocalRecordStorage>().To<HandledSQLiteLocalRecordStorage>().FromNew().AsSingle();
+			Container.Bind<HandledLocalStorage>().FromNew().AsSingle();
 			
 			Container.Bind<IAppLocalStorage>().To<SQLiteAppLocalStorage>().FromNew().AsSingle();
 			Container.Bind<IExternalStorage>().FromMethodMultiple(GetExternalStorages).AsSingle();
@@ -49,7 +52,7 @@ namespace OneYearLater.DI
 			Container.Bind<PopupManager>().FromInstance(_popupManager).AsSingle();
 			Container.Bind<IPopupManager>().To<PopupManager>().FromResolve();
 
-			Container.Bind<Importer>().FromNew().AsSingle();
+			Container.Bind<IImporter>().To<Importer>().FromNew().AsSingle();
 
 			Container.Bind<FeedScreenView>().FromInstance(_feedScreenView).AsSingle();
 			Container.Bind<IFeedScreenView>().To<FeedScreenView>().FromResolve();
@@ -57,6 +60,7 @@ namespace OneYearLater.DI
 
 			Container.Bind<ImportScreenView>().FromInstance(_importScreenView).AsSingle();
 			Container.Bind<IImportScreenView>().To<ImportScreenView>().FromResolve();
+			Container.Bind<ImportScreenController>().FromNew().AsSingle();
 
 			Container.Bind<ExternalStoragesScreenView>().FromInstance(_externalStoragesScreenView).AsSingle();
 			Container.Bind<IExternalStoragesScreenView>().To<ExternalStoragesScreenView>().FromResolve();
@@ -67,7 +71,6 @@ namespace OneYearLater.DI
 			Container.Bind<RecordEditorScreenController>().FromNew().AsSingle();
 
 			Container.Bind<IScreensMediator>().To<ScreensMediator>().FromNew().AsSingle();
-
 		}
 
 		IExternalStorage[] GetExternalStorages(InjectContext context)

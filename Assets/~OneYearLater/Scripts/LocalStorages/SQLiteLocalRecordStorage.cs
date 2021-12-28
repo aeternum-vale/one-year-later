@@ -5,6 +5,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using OneYearLater.LocalStorages.Models;
 using OneYearLater.Management;
+using OneYearLater.Management.Exceptions;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using UnityEngine;
@@ -61,8 +62,18 @@ namespace OneYearLater.LocalStorages
 			switch (record.Type)
 			{
 				case ERecordKey.Diary:
-					await conn.InsertAsync(ConvertToSQLiteRecordModelFrom((DiaryRecordViewModel)record));
-				break;
+
+					DiaryRecordViewModel diaryRecordVM = (DiaryRecordViewModel)record;
+					SQLiteRecordModel diaryRecordModel = ConvertToSQLiteRecordModelFrom(diaryRecordVM);
+
+					var existedCount = await conn.Table<SQLiteRecordModel>()
+						.Where(r => r.Content.Equals(diaryRecordVM.Text) && r.RecordDateTime == diaryRecordVM.DateTime)
+						.CountAsync();
+					if (existedCount > 0)
+						throw new RecordDuplicateException();
+
+					await conn.InsertAsync(diaryRecordModel);
+					break;
 				default: throw new Exception("invalid record type");
 			}
 		}
@@ -102,7 +113,7 @@ namespace OneYearLater.LocalStorages
 					await conn.UpdateAsync(record);
 
 					break;
-			
+
 				default: throw new Exception("invalid record type");
 			}
 		}

@@ -12,7 +12,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 	{
 		public EScreenViewKey key => EScreenViewKey.Import;
 
-		public event EventHandler ImportFromTextFileButtonClick;
+		public event EventHandler ImportFromTextFileIntent;
 
 		[SerializeField] private Button _importFromTxtButton;
 
@@ -24,7 +24,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 		private void OnImportFromTxtButtonClick()
 		{
-			ImportFromTextFileButtonClick?.Invoke(this, EventArgs.Empty);
+			ImportFromTextFileIntent?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }

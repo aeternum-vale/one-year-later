@@ -10,7 +10,10 @@ namespace OneYearLater.LocalStorages.Models
 		public int Type { get; set; }
 		public DateTime RecordDateTime { get; set; }
 		public string Content { get; set; }
+
+		[Unique] 
 		public string Hash { get; set; }
+
 		public bool IsLocal { get; set; }
 		public bool IsDeleted { get; set; }
 		public DateTime Created { get; set; }

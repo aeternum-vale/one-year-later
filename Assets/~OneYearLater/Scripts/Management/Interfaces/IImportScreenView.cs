@@ -3,6 +3,6 @@ namespace OneYearLater.Management.Interfaces
 {
 	public interface IImportScreenView
 	{
-		event EventHandler ImportFromTextFileButtonClick;
+		event EventHandler ImportFromTextFileIntent;
 	}
 }
