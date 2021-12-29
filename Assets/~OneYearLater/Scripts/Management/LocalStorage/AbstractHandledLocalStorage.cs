@@ -23,7 +23,12 @@ namespace OneYearLater.Management.LocalStorage
 		public UniTask UpdateRecordAsync(BaseRecordViewModel record) =>
 			Handle(LocalRecordStorage.UpdateRecordAsync(record));
 
+		private UniTask Handle(UniTask operation)
+		{
+			UniTask<bool> genericOperation = operation.ContinueWith(() => true);
+			return Handle(genericOperation);
+		}
+
 		protected abstract UniTask<T> Handle<T>(UniTask<T> operation);
-		protected abstract UniTask Handle(UniTask operation);
 	}
 }

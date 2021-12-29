@@ -6,24 +6,14 @@ using OneYearLater.Management.LocalStorage;
 using SQLite;
 using Zenject;
 
+using static SQLite.SQLite3;
+
 namespace OneYearLater.LocalStorages
 {
 	public class HandledSQLiteLocalRecordStorage : AbstractHandledLocalStorage
 	{
 		[Inject] protected SQLiteLocalRecordStorage _sqliteLocalRecordStorage;
 		protected override ILocalRecordStorage LocalRecordStorage => _sqliteLocalRecordStorage;
-
-		protected override async UniTask Handle(UniTask operation)
-		{
-			try
-			{
-				await operation;
-			}
-			catch (SQLiteException ex)
-			{
-				throw new LocalStorageException("LocalStorageException", ex);
-			}
-		}
 
 		protected override async UniTask<T> Handle<T>(UniTask<T> operation)
 		{
@@ -34,7 +24,13 @@ namespace OneYearLater.LocalStorages
 			}
 			catch (SQLiteException ex)
 			{
-				throw new LocalStorageException("LocalStorageException", ex);
+				if (ex.Result == Result.Corrupt ||
+					ex.Result == Result.CannotOpen ||
+					ex.Result == Result.NonDBFile ||
+					ex.Result == Result.NotFound)
+					throw new CannotAccessLocalStorageException(ex.Message, ex);
+
+				throw new LocalStorageException(ex.Message, ex);
 			}
 		}
 

@@ -15,28 +15,6 @@ namespace OneYearLater.Management.LocalStorage
 
 		protected override ILocalRecordStorage LocalRecordStorage => _localRecordStorage;
 
-		protected override async UniTask Handle(UniTask operation)
-		{
-			try
-			{
-				await operation;
-			}
-			catch (RecordDuplicateException ex)
-			{
-				throw ex;
-			}
-			catch (LocalStorageException ex)
-			{
-				Handle(ex);
-				throw ex;
-			}
-			catch (Exception ex)
-			{
-				Debug.LogError(ex.Message);
-				throw ex;
-			}
-		}
-
 		protected override async UniTask<T> Handle<T>(UniTask<T> operation)
 		{
 			try
@@ -44,15 +22,26 @@ namespace OneYearLater.Management.LocalStorage
 				T result = await operation;
 				return result;
 			}
+
 			catch (RecordDuplicateException ex)
 			{
 				throw ex;
 			}
-			catch (LocalStorageException ex)
+
+			catch (CannotAccessLocalStorageException ex)
 			{
-				Handle(ex);
+				Debug.LogError(ex.Message);
+				_popupManager.RunMessagePopupAsync("Couldn't connect to record storage... Try to synchronize with some of the external storages or relaunch the app").Forget();
 				throw ex;
 			}
+
+			catch (LocalStorageException ex)
+			{
+				Debug.LogError(ex.Message);
+				_popupManager.RunMessagePopupAsync("An error was occurred").Forget();
+				throw ex;
+			}
+
 			catch (Exception ex)
 			{
 				Debug.LogError(ex.Message);
@@ -60,10 +49,5 @@ namespace OneYearLater.Management.LocalStorage
 			}
 		}
 
-		private void Handle(Exception ex)
-		{
-			Debug.LogError(ex.Message);
-			_popupManager.RunMessagePopupAsync("An error was occurred");
-		}
 	}
 }

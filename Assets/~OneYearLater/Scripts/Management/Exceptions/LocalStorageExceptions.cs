@@ -13,9 +13,14 @@ namespace OneYearLater.Management.Exceptions
 	{
 		public RecordDuplicateException() { }
 		public RecordDuplicateException(string message) : base(message) { }
-		public RecordDuplicateException(string message, Exception innerException) : base(message, innerException) { }
 
 	}
 
+	public class CannotAccessLocalStorageException : LocalStorageException
+	{
+		public CannotAccessLocalStorageException() { }
+		public CannotAccessLocalStorageException(string message) : base(message) { }
+		public CannotAccessLocalStorageException(string message, Exception innerException) : base(message, innerException) { }
+	}
 
 }
