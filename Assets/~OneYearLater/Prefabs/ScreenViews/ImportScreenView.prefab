@@ -267,7 +267,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b30fc568e4ab97b48b5ae9dec46111c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _importFromTxtButton: {fileID: 3718478293226357822}
+  _importFromTextFileButton: {fileID: 3718478293226357822}
+  _importFromTextFileButtonText: {fileID: 3718478292390914180}
 --- !u!1001 &5084117583473237124
 PrefabInstance:
   m_ObjectHideFlags: 0

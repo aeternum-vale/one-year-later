@@ -1,10 +1,19 @@
 using Cysharp.Threading.Tasks;
+using UniRx;
 
 namespace OneYearLater.Management.Interfaces
 {
 
+	public struct ImportResult
+	{
+		public bool IsCanceled;
+		public int ImportedRecordsCount;
+		public int AbortedDuplicatesCount;
+	}
+	
 	public interface IImporter
 	{
-		UniTask ImportFromTextFile();
+		UniTask<ImportResult> ImportFromTextFile();
+		ReactiveProperty<float> ImportFromTextFileProgress { get; }
 	}
 }

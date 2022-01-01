@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using OneYearLater.Management.Interfaces;
+using UniRx;
 using UnityEngine;
 using Zenject;
 
@@ -8,21 +9,42 @@ namespace OneYearLater.Management.Controllers
 {
 	public class ImportScreenController
 	{
-		[Inject] IImporter _importer;
-		private IImportScreenView _view;
+		[Inject] IPopupManager _popupManager;
 
-		public ImportScreenController(IImportScreenView view)
+		private IImportScreenView _view;
+		IImporter _importer;
+
+		public ImportScreenController(IImportScreenView view, IImporter importer)
 		{
 			Debug.Log($"<color=lightblue>{GetType().Name}:</color> ctor");
 			_view = view;
+			_importer = importer;
 
 			_view.ImportFromTextFileIntent += OnImportFromTextFileIntent;
+			_importer.ImportFromTextFileProgress.Subscribe(OnImportFromTextFileProgressChange);
 		}
 
-		private void OnImportFromTextFileIntent(object sender, EventArgs args)
+		private void OnImportFromTextFileProgressChange(float progress)
+		{
+			_view.SetImportFromTextFileProgressValue(progress);
+		}
+
+		private async void OnImportFromTextFileIntent(object sender, EventArgs args)
 		{
 			Debug.Log($"<color=lightblue>{GetType().Name}:</color> OnImportFromTextFileIntent");
-			_importer.ImportFromTextFile().Forget();
+
+			_view.SetIsImportFromTextFileInProgress(true);
+			var result = await _importer.ImportFromTextFile();
+
+			if (!result.IsCanceled)
+			{
+				_popupManager.RunMessagePopupAsync($@"Import results
+Imported records count: {result.ImportedRecordsCount}
+Aborted duplicates count: {result.AbortedDuplicatesCount}", "Great!").Forget();
+
+			}
+
+			_view.SetIsImportFromTextFileInProgress(false);
 		}
 	}
 }
