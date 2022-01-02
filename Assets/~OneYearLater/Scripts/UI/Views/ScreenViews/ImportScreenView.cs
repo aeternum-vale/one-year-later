@@ -13,8 +13,15 @@ namespace OneYearLater.UI.Views.ScreenViews
 	{
 		public EScreenViewKey key => EScreenViewKey.Import;
 
-
 		public event EventHandler ImportFromTextFileIntent;
+
+		public bool IsImportFromTextFileInProgress
+		{
+			get => _isImportFromTextFileInProgress;
+			set => SetIsImportFromTextFileInProgress(value);
+		}
+		private bool _isImportFromTextFileInProgress;
+
 
 		[SerializeField] private Button _importFromTextFileButton;
 		[SerializeField] private TMP_Text _importFromTextFileButtonText;
@@ -33,7 +40,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 			ImportFromTextFileIntent?.Invoke(this, EventArgs.Empty);
 		}
 
-		public void SetIsImportFromTextFileInProgress(bool isInProgress)
+		private void SetIsImportFromTextFileInProgress(bool isInProgress)
 		{
 			_importFromTextFileButtonText.text =
 				isInProgress ?
@@ -42,13 +49,16 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 			_importFromTextFileButton.interactable = !isInProgress;
 
+			_isImportFromTextFileInProgress = isInProgress;
 		}
 
-		public void SetImportFromTextFileProgressValue(float progress)
+		public void SetImportFromTextFileProgress(float value)
 		{
-			int progressPercents = Mathf.RoundToInt(progress * 100f);
+			if (!_isImportFromTextFileInProgress) return;
 
+			int progressPercents = Mathf.RoundToInt(value * 100f);
 			_importFromTextFileButtonText.text = $"{ImportFromTextFileButtonInProgressText} ({progressPercents}%)";
 		}
+
 	}
 }

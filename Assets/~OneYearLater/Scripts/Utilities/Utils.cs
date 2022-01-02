@@ -32,6 +32,11 @@ namespace Utilities
 		{
 			return UniTask.Delay(TimeSpan.FromSeconds(duration), DelayType.Realtime, cancellationToken: token);
 		}
+
+		public static string CreateMultiline(params string[] lines)
+		{
+			return string.Join(Environment.NewLine, lines);
+		}
 	}
 
 	[Serializable]
