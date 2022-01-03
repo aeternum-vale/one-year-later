@@ -74,4 +74,8 @@ crashlytics-build.properties
 
 
 .vsconfig
-Assets/StreamingAssets/app.bytes
+
+/[Aa]ssets/[Ss]treamingAssets/app.bytes
+/[Aa]ssets/[Ss]treamingAssets/records_backup.bytes
+/[Aa]ssets/[Ss]treamingAssets/records_external.bytes
+/[Aa]ssets/[Ss]treamingAssets/records.bytes

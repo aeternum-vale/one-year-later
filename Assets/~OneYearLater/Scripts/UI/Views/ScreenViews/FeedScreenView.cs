@@ -71,7 +71,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 							throw new Exception("invalid record type");
 					}
 				}
-				await DisplayRecords(recordGameObjects);
+				await FillRecordsContainer(recordGameObjects);
 				SetIsLoadingImageActive(false);
 			}
 			else
@@ -124,10 +124,8 @@ namespace OneYearLater.UI.Views.ScreenViews
 			_dateText.text = _visibleDate.ToString("dd.MM.yyyy");
 		}
 
-		private async UniTask DisplayRecords(IEnumerable<GameObject> records)
+		private async UniTask FillRecordsContainer(IEnumerable<GameObject> records)
 		{
-			ClearRecordsContainer();
-
 			foreach (var record in records)
 				record.transform.SetParent(_recordsContainer);
 

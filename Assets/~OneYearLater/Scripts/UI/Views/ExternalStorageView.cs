@@ -79,7 +79,7 @@ namespace OneYearLater.UI.Views
 			switch (appearance)
 			{
 				case EExternalStorageAppearance.NotConnected:
-					_fader.SetAlphaAsync(0.5f, token).Forget();
+					_fader.SetAlphaAsync(0.2f, token).Forget();
 
 					_connectButton.gameObject.SetActive(true);
 					_syncButton.gameObject.SetActive(false);
@@ -87,7 +87,7 @@ namespace OneYearLater.UI.Views
 					break;
 
 				case EExternalStorageAppearance.Connecting:
-					_fader.SetAlphaAsync(0.7f, token).Forget();
+					_fader.SetAlphaAsync(0.3f, token).Forget();
 
 					_connectButton.gameObject.SetActive(false);
 					_syncButton.gameObject.SetActive(false);
@@ -95,7 +95,7 @@ namespace OneYearLater.UI.Views
 					break;
 
 				case EExternalStorageAppearance.Connected:
-					_fader.SetAlphaAsync(1f, token).Forget();
+					_fader.SetAlphaAsync(0.45f, token).Forget();
 
 					_connectButton.gameObject.SetActive(false);
 					_syncButton.gameObject.SetActive(true);
@@ -104,7 +104,7 @@ namespace OneYearLater.UI.Views
 
 				case EExternalStorageAppearance.Synchronizing:
 
-					_fader.SetAlphaAsync(1f, token).Forget();
+					_fader.SetAlphaAsync(0.45f, token).Forget();
 
 					_disconnectButton.gameObject.SetActive(false);
 					_connectButton.gameObject.SetActive(false);

@@ -32,7 +32,7 @@ namespace OneYearLater.Management.Controllers
 			switch (screenKey)
 			{
 				case EScreenViewKey.Feed:
-					await _feedScreenController.DisplayFeedFor(_feedScreenController.CurrentDate);
+					await _feedScreenController.DisplayFeedForCurrentDate();
 					break;
 			}
 
@@ -40,7 +40,6 @@ namespace OneYearLater.Management.Controllers
 
 		public async UniTask InitializeScreens()
 		{
-
 			await ActivateFeedScreenForToday();
 			await _externalStoragesScreenController.InitEachExternalStorage();
 
@@ -55,8 +54,8 @@ namespace OneYearLater.Management.Controllers
 
 		public async UniTask ActivateFeedScreen()
 		{
-			await _feedScreenController.DisplayFeedFor(_feedScreenController.CurrentDate);
 			_viewManager.SetScreenView(EScreenViewKey.Feed);
+			await _feedScreenController.DisplayFeedForCurrentDate();
 		}
 
 		public UniTask ActivateFeedScreenForToday()
@@ -66,8 +65,8 @@ namespace OneYearLater.Management.Controllers
 
 		public async UniTask ActivateFeedScreenFor(DateTime date)
 		{
-			await _feedScreenController.DisplayFeedFor(date);
 			_viewManager.SetScreenView(EScreenViewKey.Feed);
+			await _feedScreenController.DisplayFeedFor(date);
 		}
 
 		public async UniTask ActivateRecordEditorScreen(int recordId)

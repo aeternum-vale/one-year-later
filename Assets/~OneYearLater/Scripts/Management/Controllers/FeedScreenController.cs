@@ -2,6 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.LocalStorage;
+using Utilities;
 using Zenject;
 
 namespace OneYearLater.Management.Controllers
@@ -42,6 +43,9 @@ namespace OneYearLater.Management.Controllers
 			await _view.DisplayDayFeedAsync(date, records);
 			_view.SetIsDatePickingBlocked(false);
 		}
+		public UniTask DisplayFeedForCurrentDate() =>
+			DisplayFeedFor(CurrentDate);
+
 
 		private void OnAddRecordIntent(object sender, EventArgs args)
 		{

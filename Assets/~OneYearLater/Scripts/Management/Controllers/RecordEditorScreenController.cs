@@ -29,6 +29,35 @@ namespace OneYearLater.Management.Controllers
 			_view.DateTime = DateTime.Now;
 		}
 
+		private void OnApplyIntent(object sender, EventArgs args)
+		{
+			switch (Mode)
+			{
+				case EEditorMode.Create:
+					CreateRecord();
+					break;
+				case EEditorMode.Edit:
+					EditRecord();
+					break;
+				default:
+					throw new Exception("invalid editor mode");
+			}
+		}
+
+		private void OnCancelIntent(object sender, EventArgs args)
+		{
+			_screensMediator.ActivateFeedScreen().Forget();
+		}
+
+		private async void OnDeleteIntent(object sender, EventArgs args)
+		{
+			if (await _popupManager.RunConfirmPopupAsync("Are you sure you want to delete this record?"))
+			{
+				await _localRecordStorage.DeleteRecordAsync(_editingRecordId);
+				_screensMediator.ActivateFeedScreen().Forget();
+			}
+		}
+
 		public async UniTask SetEditRecordMode(int recordId)
 		{
 			Mode = EEditorMode.Edit;
@@ -54,21 +83,6 @@ namespace OneYearLater.Management.Controllers
 			_view.Text = string.Empty;
 		}
 
-		private void OnApplyIntent(object sender, EventArgs args)
-		{
-			switch (Mode)
-			{
-				case EEditorMode.Create:
-					CreateRecord();
-					break;
-				case EEditorMode.Edit:
-					EditRecord();
-					break;
-				default:
-					throw new Exception("invalid editor mode");
-			}
-		}
-
 		private async void CreateRecord()
 		{
 			if (string.IsNullOrWhiteSpace(_view.Text)) return;
@@ -84,21 +98,5 @@ namespace OneYearLater.Management.Controllers
 				new DiaryRecordViewModel(_editingRecordId, _view.DateTime, _view.Text));
 			_screensMediator.ActivateFeedScreenFor(_view.DateTime).Forget();
 		}
-
-
-		private void OnCancelIntent(object sender, EventArgs args)
-		{
-			_screensMediator.ActivateFeedScreen().Forget();
-		}
-
-		private async void OnDeleteIntent(object sender, EventArgs args)
-		{
-			if (await _popupManager.RunConfirmPopupAsync("Are you sure you want to delete this record?"))
-			{
-				await _localRecordStorage.DeleteRecordAsync(_editingRecordId);
-				_screensMediator.ActivateFeedScreen().Forget();
-			}
-		}
-
 	}
 }
