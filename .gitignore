@@ -76,6 +76,11 @@ crashlytics-build.properties
 .vsconfig
 
 /[Aa]ssets/[Ss]treamingAssets/app.bytes
+/[Aa]ssets/[Ss]treamingAssets/app.bytes.meta
 /[Aa]ssets/[Ss]treamingAssets/records_backup.bytes
+/[Aa]ssets/[Ss]treamingAssets/records_backup.bytes.meta
 /[Aa]ssets/[Ss]treamingAssets/records_external.bytes
+/[Aa]ssets/[Ss]treamingAssets/records_external.bytes.meta
 /[Aa]ssets/[Ss]treamingAssets/records.bytes
+/[Aa]ssets/[Ss]treamingAssets/records.bytes.meta
+
