@@ -8,6 +8,6 @@ namespace OneYearLater.Management.Interfaces
 	{
 		UniTask UpdateExternalStorageStateAsync(EExternalStorageKey key, string state);
 		UniTask UpdateExternalStorageSyncDateAsync(EExternalStorageKey key, DateTime syncDate);
-		UniTask<ExternalStorageViewModel?> GetExternalStorageAsync(EExternalStorageKey key);
+		UniTask<ExternalStorageViewModel?> GetExternalStorageViewModel(EExternalStorageKey key);
 	}
 }

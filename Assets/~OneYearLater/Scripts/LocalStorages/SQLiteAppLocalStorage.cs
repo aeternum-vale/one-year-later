@@ -25,7 +25,7 @@ namespace OneYearLater.LocalStorages
 			_connection.CreateTableAsync<SQLiteExternalStorageModel>().Forget();
 		}
 
-		public async UniTask<ExternalStorageViewModel?> GetExternalStorageAsync(EExternalStorageKey key)
+		public async UniTask<ExternalStorageViewModel?> GetExternalStorageViewModel(EExternalStorageKey key)
 		{
 			SQLiteExternalStorageModel sqliteModel = await _connection
 				.Table<SQLiteExternalStorageModel>()

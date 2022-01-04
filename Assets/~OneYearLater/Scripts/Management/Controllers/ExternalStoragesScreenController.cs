@@ -24,47 +24,6 @@ namespace OneYearLater.Management.Controllers
 		private Dictionary<EExternalStorageKey, IExternalStorage> _externalStorageDict;
 		private UniTask _externalStorageStateSavingTask = UniTask.CompletedTask;
 
-
-		public async UniTask InitEachExternalStorage()
-		{
-			ExternalStorageViewModel[] vms =
-				_externalStorages
-					.ToList()
-					.Select(es => new ExternalStorageViewModel() { key = es.Key, name = es.Name })
-					.ToArray();
-
-			_view.ProvideExternalStorageViewModels(vms);
-
-			foreach (var es in _externalStorages)
-			{
-				var esvm = await _appLocalStorage.GetExternalStorageAsync(es.Key);
-
-				es.Init(esvm?.state);
-				es.PersistentState.Subscribe(s => OnExternalStorageStateChanged(es.Key, s));
-
-				if (es.IsWaitingForAccessCode)
-				{
-					await _screensMediator.ActivateExternalStoragesScreens();
-					await ShowExternalStorageAccessCodePrompt(es);
-					continue;
-				}
-
-				if (await es.IsConnected())
-				{
-					DateTime? lastSync = esvm?.lastSync;
-
-					if (lastSync != null)
-						_view.ChangeExternalStorageAppearance(
-							es.Key,
-							EExternalStorageAppearance.Connected,
-							GetLastSyncStatus(lastSync.Value)
-						);
-					else
-						_view.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.Connected);
-				}
-			}
-		}
-
 		public ExternalStoragesScreenController(
 			IExternalStoragesScreenView externalStoragesScreenView,
 			IExternalStorage[] externalStorages
@@ -77,15 +36,70 @@ namespace OneYearLater.Management.Controllers
 			AddListeners();
 		}
 
+
 		private void AddListeners()
 		{
-			_view.ConnectToExternalStorageButtonClicked += OnConnectToExternalStorageButtonClicked;
-			_view.DisconnectFromExternalStorageButtonClicked += OnDisconnectFromExternalStorageButtonClicked;
-			_view.SyncWithExternalStorageButtonClicked += OnSyncWithExternalStorageButtonClicked;
+			_view.ConnectToExternalStorageIntent += OnConnectToExternalStorageIntent;
+			_view.DisconnectFromExternalStorageIntent += OnDisconnectFromExternalStorageIntent;
+			_view.SyncWithExternalStorageIntent += OnSyncWithExternalStorageIntent;
 		}
 
+		public async UniTask InitEachExternalStorage()
+		{
+			ExternalStorageViewModel[] vms =
+				_externalStorages
+					.ToList()
+					.Select(es => new ExternalStorageViewModel() { key = es.Key, name = es.Name })
+					.ToArray();
 
-		private async void OnConnectToExternalStorageButtonClicked(object sender, EExternalStorageKey key)
+			_view.ProvideExternalStorageViewModels(vms);
+
+			foreach (IExternalStorage es in _externalStorages)
+			{
+				ExternalStorageViewModel? esvm = await _appLocalStorage.GetExternalStorageViewModel(es.Key);
+
+				es.Init(esvm?.state);
+				es.PersistentState.Subscribe(s => OnExternalStorageStateChanged(es.Key, s));
+
+				if (es.IsWaitingForAccessCode)
+				{
+					await _screensMediator.ActivateExternalStoragesScreens();
+					await ShowExternalStorageAccessCodePrompt(es);
+					continue;
+				}
+
+				await DefineAppearance(es, esvm);
+			}
+		}
+
+		private async UniTask DefineAppearance(IExternalStorage es)
+		{
+			ExternalStorageViewModel? esvm = await _appLocalStorage.GetExternalStorageViewModel(es.Key);
+			await DefineAppearance(es, esvm);
+		}
+
+		private async UniTask DefineAppearance(IExternalStorage es, ExternalStorageViewModel? esvm)
+		{
+			if (await es.IsConnected())
+			{
+				DateTime? lastSync = esvm?.lastSync;
+
+				if (lastSync != null)
+					_view.ChangeExternalStorageAppearance(
+						es.Key,
+						EExternalStorageAppearance.Connected,
+						GetLastSyncStatus(lastSync.Value)
+					);
+				else
+					_view.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.Connected);
+			}
+			else
+			{
+				_view.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.NotConnected);
+			}
+		}
+
+		private async void OnConnectToExternalStorageIntent(object sender, EExternalStorageKey key)
 		{
 			_view.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Connecting);
 			IExternalStorage es = _externalStorageDict[key];
@@ -104,7 +118,7 @@ namespace OneYearLater.Management.Controllers
 				_view.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.NotConnected);
 		}
 
-		private async void OnDisconnectFromExternalStorageButtonClicked(object sender, EExternalStorageKey key)
+		private async void OnDisconnectFromExternalStorageIntent(object sender, EExternalStorageKey key)
 		{
 			IExternalStorage es = _externalStorageDict[key];
 			if (await _popupManager.RunConfirmPopupAsync($"Are you sure you want to disconnect from {es.Name}?"))
@@ -114,7 +128,7 @@ namespace OneYearLater.Management.Controllers
 			}
 		}
 
-		private async void OnSyncWithExternalStorageButtonClicked(object sender, EExternalStorageKey key)
+		private async void OnSyncWithExternalStorageIntent(object sender, EExternalStorageKey key)
 		{
 			IExternalStorage es = _externalStorageDict[key];
 			_view.ChangeExternalStorageAppearance(key, EExternalStorageAppearance.Synchronizing);
@@ -126,11 +140,17 @@ namespace OneYearLater.Management.Controllers
 				await _appLocalStorage.UpdateExternalStorageSyncDateAsync(key, syncDate);
 
 				_view.ChangeExternalStorageAppearance(
-						key, EExternalStorageAppearance.Connected, GetLastSyncStatus(syncDate));
+					key, EExternalStorageAppearance.Connected, GetLastSyncStatus(syncDate));
 			}
 			else
+			{
 				_view.ChangeExternalStorageAppearance(
-					key, EExternalStorageAppearance.NotConnected, "error while syncing");
+					key, EExternalStorageAppearance.Error, "error while syncing");
+
+				await Delay(3f);
+				
+				await DefineAppearance(es);
+			}
 		}
 
 		private void OnExternalStorageStateChanged(EExternalStorageKey key, string state)

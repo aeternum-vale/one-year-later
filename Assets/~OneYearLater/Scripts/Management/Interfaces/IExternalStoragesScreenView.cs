@@ -8,9 +8,9 @@ namespace OneYearLater.Management.Interfaces
 	{
 		void ProvideExternalStorageViewModels(IEnumerable<ExternalStorageViewModel> viewModels);
 		void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance appearance, string status = null);
-		event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
-		event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageButtonClicked;
-		event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
+		event EventHandler<EExternalStorageKey> ConnectToExternalStorageIntent;
+		event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageIntent;
+		event EventHandler<EExternalStorageKey> SyncWithExternalStorageIntent;
 
 	}
 }

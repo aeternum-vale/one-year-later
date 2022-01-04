@@ -15,9 +15,9 @@ namespace OneYearLater.UI.Views.ScreenViews
 	public class ExternalStoragesScreenView : MonoBehaviour, IScreenView, IExternalStoragesScreenView
 	{
 		public event EventHandler ConnectButtonClicked;
-		public event EventHandler<EExternalStorageKey> ConnectToExternalStorageButtonClicked;
-		public event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageButtonClicked;
-		public event EventHandler<EExternalStorageKey> SyncWithExternalStorageButtonClicked;
+		public event EventHandler<EExternalStorageKey> ConnectToExternalStorageIntent;
+		public event EventHandler<EExternalStorageKey> DisconnectFromExternalStorageIntent;
+		public event EventHandler<EExternalStorageKey> SyncWithExternalStorageIntent;
 
 		[Inject] private IMobileInputHandler _mobileInputHandler;
 
@@ -41,13 +41,13 @@ namespace OneYearLater.UI.Views.ScreenViews
 					});
 
 				view.ConnectButtonClicked += (s, a) =>
-					ConnectToExternalStorageButtonClicked?.Invoke(this, vm.key);
+					ConnectToExternalStorageIntent?.Invoke(this, vm.key);
 
 				view.DisconnectButtonClicked += (s, a) =>
-					DisconnectFromExternalStorageButtonClicked?.Invoke(this, vm.key);
+					DisconnectFromExternalStorageIntent?.Invoke(this, vm.key);
 
 				view.SyncButtonClicked += (s, a) =>
-					SyncWithExternalStorageButtonClicked?.Invoke(this, vm.key);
+					SyncWithExternalStorageIntent?.Invoke(this, vm.key);
 
 				view.ChangeAppearance(EExternalStorageAppearance.NotConnected);
 			});
@@ -57,8 +57,8 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 		public void ChangeExternalStorageAppearance(EExternalStorageKey key, EExternalStorageAppearance appearance, string status = null)
 		{
-			ExternalStorageView view = _externalStoragesViewData[key].view;
-			view.ChangeAppearance(appearance, status);
+			ExternalStorageView esView = _externalStoragesViewData[key].view;
+			esView.ChangeAppearance(appearance, status);
 		}
 
 		public void PopulateExternalStoragesList(ExternalStorageViewDataDict dict)

@@ -3,12 +3,9 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using OneYearLater.Management;
-using OneYearLater.UI.Interfaces;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
-using static OneYearLater.Management.Constants;
 
 namespace OneYearLater.UI.Views
 {
@@ -70,7 +67,7 @@ namespace OneYearLater.UI.Views
 		public void ChangeAppearance(EExternalStorageAppearance appearance, string status = null)
 		{
 			_currentViewAppearance = appearance;
-			status ??= ExternalStorageAppearanceStatuses[appearance];
+			status ??= Management.Constants.ExternalStorageAppearanceDefaultStatuses[appearance];
 
 			_changeStateAnimationCTS?.Cancel();
 			_changeStateAnimationCTS = new CancellationTokenSource();
@@ -111,18 +108,25 @@ namespace OneYearLater.UI.Views
 					_syncButton.gameObject.SetActive(true);
 
 					_syncButton.transform
-						.DORotate(new Vector3(0, 0, -360f), 0.6f, RotateMode.FastBeyond360)
+						.DORotate(new Vector3(0, 0, -360f), 1f, RotateMode.FastBeyond360)
 						.SetEase(Ease.InOutSine);
-					//.SetRelative();
-
 					break;
+
+				case EExternalStorageAppearance.Error:
+					_fader.SetAlphaAsync(0.45f, token).Forget();
+
+					_disconnectButton.gameObject.SetActive(false);
+					_connectButton.gameObject.SetActive(false);
+					_syncButton.gameObject.SetActive(false);
+					break;
+
 				default:
-					throw new Exception("invalid value of type EExternalStorageViewAppearanceState");
+					throw new Exception($"invalid value of type {nameof(EExternalStorageAppearance)}");
 			}
 
 			_statusText.text = status;
 		}
 
-		
+
 	}
 }

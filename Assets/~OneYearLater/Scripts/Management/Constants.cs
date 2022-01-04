@@ -32,19 +32,21 @@ namespace OneYearLater.Management
 		NotConnected = 1,
 		Connecting = 2,
 		Connected = 3,
-		Synchronizing = 4
+		Synchronizing = 4,
+		Error = 5
 	}
 
 
 	public static class Constants
 	{
-		public static Dictionary<EExternalStorageAppearance, string> ExternalStorageAppearanceStatuses = new Dictionary<EExternalStorageAppearance, string>()
+		public static Dictionary<EExternalStorageAppearance, string> ExternalStorageAppearanceDefaultStatuses = new Dictionary<EExternalStorageAppearance, string>()
 		{
 			[EExternalStorageAppearance.None] = "",
 			[EExternalStorageAppearance.NotConnected] = "not connected",
 			[EExternalStorageAppearance.Connecting] = "connecting...",
 			[EExternalStorageAppearance.Connected] = "connected",
-			[EExternalStorageAppearance.Synchronizing] = "synchronization..."
+			[EExternalStorageAppearance.Synchronizing] = "synchronization...",
+			[EExternalStorageAppearance.Error] = "an error was occurred"
 		};
 
 		public static readonly Dictionary<ERecordKey, string> RecordTypeNames = new Dictionary<ERecordKey, string>()
