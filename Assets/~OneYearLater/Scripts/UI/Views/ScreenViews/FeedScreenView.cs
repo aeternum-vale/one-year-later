@@ -27,10 +27,10 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 		[SerializeField] private Button _nextDayButton;
 		[SerializeField] private Button _prevDayButton;
-		[SerializeField] private Button _nextYearButton;
-		[SerializeField] private Button _prevYearButton;
 		[SerializeField] private Button _nextMonthButton;
 		[SerializeField] private Button _prevMonthButton;
+		[SerializeField] private Button _nextYearButton;
+		[SerializeField] private Button _prevYearButton;
 
 		[SerializeField] private Button _dateButton;
 		[SerializeField] private TextMeshProUGUI _dateText;
@@ -56,15 +56,14 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 			_nextDayButton.onClick.AddListener(NextDayButtonClicked);
 			_prevDayButton.onClick.AddListener(PrevDayButtonClicked);
-			_nextYearButton.onClick.AddListener(NextYearButtonClicked);
-			_prevYearButton.onClick.AddListener(PrevYearButtonClicked);
 			_nextMonthButton.onClick.AddListener(NextMonthButtonClicked);
 			_prevMonthButton.onClick.AddListener(PrevMonthButtonClicked);
+			_nextYearButton.onClick.AddListener(NextYearButtonClicked);
+			_prevYearButton.onClick.AddListener(PrevYearButtonClicked);
 
 			_dateButton.onClick.AddListener(OnDateButtonClicked);
 
 			_addRecordButton.onClick.AddListener(OnAddRecordButtonClicked);
-
 		}
 
 		public async UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records)
@@ -112,6 +111,8 @@ namespace OneYearLater.UI.Views.ScreenViews
 			bool interactable = !isBlocked;
 			_nextDayButton.interactable = interactable;
 			_prevDayButton.interactable = interactable;
+			_nextMonthButton.interactable = interactable;
+			_prevMonthButton.interactable = interactable;
 			_nextYearButton.interactable = interactable;
 			_prevYearButton.interactable = interactable;
 		}
@@ -185,6 +186,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 		private void NextDayButtonClicked() =>
 			DayChangeIntent?.Invoke(this, _visibleDate.AddDays(1));
+
 
 		private void OnDateButtonClicked() =>
 			DayChangeIntent?.Invoke(this, DateTime.Today);
