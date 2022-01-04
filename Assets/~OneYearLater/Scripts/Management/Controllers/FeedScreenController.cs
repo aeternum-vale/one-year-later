@@ -23,7 +23,7 @@ namespace OneYearLater.Management.Controllers
 		{
 			_view = view;
 
-			_view.DayChanged += OnDayChanged;
+			_view.DayChangeIntent += OnDayChanged;
 			_view.AddRecordIntent += OnAddRecordIntent;
 			_view.EditRecordIntent += OnEditRecordIntent;
 		}

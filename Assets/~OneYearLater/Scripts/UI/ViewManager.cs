@@ -56,9 +56,9 @@ namespace OneYearLater.UI
 			_mobileInputHandler.TapOnRightBorder += OnTapOnRightBorder;
 		}
 
-		private void OnSwipeRight(object sender, bool fromBorder)
+		private void OnSwipeRight(object sender, SwipeEventArgs args)
 		{
-			if (fromBorder && !_popupManager.IsAnyPopupActive) _sideMenu.Open(); //TODO maybe sidemenu must do it by itself
+			if (args.IsFromBorder && !_popupManager.IsAnyPopupActive) _sideMenu.Open(); //TODO maybe sidemenu must do it by itself
 		}
 
 		private void OnTapOnRightBorder(object sender, EventArgs args)

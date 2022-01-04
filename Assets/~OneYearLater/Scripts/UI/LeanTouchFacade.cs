@@ -19,8 +19,8 @@ namespace OneYearLater.UI
 		public float SwipeBorderSize { get => _swipeBorderSize; set => _swipeBorderSize = value; }
 		public float TapBorderSize { get => _tapBorderSize; set => _tapBorderSize = value; }
 
-		public event EventHandler<bool> SwipeLeft;
-		public event EventHandler<bool> SwipeRight;
+		public event EventHandler<SwipeEventArgs> SwipeLeft;
+		public event EventHandler<SwipeEventArgs> SwipeRight;
 		public event EventHandler TapOnRightBorder;
 		public event EventHandler<Vector2> LongTap;
 
@@ -37,16 +37,16 @@ namespace OneYearLater.UI
 
 		private void OnSwipeLeft(LeanFinger leanFinger)
 		{
-			bool fromBorder = leanFinger.StartScreenPosition.x >= Screen.width - _swipeBorderSize;
+			bool isFromBorder = leanFinger.StartScreenPosition.x >= Screen.width - _swipeBorderSize;
 
-			SwipeLeft?.Invoke(this, fromBorder);
+			SwipeLeft?.Invoke(this, new SwipeEventArgs() { IsFromBorder = isFromBorder });
 		}
 
 		private void OnSwipeRight(LeanFinger leanFinger)
 		{
-			bool fromBorder = leanFinger.StartScreenPosition.x <= _swipeBorderSize;
+			bool isFromBorder = leanFinger.StartScreenPosition.x <= _swipeBorderSize;
 
-			SwipeRight?.Invoke(this, fromBorder);
+			SwipeRight?.Invoke(this, new SwipeEventArgs() { IsFromBorder = isFromBorder });
 		}
 
 		private void OnTap(LeanFinger leanFinger)

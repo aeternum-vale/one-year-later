@@ -7,7 +7,7 @@ namespace OneYearLater.Management.Interfaces
 {
 	public interface IFeedScreenView
 	{
-		event EventHandler<DateTime> DayChanged;
+		event EventHandler<DateTime> DayChangeIntent;
 		event EventHandler AddRecordIntent;
 		event EventHandler<int> EditRecordIntent;
 

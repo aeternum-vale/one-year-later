@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Cysharp.Threading.Tasks;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
@@ -16,6 +17,8 @@ namespace OneYearLater.UI.Views.ScreenViews
 	[RequireComponent(typeof(ScreenView))]
 	public class FeedScreenView : MonoBehaviour, IScreenView, IFeedScreenView
 	{
+		[Inject] private IMobileInputHandler _mobileInputHandler;
+
 		[SerializeField] private DiaryRecordView _diaryRecordViewPrefab;
 
 		[SerializeField] private RectTransform _recordsContainer;
@@ -26,17 +29,43 @@ namespace OneYearLater.UI.Views.ScreenViews
 		[SerializeField] private Button _prevDayButton;
 		[SerializeField] private Button _nextYearButton;
 		[SerializeField] private Button _prevYearButton;
+		[SerializeField] private Button _nextMonthButton;
+		[SerializeField] private Button _prevMonthButton;
 
+		[SerializeField] private Button _dateButton;
 		[SerializeField] private TextMeshProUGUI _dateText;
 		[SerializeField] private GameObject _loadingImage;
 		[SerializeField] private GameObject _noRecordsMessage;
 		[SerializeField] private Button _addRecordButton;
 
-		public event EventHandler<DateTime> DayChanged;
+		public event EventHandler<DateTime> DayChangeIntent;
 		public event EventHandler AddRecordIntent;
 		public event EventHandler<int> EditRecordIntent;
 		private DateTime _visibleDate;
 
+
+		private void Awake()
+		{
+			AddListeners();
+		}
+
+		private void AddListeners()
+		{
+			_mobileInputHandler.SwipeLeft += OnSwipeLeft;
+			_mobileInputHandler.SwipeRight += OnSwipeRight;
+
+			_nextDayButton.onClick.AddListener(NextDayButtonClicked);
+			_prevDayButton.onClick.AddListener(PrevDayButtonClicked);
+			_nextYearButton.onClick.AddListener(NextYearButtonClicked);
+			_prevYearButton.onClick.AddListener(PrevYearButtonClicked);
+			_nextMonthButton.onClick.AddListener(NextMonthButtonClicked);
+			_prevMonthButton.onClick.AddListener(PrevMonthButtonClicked);
+
+			_dateButton.onClick.AddListener(OnDateButtonClicked);
+
+			_addRecordButton.onClick.AddListener(OnAddRecordButtonClicked);
+
+		}
 
 		public async UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records)
 		{
@@ -94,20 +123,6 @@ namespace OneYearLater.UI.Views.ScreenViews
 			SetIsLoadingImageActive(true);
 		}
 
-		private void Awake()
-		{
-			AddListeners();
-		}
-
-		private void AddListeners()
-		{
-			_nextDayButton.onClick.AddListener(NextDayButtonClicked);
-			_prevDayButton.onClick.AddListener(PrevDayButtonClicked);
-			_nextYearButton.onClick.AddListener(NextYearButtonClicked);
-			_prevYearButton.onClick.AddListener(PrevYearButtonClicked);
-			_addRecordButton.onClick.AddListener(OnAddRecordButtonClicked);
-		}
-
 		private void SetIsLoadingImageActive(bool isActive)
 		{
 			_loadingImage.gameObject.SetActive(isActive);
@@ -121,7 +136,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 		private void SetDate(DateTime date)
 		{
 			_visibleDate = date;
-			_dateText.text = _visibleDate.ToString("dd.MM.yyyy");
+			_dateText.text = _visibleDate.ToString("d MMMM\nyyyy", CultureInfo.InvariantCulture);
 		}
 
 		private async UniTask FillRecordsContainer(IEnumerable<GameObject> records)
@@ -141,30 +156,42 @@ namespace OneYearLater.UI.Views.ScreenViews
 				Destroy(child.gameObject);
 		}
 
-
-		private void NextYearButtonClicked()
+		private void OnSwipeLeft(object sender, SwipeEventArgs args)
 		{
-			DayChanged?.Invoke(this, _visibleDate.AddYears(1));
+			if (!args.IsFromBorder)
+				DayChangeIntent?.Invoke(this, _visibleDate.AddDays(1));
 		}
 
-		private void PrevYearButtonClicked()
+		private void OnSwipeRight(object sender, SwipeEventArgs args)
 		{
-			DayChanged?.Invoke(this, _visibleDate.AddYears(-1));
+			if (!args.IsFromBorder)
+				DayChangeIntent?.Invoke(this, _visibleDate.AddDays(-1));
 		}
 
-		private void PrevDayButtonClicked()
-		{
-			DayChanged?.Invoke(this, _visibleDate.AddDays(-1));
-		}
+		private void NextYearButtonClicked() =>
+			DayChangeIntent?.Invoke(this, _visibleDate.AddYears(1));
 
-		private void NextDayButtonClicked()
-		{
-			DayChanged?.Invoke(this, _visibleDate.AddDays(1));
-		}
+		private void PrevYearButtonClicked() =>
+			DayChangeIntent?.Invoke(this, _visibleDate.AddYears(-1));
 
-		private void OnAddRecordButtonClicked()
-		{
+		private void NextMonthButtonClicked() =>
+			DayChangeIntent?.Invoke(this, _visibleDate.AddMonths(1));
+
+		private void PrevMonthButtonClicked() =>
+			DayChangeIntent?.Invoke(this, _visibleDate.AddMonths(-1));
+
+		private void PrevDayButtonClicked() =>
+			DayChangeIntent?.Invoke(this, _visibleDate.AddDays(-1));
+
+		private void NextDayButtonClicked() =>
+			DayChangeIntent?.Invoke(this, _visibleDate.AddDays(1));
+
+		private void OnDateButtonClicked() =>
+			DayChangeIntent?.Invoke(this, DateTime.Today);
+		
+
+		private void OnAddRecordButtonClicked() =>
 			AddRecordIntent?.Invoke(this, EventArgs.Empty);
-		}
+
 	}
 }
