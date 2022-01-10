@@ -15,6 +15,13 @@ namespace OneYearLater.Management.Controllers
 		private IImportScreenView _view;
 		private IImporter _importer;
 
+		public bool IsImportingAllowed
+		{
+			get => _view.IsImportFromTextFileButtonInteractable;
+			set => _view.IsImportFromTextFileButtonInteractable = value;
+		}
+
+
 		public ImportScreenController(IImportScreenView view, IImporter importer)
 		{
 			Debug.Log($"<color=lightblue>{GetType().Name}:</color> ctor");
@@ -35,6 +42,7 @@ namespace OneYearLater.Management.Controllers
 			Debug.Log($"<color=lightblue>{GetType().Name}:</color> OnImportFromTextFileIntent");
 
 			_view.IsImportFromTextFileInProgress = true;
+
 			var result = await _importer.ImportFromTextFile();
 
 			if (!result.IsCanceled)

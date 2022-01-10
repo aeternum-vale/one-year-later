@@ -13,6 +13,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 	{
 		public EScreenViewKey key => EScreenViewKey.Import;
 
+
 		public event EventHandler ImportFromTextFileIntent;
 
 		public bool IsImportFromTextFileInProgress
@@ -20,6 +21,12 @@ namespace OneYearLater.UI.Views.ScreenViews
 			get => _isImportFromTextFileInProgress;
 			set => SetIsImportFromTextFileInProgress(value);
 		}
+		public bool IsImportFromTextFileButtonInteractable
+		{
+			get => _importFromTextFileButton.interactable;
+			set => _importFromTextFileButton.interactable = value;
+		}
+
 		private bool _isImportFromTextFileInProgress;
 
 

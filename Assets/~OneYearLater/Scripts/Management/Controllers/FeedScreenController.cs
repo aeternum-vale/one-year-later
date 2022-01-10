@@ -1,8 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
 using OneYearLater.Management.Interfaces;
-using OneYearLater.Management.LocalStorage;
-using Utilities;
 using Zenject;
 
 namespace OneYearLater.Management.Controllers
@@ -11,13 +9,14 @@ namespace OneYearLater.Management.Controllers
 	{
 		private IFeedScreenView _view;
 
-		[Inject]
-		private HandledLocalStorage _localRecordStorage;
+		[Inject(Id = Constants.HandledRecordStorageId)] 
+		private ILocalRecordStorage _localRecordStorage;
+		
+		[Inject] private IScreensMediator _screensMediator;
 
-		[Inject]
-		private IScreensMediator _screensMediator;
 
 		public DateTime CurrentDate { get; private set; }
+
 
 		public FeedScreenController(IFeedScreenView view)
 		{

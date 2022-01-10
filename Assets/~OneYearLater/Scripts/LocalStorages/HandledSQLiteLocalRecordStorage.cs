@@ -14,6 +14,7 @@ namespace OneYearLater.LocalStorages
 	{
 		[Inject] protected SQLiteLocalRecordStorage _sqliteLocalRecordStorage;
 		protected override ILocalRecordStorage LocalRecordStorage => _sqliteLocalRecordStorage;
+		public UniTask Reconnect() => Handle(_sqliteLocalRecordStorage.Reconnect());
 
 		protected override async UniTask<T> Handle<T>(UniTask<T> operation)
 		{

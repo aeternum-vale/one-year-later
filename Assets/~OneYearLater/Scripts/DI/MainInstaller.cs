@@ -1,6 +1,7 @@
 using OneYearLater.ExternalStorages;
 using OneYearLater.Import;
 using OneYearLater.LocalStorages;
+using OneYearLater.Management;
 using OneYearLater.Management.Controllers;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.LocalStorage;
@@ -26,6 +27,7 @@ namespace OneYearLater.DI
 		[SerializeField] private ImportScreenView _importScreenView;
 		[SerializeField] private ExternalStoragesScreenView _externalStoragesScreenView;
 		[SerializeField] private RecordEditorScreenView _recordEditorScreenView;
+		[SerializeField] private SettingsScreenView _settingsScreenView;
 
 
 		public override void InstallBindings()
@@ -38,21 +40,23 @@ namespace OneYearLater.DI
 			Container.Bind<IMobileInputHandler>().To<LeanTouchFacade>().FromInstance(_leanTouchFacade).AsSingle();
 			
 			Container.Bind<RecordStorageConnector>().FromNew().AsSingle();
-			Container.Bind<IRecordStorageConnector>().To<RecordStorageConnector>().FromResolve();
 
 			Container.Bind<SQLiteLocalRecordStorage>().FromNew().AsSingle();
-			Container.Bind<ILocalRecordStorage>().To<HandledSQLiteLocalRecordStorage>().FromNew().AsSingle();
-			Container.Bind<HandledLocalStorage>().FromNew().AsSingle();
-			
+			Container.Bind<HandledSQLiteLocalRecordStorage>().FromNew().AsSingle();
+			Container.Bind<ILocalRecordStorage>().To<HandledSQLiteLocalRecordStorage>().FromResolve();
+			Container.Bind<ILocalRecordStorage>().WithId(Management.Constants.HandledRecordStorageId).To<HandledLocalStorage>().FromNew().AsSingle();
+			Container.Bind<IRecordStorageSynchronizer>().To<SQLiteSynchronizer>().FromNew().AsSingle();
+
+
 			Container.Bind<IAppLocalStorage>().To<SQLiteAppLocalStorage>().FromNew().AsSingle();
 			Container.Bind<IExternalStorage>().FromMethodMultiple(GetExternalStorages).AsSingle();
-
-			Container.Bind<IRecordStorageSynchronizer>().To<SQLiteSynchronizer>().FromNew().AsSingle();
 
 			Container.Bind<PopupManager>().FromInstance(_popupManager).AsSingle();
 			Container.Bind<IPopupManager>().To<PopupManager>().FromResolve();
 
 			Container.Bind<IImporter>().To<Importer>().FromNew().AsSingle();
+			
+			Container.Bind<RecordStorageUsingWatcher>().FromNew().AsSingle();
 
 			Container.Bind<FeedScreenView>().FromInstance(_feedScreenView).AsSingle();
 			Container.Bind<IFeedScreenView>().To<FeedScreenView>().FromResolve();
@@ -69,6 +73,10 @@ namespace OneYearLater.DI
 			Container.Bind<RecordEditorScreenView>().FromInstance(_recordEditorScreenView).AsSingle();
 			Container.Bind<IRecordEditorScreenView>().To<RecordEditorScreenView>().FromResolve();
 			Container.Bind<RecordEditorScreenController>().FromNew().AsSingle();
+
+			Container.Bind<SettingsScreenView>().FromInstance(_settingsScreenView).AsSingle();
+			Container.Bind<ISettingsScreenView>().To<SettingsScreenView>().FromResolve();
+			Container.Bind<SettingsScreenController>().FromNew().AsSingle();
 
 			Container.Bind<IScreensMediator>().To<ScreensMediator>().FromNew().AsSingle();
 		}

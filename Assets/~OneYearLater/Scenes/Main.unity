@@ -280,6 +280,7 @@ MonoBehaviour:
   _importScreenView: {fileID: 245002424}
   _externalStoragesScreenView: {fileID: 234615181}
   _recordEditorScreenView: {fileID: 619102944}
+  _settingsScreenView: {fileID: 4638064670680806985}
 --- !u!4 &121249038
 Transform:
   m_ObjectHideFlags: 0
@@ -2949,6 +2950,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3292119632726949043, guid: 6f5fde9f2cb6fec42b152c6cbadc41f5, type: 3}
   m_PrefabInstance: {fileID: 4638064670680806983}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4638064670680806985 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5912133918075232075, guid: 6f5fde9f2cb6fec42b152c6cbadc41f5, type: 3}
+  m_PrefabInstance: {fileID: 4638064670680806983}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b78c37ad10df6f48a96d98209826fe7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &6684409866743962684
 PrefabInstance:
   m_ObjectHideFlags: 0

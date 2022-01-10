@@ -10,10 +10,11 @@ namespace OneYearLater.Management.Interfaces
 		public int ImportedRecordsCount;
 		public int AbortedDuplicatesCount;
 	}
-	
+
 	public interface IImporter
 	{
 		UniTask<ImportResult> ImportFromTextFile();
+		ReactiveProperty<bool> IsImportingInProcess { get; }
 		ReactiveProperty<float> ImportFromTextFileProgress { get; }
 	}
 }

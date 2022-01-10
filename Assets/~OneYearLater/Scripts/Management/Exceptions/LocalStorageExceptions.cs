@@ -1,4 +1,3 @@
-
 using System;
 namespace OneYearLater.Management.Exceptions
 {
@@ -23,4 +22,10 @@ namespace OneYearLater.Management.Exceptions
 		public CannotAccessLocalStorageException(string message, Exception innerException) : base(message, innerException) { }
 	}
 
+	public class RecordStorageOccupiedException : LocalStorageException
+	{
+		public RecordStorageOccupiedException() { }
+		public RecordStorageOccupiedException(string message) : base(message) { }
+
+	}
 }

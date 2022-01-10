@@ -7,15 +7,14 @@ namespace OneYearLater.Management
 	public class App : MonoBehaviour
 	{
 		[Inject] private IScreensMediator _screensMediator;
-		[Inject] private IRecordStorageConnector _recordStorageConnector;
+		[Inject] private ILocalRecordStorage _localRecordStorage;
 		[Inject] private IPopupManager _popupManager;
-
 
 		private async void Start()
 		{
 			Screen.fullScreen = false;
 
-			var result = await _recordStorageConnector.InitDatabase();
+			var result = await _localRecordStorage.Init();
 			await _screensMediator.InitializeScreens();
 
 			switch (result)

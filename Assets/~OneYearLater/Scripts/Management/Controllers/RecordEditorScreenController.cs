@@ -1,7 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
 using OneYearLater.Management.Interfaces;
-using OneYearLater.Management.LocalStorage;
 using OneYearLater.Management.ViewModels;
 using Zenject;
 
@@ -13,7 +12,9 @@ namespace OneYearLater.Management.Controllers
 		public EEditorMode Mode { get; private set; } = EEditorMode.None;
 
 		[Inject] private IScreensMediator _screensMediator;
-		[Inject] private HandledLocalStorage _localRecordStorage;
+		
+		[Inject(Id = Constants.HandledRecordStorageId)] 
+		private ILocalRecordStorage _localRecordStorage;
 		[Inject] private IPopupManager _popupManager;
 
 		private IRecordEditorScreenView _view;

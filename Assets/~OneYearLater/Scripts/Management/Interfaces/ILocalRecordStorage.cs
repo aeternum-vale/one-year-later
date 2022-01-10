@@ -5,8 +5,10 @@ using Cysharp.Threading.Tasks;
 
 namespace OneYearLater.Management.Interfaces
 {
+	public enum EInitResult { ValidDatabase = 1, NoDatabase, InvalidDatabase }
 	public interface ILocalRecordStorage
 	{
+		UniTask<EInitResult> Init();
 		UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date);
 		UniTask<BaseRecordViewModel> GetRecordAsync(int recordId);
 

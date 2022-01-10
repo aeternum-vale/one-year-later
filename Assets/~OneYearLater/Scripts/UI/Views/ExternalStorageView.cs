@@ -84,6 +84,8 @@ namespace OneYearLater.UI.Views
 					break;
 
 				case EExternalStorageAppearance.Connecting:
+				case EExternalStorageAppearance.Waiting:
+				
 					_fader.SetAlphaAsync(0.3f, token).Forget();
 
 					_connectButton.gameObject.SetActive(false);

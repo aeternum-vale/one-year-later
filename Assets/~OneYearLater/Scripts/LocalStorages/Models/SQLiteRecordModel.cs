@@ -3,7 +3,7 @@ using System;
 
 namespace OneYearLater.LocalStorages.Models
 {
-	class SQLiteRecordModel
+	public class SQLiteRecordModel
 	{
 		[PrimaryKey, AutoIncrement]
 		public int Id { get; set; }

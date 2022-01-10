@@ -14,7 +14,9 @@ namespace OneYearLater.Management.Controllers
 	public class ExternalStoragesScreenController
 	{
 		[Inject] private IPopupManager _popupManager;
+
 		[Inject] private IRecordStorageSynchronizer _synchronizer;
+
 		[Inject] private IAppLocalStorage _appLocalStorage;
 		[Inject] private IExternalStorage[] _externalStorages;
 		[Inject] private IScreensMediator _screensMediator;
@@ -72,6 +74,21 @@ namespace OneYearLater.Management.Controllers
 			}
 		}
 
+		public void SetWaitingStateForAllExternalStorages()
+		{
+			foreach (IExternalStorage es in _externalStorages)
+				_view.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.Waiting);
+		}
+
+		public UniTask DefineStateForAllExternalStorages()
+		{
+			List<UniTask> tasks = new List<UniTask>();
+			foreach (IExternalStorage es in _externalStorages)
+				tasks.Add(DefineAppearance(es));
+			
+			return UniTask.WhenAll(tasks);
+		}
+
 		private async UniTask DefineAppearance(IExternalStorage es)
 		{
 			ExternalStorageViewModel? esvm = await _appLocalStorage.GetExternalStorageViewModel(es.Key);
@@ -80,6 +97,7 @@ namespace OneYearLater.Management.Controllers
 
 		private async UniTask DefineAppearance(IExternalStorage es, ExternalStorageViewModel? esvm)
 		{
+			_view.ChangeExternalStorageAppearance(es.Key, EExternalStorageAppearance.Waiting);
 			if (await es.IsConnected())
 			{
 				DateTime? lastSync = esvm?.lastSync;
@@ -148,7 +166,7 @@ namespace OneYearLater.Management.Controllers
 					key, EExternalStorageAppearance.Error, "error while syncing");
 
 				await Delay(3f);
-				
+
 				await DefineAppearance(es);
 			}
 		}

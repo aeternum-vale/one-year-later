@@ -3,7 +3,7 @@ using System;
 
 namespace OneYearLater.LocalStorages.Models
 {
-	class SQLiteExternalStorageModel
+	public class SQLiteExternalStorageModel
 	{
 		[PrimaryKey]
 		public int Id { get; set; }

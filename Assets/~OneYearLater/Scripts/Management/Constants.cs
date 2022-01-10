@@ -26,6 +26,14 @@ namespace OneYearLater.Management
 		RecordEditor
 	}
 
+	public enum EStorageUser
+	{
+		None = 0,
+		Feed = 1,
+		Importer = 2,
+		Synchronizer = 3
+	}
+
 	public enum EExternalStorageAppearance
 	{
 		None = 0,
@@ -33,12 +41,14 @@ namespace OneYearLater.Management
 		Connecting = 2,
 		Connected = 3,
 		Synchronizing = 4,
-		Error = 5
+		Error = 5,
+		Waiting = 6
 	}
 
 
 	public static class Constants
 	{
+		public const string HandledRecordStorageId = "HandledRecordStorageId";
 		public static Dictionary<EExternalStorageAppearance, string> ExternalStorageAppearanceDefaultStatuses = new Dictionary<EExternalStorageAppearance, string>()
 		{
 			[EExternalStorageAppearance.None] = "",
@@ -46,7 +56,8 @@ namespace OneYearLater.Management
 			[EExternalStorageAppearance.Connecting] = "connecting...",
 			[EExternalStorageAppearance.Connected] = "connected",
 			[EExternalStorageAppearance.Synchronizing] = "synchronization...",
-			[EExternalStorageAppearance.Error] = "an error was occurred"
+			[EExternalStorageAppearance.Error] = "an error was occurred",
+			[EExternalStorageAppearance.Waiting] = "wait...",
 		};
 
 		public static readonly Dictionary<ERecordKey, string> RecordTypeNames = new Dictionary<ERecordKey, string>()

@@ -7,6 +7,7 @@ namespace OneYearLater.Management.ViewModels
 		public int Id { get; set; }
 		public ERecordKey Type { get; protected set; }
 		public DateTime DateTime { get; set; }
+		public bool IsImported { get; set; }
 
 		protected BaseRecordViewModel(int id, DateTime dateTime)
 		{

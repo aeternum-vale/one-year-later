@@ -7,6 +7,7 @@ using OneYearLater.Management.Interfaces;
 using SQLite;
 using UnityEngine;
 using Zenject;
+using UniRx;
 
 using static OneYearLater.LocalStorages.Constants;
 using static OneYearLater.LocalStorages.Utils;
@@ -16,8 +17,10 @@ namespace OneYearLater.LocalStorages
 	public class SQLiteSynchronizer : IRecordStorageSynchronizer
 	{
 		[Inject] private RecordStorageConnector _recordStorageConnector;
+		[Inject] private HandledSQLiteLocalRecordStorage _sqliteLocalRecordStorage;
 
 		private SQLiteAsyncConnection _connectionToExternalCopy;
+		private SQLiteAsyncConnection _connectionToLocal;
 
 
 		private IExternalStorage _externalStorage;
@@ -32,7 +35,10 @@ namespace OneYearLater.LocalStorages
 
 		private bool _isExternalDbFileExisted;
 		private bool _isRollbackError = false;
-		private bool _isSyncInProcess = false;
+
+		public ReactiveProperty<bool> _isSyncInProcess = new ReactiveProperty<bool>();
+		public ReactiveProperty<bool> IsSyncInProcess => _isSyncInProcess;
+
 
 
 		public SQLiteSynchronizer()
@@ -54,22 +60,23 @@ namespace OneYearLater.LocalStorages
 
 		private UniTask WaitUntilSyncIsNotInProcess()
 		{
-			if (_isSyncInProcess)
-				return UniTask.WaitUntil(() => !_isSyncInProcess);
+			if (_isSyncInProcess.Value)
+				return UniTask.WaitUntil(() => !_isSyncInProcess.Value);
 			return UniTask.CompletedTask;
 		}
 
 		public async UniTask<bool> TrySyncLocalAndExternalRecordStorages(IExternalStorage externalStorage)
 		{
 			await WaitUntilSyncIsNotInProcess();
+			Debug.Log($"<color=lightblue>{GetType().Name}:</color> Sync Is In Process");
+			_isSyncInProcess.Value = true;
 
-			_isSyncInProcess = true;
-			await _recordStorageConnector.OccupyConnectionBy(this);
+			_connectionToLocal = await _recordStorageConnector.GetReadWriteConnection();
 
 			_externalStorage = externalStorage;
 			_isExternalDbFileExisted = await _externalStorage.IsFileExist(_externalDbPath);
 
-			//await UniTask.Delay(TimeSpan.FromSeconds(10f), DelayType.Realtime);
+			await UniTask.Delay(TimeSpan.FromSeconds(10f), DelayType.Realtime);
 
 			bool? isSuccess = null;
 
@@ -86,8 +93,8 @@ namespace OneYearLater.LocalStorages
 			if (isSuccess == null)
 				isSuccess = await TrySync();
 
-			_isSyncInProcess = false;
-			_recordStorageConnector.DeoccupyConnectionBy(this);
+			_isSyncInProcess.Value = false;
+			Debug.Log($"<color=lightblue>{GetType().Name}:</color> Sync Process Is Over");
 			return isSuccess.Value;
 		}
 
@@ -107,7 +114,7 @@ namespace OneYearLater.LocalStorages
 			Debug.Log($"<color=lightblue>{GetType().Name}:</color> TryRestoreLocalDb");
 			try
 			{
-				await _recordStorageConnector.CloseConnectionBy(this);
+				//await _recordStorageConnector.CloseConnectionBy(this);
 
 				await _externalStorage.DownloadFile(_externalDbPath, _originalLocalDbPath);
 				Debug.Log($"<color=lightblue>{GetType().Name}:</color> db restored!");
@@ -139,8 +146,6 @@ namespace OneYearLater.LocalStorages
 		{
 			try
 			{
-				var conn = await _recordStorageConnector.GetConnectionFor(this);
-
 				await MarkAllRecordsAsNonLocal();
 
 				if (_isExternalDbFileExisted)
@@ -163,13 +168,16 @@ namespace OneYearLater.LocalStorages
 				TryRollbackToBackup();
 				return false;
 			}
+
+			finally
+			{
+				await _sqliteLocalRecordStorage.Reconnect();
+			}
 		}
 
 		private async UniTask ApplyToLocalDbChangesFromExternal()
 		{
-			var connectionToLocal = await _recordStorageConnector.GetConnectionFor(this);
-
-			var query = connectionToLocal.Table<SQLiteRecordModel>();
+			var query = _connectionToLocal.Table<SQLiteRecordModel>();
 			List<SQLiteRecordModel> allLocalDbRecords = await query.ToListAsync();
 			Dictionary<string, SQLiteRecordModel> localDbHashDictionary =
 				new Dictionary<string, SQLiteRecordModel>();
@@ -191,11 +199,9 @@ namespace OneYearLater.LocalStorages
 
 					bool isExternalNewer = externalRecord.LastEdited > localRecord.LastEdited;
 
-					if (isExternalNewer)
-						localRecord.LastEdited = externalRecord.LastEdited;
-					else
-						continue;
+					if (!isExternalNewer) continue;
 
+					localRecord.LastEdited = externalRecord.LastEdited;
 					localRecord.Content = externalRecord.Content;
 					localRecord.RecordDateTime = externalRecord.RecordDateTime;
 					localRecord.IsDeleted = externalRecord.IsDeleted;
@@ -208,15 +214,14 @@ namespace OneYearLater.LocalStorages
 				localRecordsToInsert.Add(externalRecord);
 			}
 
-			var updatedRowsNumber = await connectionToLocal.UpdateAllAsync(localRecordsToUpdate);
-			var insertedRowsNumber = await connectionToLocal.InsertAllAsync(localRecordsToInsert);
+			var updatedRowsNumber = await _connectionToLocal.UpdateAllAsync(localRecordsToUpdate);
+			var insertedRowsNumber = await _connectionToLocal.InsertAllAsync(localRecordsToInsert);
+
 		}
 
 		private async UniTask MarkAllRecordsAsNonLocal()
 		{
-			var connectionToLocal = await _recordStorageConnector.GetConnectionFor(this);
-
-			await connectionToLocal
+			await _connectionToLocal
 				.ExecuteAsync(
 					$"UPDATE {nameof(SQLiteRecordModel)} SET {nameof(SQLiteRecordModel.IsLocal)} = 0"
 				);
@@ -224,7 +229,7 @@ namespace OneYearLater.LocalStorages
 
 		private async UniTask CloseAllConnections()
 		{
-			await _recordStorageConnector.CloseConnectionBy(this);
+			await _recordStorageConnector.CloseAllConnections();
 
 			if (_connectionToExternalCopy != null)
 				await _connectionToExternalCopy.CloseAsync();

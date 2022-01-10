@@ -10,6 +10,9 @@ namespace OneYearLater.Management.LocalStorage
 	{
 		protected abstract ILocalRecordStorage LocalRecordStorage { get; }
 
+
+		public UniTask<EInitResult> Init() => LocalRecordStorage.Init();
+
 		public UniTask DeleteRecordAsync(int recordId) =>
 			Handle(LocalRecordStorage.DeleteRecordAsync(recordId));
 		public UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date) =>
@@ -23,7 +26,8 @@ namespace OneYearLater.Management.LocalStorage
 		public UniTask UpdateRecordAsync(BaseRecordViewModel record) =>
 			Handle(LocalRecordStorage.UpdateRecordAsync(record));
 
-		private UniTask Handle(UniTask operation)
+
+		protected UniTask Handle(UniTask operation)
 		{
 			UniTask<bool> genericOperation = operation.ContinueWith(() => true);
 			return Handle(genericOperation);

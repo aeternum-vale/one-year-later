@@ -1,24 +1,23 @@
-using System.Text;
 using System;
+using System.Globalization;
 using System.IO;
+using System.Text;
 using Cysharp.Threading.Tasks;
 using Keiwando.NFSO;
+using OneYearLater.Management;
 using OneYearLater.Management.Exceptions;
 using OneYearLater.Management.Interfaces;
-using OneYearLater.Management.LocalStorage;
 using OneYearLater.Management.ViewModels;
+using UniRx;
 using UnityEngine;
 using Zenject;
-using System.Globalization;
-using UniRx;
 
 namespace OneYearLater.Import
 {
 	public class Importer : IImporter
 	{
-		[Inject] private HandledLocalStorage _localRecordStorage;
-
-		private bool _isImportingInProcess;
+		[Inject(Id = Constants.HandledRecordStorageId)]
+		private ILocalRecordStorage _localRecordStorage;
 
 		private int _importedRecordsCount = 0;
 		private int _abortedDuplicatesCount = 0;
@@ -26,10 +25,14 @@ namespace OneYearLater.Import
 		private ReactiveProperty<float> _importFromTextFileProgress = new ReactiveProperty<float>(0);
 		public ReactiveProperty<float> ImportFromTextFileProgress => _importFromTextFileProgress;
 
+		public ReactiveProperty<bool> _isImportingInProcess = new ReactiveProperty<bool>();
+		public ReactiveProperty<bool> IsImportingInProcess => _isImportingInProcess;
+
+
 		public async UniTask<ImportResult> ImportFromTextFile()
 		{
 			await WaitUntilImportingIsNotInProcess();
-			_isImportingInProcess = true;
+			_isImportingInProcess.Value = true;
 			_importedRecordsCount = 0;
 			_abortedDuplicatesCount = 0;
 			bool isCanceled;
@@ -52,14 +55,14 @@ namespace OneYearLater.Import
 				AbortedDuplicatesCount = _abortedDuplicatesCount,
 			};
 
-			_isImportingInProcess = false;
+			_isImportingInProcess.Value = false;
 			return result;
 		}
 
 		private UniTask WaitUntilImportingIsNotInProcess()
 		{
-			if (_isImportingInProcess)
-				return UniTask.WaitUntil(() => !_isImportingInProcess);
+			if (_isImportingInProcess.Value)
+				return UniTask.WaitUntil(() => !_isImportingInProcess.Value);
 
 			return UniTask.CompletedTask;
 		}

@@ -12,11 +12,12 @@ using static OneYearLater.LocalStorages.Utils;
 
 namespace OneYearLater.LocalStorages
 {
-	public class RecordStorageConnector : IRecordStorageConnector
+	public class RecordStorageConnector
 	{
-		private SQLiteAsyncConnection _rwConnection;
-		private object _occupier;
+		private SQLiteAsyncConnection _readWriteConnection;
+		private SQLiteAsyncConnection _readOnlyConnection;
 		private bool _isDbInitiated = false;
+
 
 		public async UniTask<EInitResult> InitDatabase()
 		{
@@ -38,7 +39,6 @@ namespace OneYearLater.LocalStorages
 					File.Delete(dbPath);
 					result = EInitResult.InvalidDatabase;
 				}
-
 			}
 			else
 				result = EInitResult.NoDatabase;
@@ -55,70 +55,35 @@ namespace OneYearLater.LocalStorages
 			return result.Value;
 		}
 
-		public async UniTask CloseConnectionBy(object requester)
-		{
-			if (_occupier != null && _occupier != requester)
-				await WaitUntilConnectionIsFree();
-
-			await CloseConnection();
-		}
-
-		private async UniTask CloseConnection()
-		{
-			if (_rwConnection != null)
-				await _rwConnection.CloseAsync();
-
-			_rwConnection = null;
-		}
-
-		public async UniTask OccupyConnectionBy(object requester)
-		{
-			if (_occupier == requester)
-				throw new Exception("connection can't be occupied twice");
-
-			await WaitUntilConnectionIsFree();
-			_occupier = requester;
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> Connection is <color=yellow>occupied</color> by {requester.GetType().Name}...");
-		}
-
-		public void DeoccupyConnectionBy(object requester)
-		{
-			if (_occupier == requester)
-			{
-				_occupier = null;
-				Debug.Log($"<color=lightblue>{GetType().Name}:</color> Connection <color=green>deoccupied</color> by {requester.GetType().Name}.");
-				return;
-			}
-
-			throw new Exception("deoccupying before occupying");
-		}
-
-		private UniTask WaitUntilConnectionIsFree()
-		{
-			if (_occupier == null)
-				return UniTask.CompletedTask;
-
-			return UniTask.WaitUntil(() => _occupier == null);
-		}
-
-		private UniTask WaitUntilDbInitiated()
-		{
-			if (_isDbInitiated)
-				return UniTask.CompletedTask;
-
-			return UniTask.WaitUntil(() => _isDbInitiated);
-		}
-
-		public async UniTask<SQLiteAsyncConnection> GetConnectionFor(object requester)
+		public async UniTask<SQLiteAsyncConnection> GetReadOnlyConnection()
 		{
 			await WaitUntilDbInitiated();
 
-			if (_occupier != requester)
-				await WaitUntilConnectionIsFree();
+			InitializeReadOnlyConnection();
+
+			return _readOnlyConnection;
+		}
+
+		public async UniTask<SQLiteAsyncConnection> GetReadWriteConnection()
+		{
+			await WaitUntilDbInitiated();
 
 			InitializeReadWriteConnection();
 
-			return _rwConnection;
+			return _readWriteConnection;
+		}
+
+		public async UniTask CloseAllConnections()
+		{
+			if (_readWriteConnection != null)
+				await _readWriteConnection.CloseAsync();
+
+			_readWriteConnection = null;
+
+			if (_readOnlyConnection != null)
+				await _readOnlyConnection.CloseAsync();
+
+			_readOnlyConnection = null;
 		}
 
 		public async UniTask<bool> IsDatabaseValid()
@@ -126,10 +91,9 @@ namespace OneYearLater.LocalStorages
 			SQLiteAsyncConnection conn = null;
 			try
 			{
-				conn = GetNewReadWriteConnection();
+				conn = OpenNewReadOnlyConnection();
 				await conn.Table<SQLiteRecordModel>().FirstOrDefaultAsync();
 				await conn.CloseAsync();
-
 				return true;
 			}
 
@@ -142,16 +106,32 @@ namespace OneYearLater.LocalStorages
 			}
 		}
 
-		private SQLiteAsyncConnection GetNewReadWriteConnection()
+
+		private UniTask WaitUntilDbInitiated()
 		{
-			return new SQLiteAsyncConnection(GetDbPathOnDevice(RecordsDbNameWithExtension), SQLiteOpenFlags.ReadWrite);
+			if (_isDbInitiated)
+				return UniTask.CompletedTask;
+
+			return UniTask.WaitUntil(() => _isDbInitiated);
 		}
+
+		private SQLiteAsyncConnection OpenNewReadWriteConnection() =>
+			OpenNewConnection(SQLiteOpenFlags.ReadWrite);
+
+		private SQLiteAsyncConnection OpenNewReadOnlyConnection() =>
+			OpenNewConnection(SQLiteOpenFlags.ReadOnly);
+
+		private SQLiteAsyncConnection OpenNewConnection(SQLiteOpenFlags flag) =>
+			new SQLiteAsyncConnection(GetDbPathOnDevice(RecordsDbNameWithExtension), flag);
 
 		private void InitializeReadWriteConnection()
 		{
-			if (_rwConnection == null)
-				_rwConnection = GetNewReadWriteConnection();
+			_readWriteConnection ??= OpenNewReadWriteConnection();
+		}
 
+		private void InitializeReadOnlyConnection()
+		{
+			_readOnlyConnection ??= OpenNewReadOnlyConnection();
 		}
 	}
 }
