@@ -146,7 +146,7 @@ namespace OneYearLater.Import
 
 			try
 			{
-				await _localRecordStorage.InsertRecordAsync(new DiaryRecordViewModel(dateTime, text));
+				await _localRecordStorage.InsertRecordAsync(new DiaryRecordViewModel(dateTime, text) { IsImported = true });
 				_importedRecordsCount++;
 			}
 			catch (RecordDuplicateException)
