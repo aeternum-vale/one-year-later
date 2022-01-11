@@ -1,7 +1,5 @@
-﻿using System.Text;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using OneYearLater.LocalStorages.Models;
@@ -10,13 +8,14 @@ using OneYearLater.Management.Exceptions;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.ViewModels;
 using SQLite;
-using UnityEngine;
 using Zenject;
 
 #if !UNITY_EDITOR
 using System.Collections;
 using System.IO;
 #endif
+
+using static OneYearLater.LocalStorages.ModelsConverter;
 
 namespace OneYearLater.LocalStorages
 {
@@ -64,25 +63,17 @@ namespace OneYearLater.LocalStorages
 			return ConvertToDiaryRecordViewModelFrom(sqliteRecord);
 		}
 
-		public async UniTask InsertRecordAsync(BaseRecordViewModel record)
+		public async UniTask InsertRecordAsync(BaseRecordViewModel recordVM)
 		{
-			switch (record.Type)
-			{
-				case ERecordKey.Diary:
+			SQLiteRecordModel recordModel = ConvertToSQLiteRecordModelFrom(recordVM);
 
-					DiaryRecordViewModel diaryRecordVM = (DiaryRecordViewModel)record;
-					SQLiteRecordModel diaryRecordModel = ConvertToSQLiteRecordModelFrom(diaryRecordVM);
+			var existedCount = await _connection.Table<SQLiteRecordModel>()
+				.Where(r => r.Content.Equals(recordModel.Content) && r.RecordDateTime == recordModel.RecordDateTime)
+				.CountAsync();
+			if (existedCount > 0)
+				throw new RecordDuplicateException();
 
-					var existedCount = await _connection.Table<SQLiteRecordModel>()
-						.Where(r => r.Content.Equals(diaryRecordVM.Text) && r.RecordDateTime == diaryRecordVM.DateTime)
-						.CountAsync();
-					if (existedCount > 0)
-						throw new RecordDuplicateException();
-
-					await _connection.InsertAsync(diaryRecordModel);
-					break;
-				default: throw new Exception("invalid record type");
-			}
+			await _connection.InsertAsync(recordModel);
 		}
 
 		public async UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records)
@@ -140,39 +131,6 @@ namespace OneYearLater.LocalStorages
 		private async UniTask<SQLiteRecordModel> RetrieveSQLiteRecordModelBy(int id)
 		{
 			return await _connection.Table<SQLiteRecordModel>().Where(r => r.Id == id).FirstAsync();
-		}
-
-		private SQLiteRecordModel ConvertToSQLiteRecordModelFrom(DiaryRecordViewModel diaryViewModel)
-		{
-			int type = (int)diaryViewModel.Type;
-			DateTime now = DateTime.Now;
-
-			StringBuilder stringForHashingBuilder = new StringBuilder();
-			stringForHashingBuilder.Append(type);
-			stringForHashingBuilder.Append(diaryViewModel.DateTime);
-			stringForHashingBuilder.Append(diaryViewModel.Text);
-			if (!diaryViewModel.IsImported) 
-				stringForHashingBuilder.Append(now.ToString(CultureInfo.InvariantCulture));
-
-			var sqliteRecord = new SQLiteRecordModel()
-			{
-				Id = diaryViewModel.Id,
-				Type = type,
-				RecordDateTime = diaryViewModel.DateTime,
-				Content = diaryViewModel.Text,
-				Created = now,
-				LastEdited = now,
-				IsLocal = true,
-				Hash = Utilities.Utils.GetSHA256Hash(stringForHashingBuilder.ToString()),
-				AdditionalInfo = $"buildGUID={Application.buildGUID}"
-			};
-
-			return sqliteRecord;
-		}
-
-		private DiaryRecordViewModel ConvertToDiaryRecordViewModelFrom(SQLiteRecordModel sqliteRecord)
-		{
-			return new DiaryRecordViewModel(sqliteRecord.Id, sqliteRecord.RecordDateTime, sqliteRecord.Content);
 		}
 
 	}

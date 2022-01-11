@@ -6,7 +6,8 @@ namespace OneYearLater.Management
 	public enum ERecordKey
 	{
 		None = 0,
-		Diary
+		Diary,
+		Conversation
 	}
 
 	public enum EExternalStorageKey
@@ -29,20 +30,20 @@ namespace OneYearLater.Management
 	public enum EStorageUser
 	{
 		None = 0,
-		Feed = 1,
-		Importer = 2,
-		Synchronizer = 3
+		Feed,
+		Importer,
+		Synchronizer
 	}
 
 	public enum EExternalStorageAppearance
 	{
 		None = 0,
-		NotConnected = 1,
-		Connecting = 2,
-		Connected = 3,
-		Synchronizing = 4,
-		Error = 5,
-		Waiting = 6
+		NotConnected,
+		Connecting,
+		Connected,
+		Synchronizing,
+		Error,
+		Waiting
 	}
 
 
