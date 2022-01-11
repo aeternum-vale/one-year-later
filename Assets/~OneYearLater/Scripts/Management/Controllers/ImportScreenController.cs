@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using OneYearLater.Management.Interfaces;
+using OneYearLater.Management.Interfaces.Importers;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -13,7 +14,7 @@ namespace OneYearLater.Management.Controllers
 		[Inject] IPopupManager _popupManager;
 
 		private IImportScreenView _view;
-		private IImporter _importer;
+		private IDiaryImporter _diaryImporter;
 
 		public bool IsImportingAllowed
 		{
@@ -21,15 +22,14 @@ namespace OneYearLater.Management.Controllers
 			set => _view.IsImportFromTextFileButtonInteractable = value;
 		}
 
-
-		public ImportScreenController(IImportScreenView view, IImporter importer)
+		public ImportScreenController(IImportScreenView view, IDiaryImporter importer)
 		{
 			Debug.Log($"<color=lightblue>{GetType().Name}:</color> ctor");
 			_view = view;
-			_importer = importer;
+			_diaryImporter = importer;
 
 			_view.ImportFromTextFileIntent += OnImportFromTextFileIntent;
-			_importer.ImportFromTextFileProgress.Subscribe(OnImportFromTextFileProgressChange);
+			_diaryImporter.ImportFromTextFileProgress.Subscribe(OnImportFromTextFileProgressChange);
 		}
 
 		private void OnImportFromTextFileProgressChange(float progress)
@@ -43,7 +43,7 @@ namespace OneYearLater.Management.Controllers
 
 			_view.IsImportFromTextFileInProgress = true;
 
-			var result = await _importer.ImportFromTextFile();
+			var result = await _diaryImporter.ImportFromTextFile();
 
 			if (!result.IsCanceled)
 			{

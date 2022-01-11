@@ -67,6 +67,13 @@ namespace OneYearLater.Management
 		};
 	}
 
+	public struct ImportResult
+	{
+		public bool IsCanceled;
+		public int ImportedRecordsCount;
+		public int AbortedDuplicatesCount;
+	}
+
 	public interface IAsyncResult
 	{
 		Exception Error { get; set; }

@@ -4,6 +4,7 @@ using OneYearLater.LocalStorages;
 using OneYearLater.Management;
 using OneYearLater.Management.Controllers;
 using OneYearLater.Management.Interfaces;
+using OneYearLater.Management.Interfaces.Importers;
 using OneYearLater.Management.LocalStorage;
 using OneYearLater.UI;
 using OneYearLater.UI.Interfaces;
@@ -54,7 +55,8 @@ namespace OneYearLater.DI
 			Container.Bind<PopupManager>().FromInstance(_popupManager).AsSingle();
 			Container.Bind<IPopupManager>().To<PopupManager>().FromResolve();
 
-			Container.Bind<IImporter>().To<Importer>().FromNew().AsSingle();
+			Container.Bind<IDiaryImporter>().To<DiaryImporter>().FromNew().AsSingle();
+			Container.Bind<IConversationImporter>().To<ConversationImporter>().FromNew().AsSingle();
 			
 			Container.Bind<RecordStorageUsingWatcher>().FromNew().AsSingle();
 

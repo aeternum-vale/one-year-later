@@ -1,5 +1,5 @@
 using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Cysharp.Threading.Tasks;
@@ -14,7 +14,7 @@ using Zenject;
 
 namespace OneYearLater.Import
 {
-	public class Importer : IImporter
+	public abstract class TextFileImporter 
 	{
 		[Inject(Id = Constants.HandledRecordStorageId)]
 		private ILocalRecordStorage _localRecordStorage;
@@ -25,7 +25,7 @@ namespace OneYearLater.Import
 		private ReactiveProperty<float> _importFromTextFileProgress = new ReactiveProperty<float>(0);
 		public ReactiveProperty<float> ImportFromTextFileProgress => _importFromTextFileProgress;
 
-		public ReactiveProperty<bool> _isImportingInProcess = new ReactiveProperty<bool>();
+		private ReactiveProperty<bool> _isImportingInProcess = new ReactiveProperty<bool>();
 		public ReactiveProperty<bool> IsImportingInProcess => _isImportingInProcess;
 
 
@@ -86,93 +86,37 @@ namespace OneYearLater.Import
 			return utcs.Task;
 		}
 
-		private async UniTask Parse(byte[] bytes)
+		protected IEnumerable<string> GetLines(byte[] bytes)
 		{
 			using var stream = new MemoryStream(bytes);
 			using var streamReader = new StreamReader(stream);
 			string line;
 
-			DateTime currentDateTime = DateTime.MinValue;
-
-			var recordTextSB = new StringBuilder();
-
 			while ((line = streamReader.ReadLine()) != null)
 			{
-
-				if (IsLineADate(line, out DateTime parsedDate))
-				{
-					Debug.Log($"<color=lightblue>{GetType().Name}:</color> line '{line}' is a date!");
-
-					if (recordTextSB.Length > 0)
-						await InsertNewRecordToDb(currentDateTime, recordTextSB.ToString());
-
-					if (IsLineATime(line, out DateTime parsedOnlyTime))
-					{
-						Debug.Log($"<color=lightblue>{GetType().Name}:</color> line '{line}' is a time!");
-
-						if (currentDateTime == DateTime.MinValue)
-							throw new ImportException("Time line before any date line");
-
-						DateTime c = currentDateTime;
-						DateTime t = parsedOnlyTime;
-
-						currentDateTime = new DateTime(c.Year, c.Month, c.Day, t.Hour, t.Minute, t.Second);
-					}
-					else
-						currentDateTime = parsedDate;
-
-					recordTextSB = recordTextSB.Clear();
-				}
-				else
-				{
-					string debugLine = (line.Length < 50) ? line : (line.Substring(0, 50) + "...");
-					Debug.Log($"<color=lightblue>{GetType().Name}:</color> line '{debugLine}' is not a date");
-					recordTextSB.AppendLine(line);
-				}
-
-
+				yield return line;
 				int lineBytesCount = Encoding.UTF8.GetBytes(line).Length;
 				_importFromTextFileProgress.Value += (float)lineBytesCount / (float)bytes.Length;
 			}
-
-			await InsertNewRecordToDb(currentDateTime, recordTextSB.ToString());
 		}
 
-		private async UniTask InsertNewRecordToDb(DateTime dateTime, string text)
-		{
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> creating new record with date={dateTime} and text='{text}'");
+		protected abstract UniTask Parse(byte[] bytes);
 
-			text = text.Trim();
+		protected async UniTask InsertNewRecordToDb(BaseRecordViewModel recordVM)
+		{
+			recordVM.IsImported = true;
 
 			try
 			{
-				await _localRecordStorage.InsertRecordAsync(new DiaryRecordViewModel(dateTime, text) { IsImported = true });
+				await _localRecordStorage.InsertRecordAsync(recordVM);
 				_importedRecordsCount++;
 			}
 			catch (RecordDuplicateException)
 			{
 				_abortedDuplicatesCount++;
-				Debug.Log($"<color=lightblue>{GetType().Name}:</color> the record is already exist");
 			}
 		}
 
-		private bool IsLineADate(string line, out DateTime date)
-		{
-			if (DateTime.TryParse(line, out date))
-				return true;
-
-			line = line.Replace("года", "");
-
-			return DateTime.TryParse(line, out date);
-		}
-
-		private bool IsLineATime(string line, out DateTime date)
-		{
-			var trimmedLine = line.Trim();
-
-			return DateTime.TryParseExact(trimmedLine, new[] { "HH:mm", "HH:mm:ss", "H:mm", "H:mm:ss" },
-				CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
-		}
 	}
 
 }

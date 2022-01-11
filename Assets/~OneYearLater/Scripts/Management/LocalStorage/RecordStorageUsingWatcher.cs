@@ -1,5 +1,6 @@
 using System;
 using OneYearLater.Management.Interfaces;
+using OneYearLater.Management.Interfaces.Importers;
 using UniRx;
 
 namespace OneYearLater.Management.LocalStorage
@@ -15,19 +16,19 @@ namespace OneYearLater.Management.LocalStorage
 	{
 		public event EventHandler<StorageUsingStatusChangeArgs> StorageUsingStatusChange;
 
-		private IImporter _importer;
+		private IDiaryImporter _diaryImporter;
 		private IRecordStorageSynchronizer _synchronizer;
 
 
 		public RecordStorageUsingWatcher(
-			IImporter importer,
+			IDiaryImporter diaryImporter,
 			IRecordStorageSynchronizer synchronizer
 		)
 		{
-			_importer = importer;
+			_diaryImporter = diaryImporter;
 			_synchronizer = synchronizer;
 
-			_importer.IsImportingInProcess.Subscribe(isInUse => OnStorageUsingStatusChange(EStorageUser.Importer, isInUse));
+			_diaryImporter.IsImportingInProcess.Subscribe(isInUse => OnStorageUsingStatusChange(EStorageUser.Importer, isInUse));
 			_synchronizer.IsSyncInProcess.Subscribe(isInUse => OnStorageUsingStatusChange(EStorageUser.Synchronizer, isInUse));
 		}
 
