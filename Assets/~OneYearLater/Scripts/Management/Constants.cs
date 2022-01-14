@@ -7,7 +7,7 @@ namespace OneYearLater.Management
 	{
 		None = 0,
 		Diary,
-		Conversation
+		Message
 	}
 
 	public enum EExternalStorageKey
@@ -67,12 +67,21 @@ namespace OneYearLater.Management
 		};
 	}
 
+	public enum EImportType 
+	{
+		None = 0,
+		DiaryFromTxt,
+		ConversationFromTxt
+	}
+
 	public struct ImportResult
 	{
 		public bool IsCanceled;
 		public int ImportedRecordsCount;
 		public int AbortedDuplicatesCount;
 	}
+
+
 
 	public interface IAsyncResult
 	{

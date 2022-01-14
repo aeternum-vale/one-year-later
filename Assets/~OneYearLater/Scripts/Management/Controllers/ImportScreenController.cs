@@ -15,47 +15,69 @@ namespace OneYearLater.Management.Controllers
 
 		private IImportScreenView _view;
 		private IDiaryImporter _diaryImporter;
+		private IConversationImporter _conversationImporter;
 
 		public bool IsImportingAllowed
 		{
-			get => _view.IsImportFromTextFileButtonInteractable;
-			set => _view.IsImportFromTextFileButtonInteractable = value;
+			get => _view.IsImportingAllowed;
+			set => _view.IsImportingAllowed = value;
 		}
 
-		public ImportScreenController(IImportScreenView view, IDiaryImporter importer)
+		public ImportScreenController(
+			IImportScreenView view,
+			IDiaryImporter diaryImporter,
+			IConversationImporter conversationImporter
+			)
 		{
 			Debug.Log($"<color=lightblue>{GetType().Name}:</color> ctor");
 			_view = view;
-			_diaryImporter = importer;
+			_diaryImporter = diaryImporter;
+			_conversationImporter = conversationImporter;
 
-			_view.ImportFromTextFileIntent += OnImportFromTextFileIntent;
-			_diaryImporter.ImportFromTextFileProgress.Subscribe(OnImportFromTextFileProgressChange);
+			_view.ImportIntent += OnImportIntent;
+			_diaryImporter.ImportFromTextFileProgress.Subscribe(p => _view.SetImportFileProgress(EImportType.DiaryFromTxt,p));
+			_conversationImporter.ImportFromTextFileProgress.Subscribe(p => _view.SetImportFileProgress(EImportType.ConversationFromTxt,p));
 		}
 
-		private void OnImportFromTextFileProgressChange(float progress)
+		private async void OnImportIntent(object sender, EImportType type)
 		{
-			_view.SetImportFromTextFileProgress(progress);
-		}
+			_view.SetIsImportInProgress(type, true);
+			ImportResult result;
 
-		private async void OnImportFromTextFileIntent(object sender, EventArgs args)
-		{
-			Debug.Log($"<color=lightblue>{GetType().Name}:</color> OnImportFromTextFileIntent");
-
-			_view.IsImportFromTextFileInProgress = true;
-
-			var result = await _diaryImporter.ImportFromTextFile();
-
-			if (!result.IsCanceled)
+			switch (type)
 			{
-				_popupManager.RunMessagePopupAsync(
-					CreateMultiline(
-						"Import results",
-						$"Imported records count: {result.ImportedRecordsCount}",
-						$"Aborted duplicates count: {result.AbortedDuplicatesCount}"),
-					"Great!").Forget();
+				case EImportType.DiaryFromTxt:
+					result = await _diaryImporter.ImportFromTextFile();
+
+					if (!result.IsCanceled)
+					{
+						_popupManager.RunMessagePopupAsync(
+							CreateMultiline(
+								"Importint diary from text file results",
+								$"Imported records count: {result.ImportedRecordsCount}",
+								$"Aborted duplicates count: {result.AbortedDuplicatesCount}"),
+							"Great!").Forget();
+					}
+					break;
+				case EImportType.ConversationFromTxt:
+					result = await _conversationImporter.ImportFromTextFile();
+
+					if (!result.IsCanceled)
+					{
+						_popupManager.RunMessagePopupAsync(
+							CreateMultiline(
+								"Importint conversation from text file results",
+								$"Imported records count: {result.ImportedRecordsCount}",
+								$"Aborted duplicates count: {result.AbortedDuplicatesCount}"),
+							"Great!").Forget();
+					}
+
+					break;
 			}
 
-			_view.IsImportFromTextFileInProgress = false;
+
+
+			_view.SetIsImportInProgress(type, false);
 		}
 	}
 }

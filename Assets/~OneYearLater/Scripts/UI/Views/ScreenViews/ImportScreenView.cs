@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using OneYearLater.Management;
 using OneYearLater.Management.Interfaces;
@@ -13,59 +14,95 @@ namespace OneYearLater.UI.Views.ScreenViews
 	{
 		public EScreenViewKey key => EScreenViewKey.Import;
 
-
-		public event EventHandler ImportFromTextFileIntent;
-
-		public bool IsImportFromTextFileInProgress
+		private Dictionary<EImportType, bool> _importProgressStatus = new Dictionary<EImportType, bool>()
 		{
-			get => _isImportFromTextFileInProgress;
-			set => SetIsImportFromTextFileInProgress(value);
-		}
-		public bool IsImportFromTextFileButtonInteractable
+			[EImportType.DiaryFromTxt] = false,
+			[EImportType.ConversationFromTxt] = false
+		};
+
+		private bool _isImportingAvailable;
+		public bool IsImportingAllowed
 		{
-			get => _importFromTextFileButton.interactable;
-			set => _importFromTextFileButton.interactable = value;
+			get => _isImportingAvailable;
+			set
+			{
+				_isImportingAvailable = value;
+				_importDiaryFromTextFileButton.interactable =
+					value && !_importProgressStatus[EImportType.DiaryFromTxt];
+				_importConversationFromTextFileButton.interactable =
+					value && !_importProgressStatus[EImportType.ConversationFromTxt];
+			}
 		}
 
-		private bool _isImportFromTextFileInProgress;
+		public event EventHandler<EImportType> ImportIntent;
 
+		public bool IsImportInProgress(EImportType type)
+		{
+			return _importProgressStatus[type];
+		}
 
-		[SerializeField] private Button _importFromTextFileButton;
-		[SerializeField] private TMP_Text _importFromTextFileButtonText;
+		public void SetIsImportInProgress(EImportType type, bool isImportInProgress)
+		{
+			switch (type)
+			{
+				case EImportType.DiaryFromTxt:
+					_importDiaryFromTextFileButtonText.text =
+						isImportInProgress ?
+						ImportDiaryFromTextFileButtonInProgressText :
+						ImportDiaryFromTextFileButtonNormalText;
 
-		private const string ImportFromTextFileButtonNormalText = "Import from .txt";
-		private const string ImportFromTextFileButtonInProgressText = "Importing from .txt";
+					_importDiaryFromTextFileButton.interactable = !isImportInProgress;
+					break;
+				case EImportType.ConversationFromTxt:
+					_importConversationFromTextFileButtonText.text =
+						isImportInProgress ?
+						ImportConversationFromTextFileButtonInProgressText :
+						ImportConversationFromTextFileButtonNormalText;
+
+					_importConversationFromTextFileButton.interactable = !isImportInProgress;
+					break;
+			}
+
+			_importProgressStatus[type] = isImportInProgress;
+		}
+
+		public void SetImportFileProgress(EImportType type, float value)
+		{
+			if (!_importProgressStatus[type]) return;
+
+			int progressPercents = Mathf.RoundToInt(value * 100f);
+
+			switch (type)
+			{
+				case EImportType.DiaryFromTxt:
+					_importDiaryFromTextFileButtonText.text =
+						$"{ImportDiaryFromTextFileButtonInProgressText} ({progressPercents}%)";
+					break;
+				case EImportType.ConversationFromTxt:
+					_importConversationFromTextFileButtonText.text =
+						$"{ImportConversationFromTextFileButtonInProgressText} ({progressPercents}%)";
+					break;
+			}
+
+		}
+
+		[SerializeField] private Button _importDiaryFromTextFileButton; //TODO put this to dict
+		[SerializeField] private TMP_Text _importDiaryFromTextFileButtonText;
+		[SerializeField] private Button _importConversationFromTextFileButton;
+		[SerializeField] private TMP_Text _importConversationFromTextFileButtonText;
+
+		private const string ImportDiaryFromTextFileButtonNormalText = "Import Diary from .txt";
+		private const string ImportDiaryFromTextFileButtonInProgressText = "Importing Diary from .txt";
+		private const string ImportConversationFromTextFileButtonNormalText = "Import Conversation from .txt";
+		private const string ImportConversationFromTextFileButtonInProgressText = "Importing Conversation from .txt";
 
 
 		private void Awake()
 		{
-			_importFromTextFileButton.onClick.AddListener(OnImportFromTxtButtonClick);
+			_importDiaryFromTextFileButton.onClick.AddListener(() => InvokeImportIntentEvent(EImportType.DiaryFromTxt));
+			_importConversationFromTextFileButton.onClick.AddListener(() => InvokeImportIntentEvent(EImportType.ConversationFromTxt));
 		}
 
-		private void OnImportFromTxtButtonClick()
-		{
-			ImportFromTextFileIntent?.Invoke(this, EventArgs.Empty);
-		}
-
-		private void SetIsImportFromTextFileInProgress(bool isInProgress)
-		{
-			_importFromTextFileButtonText.text =
-				isInProgress ?
-				ImportFromTextFileButtonInProgressText :
-				ImportFromTextFileButtonNormalText;
-
-			_importFromTextFileButton.interactable = !isInProgress;
-
-			_isImportFromTextFileInProgress = isInProgress;
-		}
-
-		public void SetImportFromTextFileProgress(float value)
-		{
-			if (!_isImportFromTextFileInProgress) return;
-
-			int progressPercents = Mathf.RoundToInt(value * 100f);
-			_importFromTextFileButtonText.text = $"{ImportFromTextFileButtonInProgressText} ({progressPercents}%)";
-		}
-
+		private void InvokeImportIntentEvent(EImportType t) => ImportIntent?.Invoke(this, t);
 	}
 }

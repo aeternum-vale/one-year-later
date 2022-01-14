@@ -3,9 +3,12 @@ namespace OneYearLater.Management.Interfaces
 {
 	public interface IImportScreenView
 	{
-		bool IsImportFromTextFileButtonInteractable { get; set; }
-		event EventHandler ImportFromTextFileIntent;
-		bool IsImportFromTextFileInProgress { get; set; }
-		void SetImportFromTextFileProgress(float value);
+		bool IsImportingAllowed {get; set;}
+
+		event EventHandler<EImportType> ImportIntent;
+		bool IsImportInProgress(EImportType type);
+		void SetIsImportInProgress(EImportType type, bool isImportInProgress);
+		void SetImportFileProgress(EImportType type, float value);
+
 	}
 }

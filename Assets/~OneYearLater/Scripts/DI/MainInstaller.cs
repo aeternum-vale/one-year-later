@@ -48,7 +48,6 @@ namespace OneYearLater.DI
 			Container.Bind<ILocalRecordStorage>().WithId(Management.Constants.HandledRecordStorageId).To<HandledLocalStorage>().FromNew().AsSingle();
 			Container.Bind<IRecordStorageSynchronizer>().To<SQLiteSynchronizer>().FromNew().AsSingle();
 
-
 			Container.Bind<IAppLocalStorage>().To<SQLiteAppLocalStorage>().FromNew().AsSingle();
 			Container.Bind<IExternalStorage>().FromMethodMultiple(GetExternalStorages).AsSingle();
 

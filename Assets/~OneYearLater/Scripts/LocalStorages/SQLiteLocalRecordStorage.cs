@@ -50,7 +50,7 @@ namespace OneYearLater.LocalStorages
 					.OrderBy(r => r.RecordDateTime);
 
 			return (await query.ToListAsync())
-				.Select(rm => ConvertToDiaryRecordViewModelFrom(rm));
+				.Select(rm => ConvertTRecordViewModelFrom(rm));
 		}
 
 		public async UniTask<BaseRecordViewModel> GetRecordAsync(int recordId)
@@ -60,7 +60,7 @@ namespace OneYearLater.LocalStorages
 					.Where(r => (r.Id == recordId) && (!r.IsDeleted))
 					.FirstAsync();
 
-			return ConvertToDiaryRecordViewModelFrom(sqliteRecord);
+			return ConvertTRecordViewModelFrom(sqliteRecord);
 		}
 
 		public async UniTask InsertRecordAsync(BaseRecordViewModel recordVM)

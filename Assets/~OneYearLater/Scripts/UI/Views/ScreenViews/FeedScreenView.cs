@@ -83,17 +83,32 @@ namespace OneYearLater.UI.Views.ScreenViews
 					switch (record.Type)
 					{
 						case ERecordKey.Diary:
-
 							DiaryRecordView v = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
-							DiaryRecordViewModel vm = (DiaryRecordViewModel)record;
+							var drvm = (DiaryRecordViewModel)record;
 
-							v.Id = vm.Id;
-							v.TimeText = vm.DateTime.ToString("HH:mm");
-							v.ContentText = vm.Text;
+							v.Id = drvm.Id;
+							v.TimeText = drvm.DateTime.ToString("HH:mm");
+							v.ContentText = drvm.Text;
 
-							v.LongTap += (s, a) => EditRecordIntent?.Invoke(this, vm.Id);
+							v.LongTap += (s, a) => EditRecordIntent?.Invoke(this, drvm.Id);
 
 							recordGameObjects.Add(v.gameObject);
+							break;
+
+						case ERecordKey.Message:
+							DiaryRecordView dv = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
+							var mrvm = (MessageRecordViewModel)record;
+							var message = mrvm.Content;
+
+							dv.Id = mrvm.Id;
+							dv.TimeText = mrvm.DateTime.ToString("HH:mm");
+
+							string preposition = message.UserIsMessageAuthor ? "to" : "from";
+							string contentText = $"<b>Message {preposition} <i>{message.CompanionName}</i>:</b>\n\n{message.MessageText}";
+
+							dv.ContentText = contentText;
+
+							recordGameObjects.Add(dv.gameObject);
 							break;
 						default:
 							throw new Exception("invalid record type");
