@@ -64,24 +64,6 @@ namespace OneYearLater.LocalStorages
 			return await FullfilRecord(sqliteRecord);
 		}
 
-		private async UniTask<BaseRecordViewModel> FullfilRecord(SQLiteRecordModel incompleteRecord)
-		{
-			var readOnlyConnection = await _recordStorageConnector.GetReadOnlyConnection();
-
-			switch ((ERecordType)incompleteRecord.Type)
-			{
-				case ERecordType.Diary:
-					var diaryContentModel = await readOnlyConnection.Table<SQLiteDiaryContentModel>().FirstAsync(r => r.Id == incompleteRecord.ContentId);
-					return ConvertToRecordViewModelFrom(incompleteRecord, diaryContentModel);
-				case ERecordType.Message:
-					var messageContentModel = await readOnlyConnection.Table<SQLiteMessengeContentModel>().FirstAsync(r => r.Id == incompleteRecord.ContentId);
-					var conversationalistName = (await readOnlyConnection.Table<SQLiteConversationalistModel>().FirstAsync(c => c.Id == messageContentModel.ConversationalistId)).Name;
-					return ConvertToRecordViewModelFrom(incompleteRecord, messageContentModel, conversationalistName);
-			}
-
-			throw new Exception("invalid record type");
-		}
-
 		public async UniTask InsertRecordAsync(BaseRecordViewModel recordVM)
 		{
 			int contentId = 0;
@@ -109,6 +91,82 @@ namespace OneYearLater.LocalStorages
 				throw new RecordDuplicateException();
 
 			await _connection.InsertAsync(recordModel);
+		}
+
+		public UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records)
+		{
+			return UniTask.WhenAll(records.Select(r => InsertRecordAsync(r)));
+		}
+
+		public async UniTask UpdateRecordAsync(BaseRecordViewModel recordVM)
+		{
+			switch (recordVM.Type)
+			{
+				case ERecordType.Diary:
+
+					var diaryVM = (DiaryRecordViewModel)recordVM;
+
+					var diaryRecordModel = await RetrieveSQLiteRecordModelBy(diaryVM.Id);
+					var diaryContentModel = await RetrieveSQLiteDiaryContentModelBy(diaryRecordModel.ContentId);
+
+					diaryRecordModel.RecordDateTime = diaryVM.DateTime;
+					diaryRecordModel.LastEdited = DateTime.Now;
+					diaryContentModel.Text = diaryVM.Text;
+
+					await _connection.UpdateAsync(diaryRecordModel);
+					await _connection.UpdateAsync(diaryContentModel);
+
+					break;
+
+				default: throw new Exception("invalid record type");
+			}
+		}
+
+		public async UniTask DeleteRecordAsync(int recordId)
+		{
+			SQLiteRecordModel recordModel = await RetrieveSQLiteRecordModelBy(recordId);
+
+			UniTask recordDeletingTask = UniTask.FromException(new Exception("invalid deliting task"));
+			UniTask contentDeletingTask = UniTask.FromException(new Exception("invalid deliting task")); ;
+
+			if (recordModel.IsLocal)
+				recordDeletingTask = _connection.DeleteAsync(recordModel);
+			else
+			{
+				recordModel.IsDeleted = true;
+				recordModel.LastEdited = DateTime.Now;
+				recordDeletingTask = _connection.UpdateAsync(recordModel);
+			}
+
+			switch ((ERecordType)recordModel.Type)
+			{
+				case ERecordType.Diary:
+					contentDeletingTask = _connection.Table<SQLiteDiaryContentModel>().DeleteAsync(dc => dc.Id == recordModel.ContentId);
+					break;
+				case ERecordType.Message:
+					contentDeletingTask = _connection.Table<SQLiteMessengeContentModel>().DeleteAsync(mc => mc.Id == recordModel.ContentId);
+					break;
+			}
+
+			await UniTask.WhenAll(recordDeletingTask, contentDeletingTask);
+		}
+
+		private async UniTask<BaseRecordViewModel> FullfilRecord(SQLiteRecordModel incompleteRecord)
+		{
+			var readOnlyConnection = await _recordStorageConnector.GetReadOnlyConnection();
+
+			switch ((ERecordType)incompleteRecord.Type)
+			{
+				case ERecordType.Diary:
+					var diaryContentModel = await readOnlyConnection.Table<SQLiteDiaryContentModel>().FirstAsync(r => r.Id == incompleteRecord.ContentId);
+					return ConvertToRecordViewModelFrom(incompleteRecord, diaryContentModel);
+				case ERecordType.Message:
+					var messageContentModel = await readOnlyConnection.Table<SQLiteMessengeContentModel>().FirstAsync(r => r.Id == incompleteRecord.ContentId);
+					var conversationalistName = (await readOnlyConnection.Table<SQLiteConversationalistModel>().FirstAsync(c => c.Id == messageContentModel.ConversationalistId)).Name;
+					return ConvertToRecordViewModelFrom(incompleteRecord, messageContentModel, conversationalistName);
+			}
+
+			throw new Exception("invalid record type");
 		}
 
 		private async UniTask<int> GetConversationalistId(string conversationalistName)
@@ -145,51 +203,6 @@ namespace OneYearLater.LocalStorages
 			var diaryContentModel = new SQLiteDiaryContentModel() { Text = diaryVM.Text };
 			await _connection.InsertAsync(diaryContentModel);
 			return diaryContentModel;
-		}
-
-		public UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records)
-		{
-			return UniTask.WhenAll(records.Select(r => InsertRecordAsync(r)));
-		}
-
-		public async UniTask UpdateRecordAsync(BaseRecordViewModel recordVM)
-		{
-			switch (recordVM.Type)
-			{
-				case ERecordType.Diary:
-
-					var diaryVM = (DiaryRecordViewModel)recordVM;
-
-					var diaryRecordModel = await RetrieveSQLiteRecordModelBy(diaryVM.Id);
-					var diaryContentModel = await RetrieveSQLiteDiaryContentModelBy(diaryRecordModel.ContentId);
-
-					diaryRecordModel.RecordDateTime = diaryVM.DateTime;
-					diaryRecordModel.LastEdited = DateTime.Now;
-					diaryContentModel.Text = diaryVM.Text;
-
-					await _connection.UpdateAsync(diaryRecordModel);
-					await _connection.UpdateAsync(diaryContentModel);
-
-					break;
-
-				default: throw new Exception("invalid record type");
-			}
-		}
-
-		public async UniTask DeleteRecordAsync(int recordId)
-		{
-			var sqliteRecord = await RetrieveSQLiteRecordModelBy(recordId);
-
-			if (sqliteRecord.IsLocal)
-			{
-				await _connection.DeleteAsync(sqliteRecord); //TODO and content too
-			}
-			else
-			{
-				sqliteRecord.IsDeleted = true;
-				sqliteRecord.LastEdited = DateTime.Now;
-				await _connection.UpdateAsync(sqliteRecord);
-			}
 		}
 
 		private UniTask<SQLiteRecordModel> RetrieveSQLiteRecordModelBy(int id)
