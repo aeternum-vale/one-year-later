@@ -89,6 +89,7 @@ namespace OneYearLater.Import
 					{
 						Debug.Log($"<color=lightblue>{GetType().Name}:</color> gluing line '{line}' with previous");
 						lastMessageDateTime = parsedDate;
+						messageTextBuilder.AppendLine();
 						continue;
 					}
 
@@ -115,8 +116,8 @@ namespace OneYearLater.Import
 				else
 				{
 					Debug.Log($"<color=lightblue>{GetType().Name}:</color> line '{debugLine}' do not matches {headerRxs} pattern, it is simple text");
-
-					messageTextBuilder.AppendLine(line);
+					if (!string.IsNullOrWhiteSpace(line))
+						messageTextBuilder.AppendLine(line.Trim());
 				}
 			}
 			currentMessage.MessageText = messageTextBuilder.ToString().Trim();
