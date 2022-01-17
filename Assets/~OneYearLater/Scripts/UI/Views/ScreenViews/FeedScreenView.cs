@@ -82,7 +82,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 				{
 					switch (record.Type)
 					{
-						case ERecordKey.Diary:
+						case ERecordType.Diary:
 							DiaryRecordView v = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
 							var drvm = (DiaryRecordViewModel)record;
 
@@ -95,16 +95,16 @@ namespace OneYearLater.UI.Views.ScreenViews
 							recordGameObjects.Add(v.gameObject);
 							break;
 
-						case ERecordKey.Message:
+						case ERecordType.Message:
 							DiaryRecordView dv = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
-							var mrvm = (MessageRecordViewModel)record;
-							var message = mrvm.Content;
 
-							dv.Id = mrvm.Id;
-							dv.TimeText = mrvm.DateTime.ToString("HH:mm");
+							var messageVM = (MessageRecordViewModel)record;
 
-							string preposition = message.UserIsMessageAuthor ? "to" : "from";
-							string contentText = $"<b>Message {preposition} <i>{message.CompanionName}</i>:</b>\n\n{message.MessageText}";
+							dv.Id = messageVM.Id;
+							dv.TimeText = messageVM.DateTime.ToString("HH:mm");
+
+							string preposition = messageVM.IsFromUser ? "to" : "from";
+							string contentText = $"<b>Message {preposition} <i>{messageVM.ConversationalistName}</i>:</b>\n\n{messageVM.MessageText}";
 
 							dv.ContentText = contentText;
 

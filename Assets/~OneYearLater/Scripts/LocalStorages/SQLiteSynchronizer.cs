@@ -202,7 +202,7 @@ namespace OneYearLater.LocalStorages
 					if (!isExternalNewer) continue;
 
 					localRecord.LastEdited = externalRecord.LastEdited;
-					localRecord.Content = externalRecord.Content;
+					//localRecord.ContentId = externalRecord.ContentId;
 					localRecord.RecordDateTime = externalRecord.RecordDateTime;
 					localRecord.IsDeleted = externalRecord.IsDeleted;
 

@@ -9,7 +9,7 @@ namespace OneYearLater.LocalStorages.Models
 		public int Id { get; set; }
 		public int Type { get; set; }
 		public DateTime RecordDateTime { get; set; }
-		public string Content { get; set; }
+		public int ContentId { get; set; }
 
 		[Unique] 
 		public string Hash { get; set; }

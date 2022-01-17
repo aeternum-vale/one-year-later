@@ -3,10 +3,9 @@ using System.Collections.Generic;
 
 namespace OneYearLater.Management
 {
-	public enum ERecordKey
+	public enum ERecordType
 	{
-		None = 0,
-		Diary,
+		Diary = 1,
 		Message
 	}
 
@@ -61,13 +60,13 @@ namespace OneYearLater.Management
 			[EExternalStorageAppearance.Waiting] = "wait...",
 		};
 
-		public static readonly Dictionary<ERecordKey, string> RecordTypeNames = new Dictionary<ERecordKey, string>()
+		public static readonly Dictionary<ERecordType, string> RecordTypeNames = new Dictionary<ERecordType, string>()
 		{
-			[ERecordKey.Diary] = "diary"
+			[ERecordType.Diary] = "diary"
 		};
 	}
 
-	public enum EImportType 
+	public enum EImportType
 	{
 		None = 0,
 		DiaryFromTxt,

@@ -45,6 +45,10 @@ namespace OneYearLater.LocalStorages
 
 			var tempConnection = new SQLiteAsyncConnection(dbPath);
 			await tempConnection.CreateTableAsync<SQLiteRecordModel>();
+			await tempConnection.CreateTableAsync<SQLiteDiaryContentModel>();
+			await tempConnection.CreateTableAsync<SQLiteMessengeContentModel>();
+			await tempConnection.CreateTableAsync<SQLiteConversationalistModel>();
+			await tempConnection.CreateTableAsync<SQLiteRecordModel>();
 			await tempConnection.CloseAsync();
 
 			_isDbInitiated = true;

@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.Text;
-using Newtonsoft.Json;
 using OneYearLater.LocalStorages.Models;
 using OneYearLater.Management;
 using OneYearLater.Management.ViewModels;
@@ -11,31 +10,34 @@ namespace OneYearLater.LocalStorages
 {
 	public static class ModelsConverter
 	{
-		public static SQLiteRecordModel ConvertToSQLiteRecordModelFrom(BaseRecordViewModel recordVM)
+		public static SQLiteRecordModel ConvertToSQLiteRecordModelFrom(BaseRecordViewModel recordVM, int contentId)
 		{
 			switch (recordVM.Type)
 			{
-				case Management.ERecordKey.Diary:
-					return ConvertToSQLiteRecordModelFrom((DiaryRecordViewModel)recordVM);
-				case Management.ERecordKey.Message:
-					return ConvertToSQLiteRecordModelFrom((MessageRecordViewModel)recordVM);
+				case ERecordType.Diary:
+					return ConvertToSQLiteRecordModelFrom((DiaryRecordViewModel)recordVM, contentId);
+				case ERecordType.Message:
+					return ConvertToSQLiteRecordModelFrom((MessageRecordViewModel)recordVM, contentId);
 			}
 
 			throw new Exception("invalid record");
 		}
 
-		public static SQLiteRecordModel ConvertToSQLiteRecordModelFrom(MessageRecordViewModel messageVM)
+		public static SQLiteRecordModel ConvertToSQLiteRecordModelFrom(MessageRecordViewModel messageVM, int contentId)
 		{
-			string messageContent = JsonConvert.SerializeObject(messageVM.Content);
-			return CreateSQLiteRecordModel(messageVM, messageContent);
+			StringBuilder contentBuilder = new StringBuilder();
+			contentBuilder.Append(messageVM.MessageText);
+			contentBuilder.Append(messageVM.IsFromUser);
+			contentBuilder.Append(messageVM.ConversationalistName);
+			return CreateSQLiteRecordModel(messageVM, contentBuilder.ToString(), contentId);
 		}
 
-		public static SQLiteRecordModel ConvertToSQLiteRecordModelFrom(DiaryRecordViewModel diaryVM)
+		public static SQLiteRecordModel ConvertToSQLiteRecordModelFrom(DiaryRecordViewModel diaryVM, int contentId)
 		{
-			return CreateSQLiteRecordModel(diaryVM, diaryVM.Text);
+			return CreateSQLiteRecordModel(diaryVM, diaryVM.Text, contentId);
 		}
 
-		private static SQLiteRecordModel CreateSQLiteRecordModel(BaseRecordViewModel recordVM, string content)
+		private static SQLiteRecordModel CreateSQLiteRecordModel(BaseRecordViewModel recordVM, string contentToHash, int contentId)
 		{
 			int type = (int)recordVM.Type;
 			DateTime now = DateTime.Now;
@@ -43,7 +45,7 @@ namespace OneYearLater.LocalStorages
 			StringBuilder stringForHashingBuilder = new StringBuilder();
 			stringForHashingBuilder.Append(type);
 			stringForHashingBuilder.Append(recordVM.DateTime);
-			stringForHashingBuilder.Append(content);
+			stringForHashingBuilder.Append(contentToHash);
 			if (!recordVM.IsImported)
 				stringForHashingBuilder.Append(now.ToString(CultureInfo.InvariantCulture));
 
@@ -52,7 +54,7 @@ namespace OneYearLater.LocalStorages
 				Id = recordVM.Id,
 				Type = type,
 				RecordDateTime = recordVM.DateTime,
-				Content = content,
+				ContentId = contentId,
 				Created = now,
 				LastEdited = now,
 				IsLocal = true,
@@ -63,24 +65,24 @@ namespace OneYearLater.LocalStorages
 			return sqliteRecord;
 		}
 
-		public static BaseRecordViewModel ConvertTRecordViewModelFrom(SQLiteRecordModel sqliteRecord)
+
+
+		public static DiaryRecordViewModel ConvertToRecordViewModelFrom(SQLiteRecordModel diarySqliteRecord, SQLiteDiaryContentModel diaryContent)
 		{
-			ERecordKey type = (ERecordKey)sqliteRecord.Type;
-
-			switch (type)
-			{
-				case ERecordKey.Diary:
-					return new DiaryRecordViewModel(sqliteRecord.Id, sqliteRecord.RecordDateTime, sqliteRecord.Content);
-				case ERecordKey.Message:
-					var mvm = new MessageRecordViewModel(sqliteRecord.Id, sqliteRecord.RecordDateTime);
-					mvm.Content = JsonConvert.DeserializeObject<MessageContent>(sqliteRecord.Content);
-					return mvm;
-			}
-
-			throw new Exception("invalid record");
-
-
+			return new DiaryRecordViewModel(diarySqliteRecord.Id, diarySqliteRecord.RecordDateTime, diaryContent.Text);
 		}
+
+		public static MessageRecordViewModel ConvertToRecordViewModelFrom(SQLiteRecordModel messageSqliteRecord, SQLiteMessengeContentModel messageContentModel, string conversationalistName)
+		{
+			var messageRecordVM = new MessageRecordViewModel(messageSqliteRecord.Id, messageSqliteRecord.RecordDateTime);
+
+			messageRecordVM.IsFromUser = messageContentModel.IsFromUser;
+			messageRecordVM.MessageText = messageContentModel.MessageText;
+			messageRecordVM.ConversationalistName = conversationalistName;
+
+			return messageRecordVM;
+		}
+
 	}
 
 }

@@ -70,7 +70,7 @@ namespace OneYearLater.Management.Controllers
 
 			switch (record.Type)
 			{
-				case ERecordKey.Diary:
+				case ERecordType.Diary:
 					var diaryRecord = (DiaryRecordViewModel)record;
 					_view.Text = diaryRecord.Text;
 					break;

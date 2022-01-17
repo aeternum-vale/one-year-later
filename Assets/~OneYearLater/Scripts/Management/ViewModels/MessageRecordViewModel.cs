@@ -2,32 +2,16 @@ using System;
 
 namespace OneYearLater.Management.ViewModels
 {
-
-	public class MessageContent
-	{
-		public bool UserIsMessageAuthor { get; set; }
-		public string MessageText { get; set; }
-		public string CompanionName { get; set; }
-
-	}
-
 	public class MessageRecordViewModel : BaseRecordViewModel
 	{
-		public MessageContent Content { get; set; } = new MessageContent();
+		public bool IsFromUser { get; set; }
+		public string MessageText { get; set; }
+		public string ConversationalistName { get; set; }
 
-		public MessageRecordViewModel(int id, DateTime dateTime) : base(id, dateTime)
-		{
-			Init();
-		}
+		public MessageRecordViewModel(int id, DateTime dateTime) : base(id, dateTime) { }
 
-		public MessageRecordViewModel(DateTime dateTime) : base(dateTime)
-		{
-			Init();
-		}
+		public MessageRecordViewModel(DateTime dateTime) : base(dateTime) { }
 
-		private void Init()
-		{
-			Type = ERecordKey.Message;
-		}
+		protected override void InitType() { Type = ERecordType.Message; }
 	}
 }
