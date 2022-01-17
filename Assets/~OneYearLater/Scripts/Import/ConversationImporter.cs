@@ -15,6 +15,7 @@ namespace OneYearLater.Import
 	public class ConversationImporter : TextFileImporter, IConversationImporter
 	{
 		[Inject] private IPopupManager _popupManager;
+		private readonly TimeSpan _messagesGluingInterval = new TimeSpan(0, 10, 0);
 
 
 		protected async override UniTask Parse(byte[] bytes)
@@ -63,9 +64,10 @@ namespace OneYearLater.Import
 
 			var headerRx = new Regex(headerRxs, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-
 			MessageRecordViewModel currentMessage = null;
 			var messageTextBuilder = new StringBuilder();
+			string currentMessageRawAuthorName = string.Empty;
+			DateTime lastMessageDateTime = new DateTime();
 			foreach (string line in GetLines(bytes))
 			{
 				string debugLine = (line.Length < 50) ? line : (line.Substring(0, 50) + "...");
@@ -75,39 +77,49 @@ namespace OneYearLater.Import
 				if (headerMatch.Success)
 				{
 					Debug.Log($"<color=lightblue>{GetType().Name}:</color> line '{line}' matches {headerRxs} pattern!");
+					string author = headerMatch.Groups[authorHeaderRxGroupName].Value;
+					string dateStr = headerMatch.Groups[dateHeaderRxGroupName].Value;
+					if (!dateStr.IsDate(out DateTime parsedDate))
+						throw new Exception("invalid date");
+
+
+					if (currentMessage != null &&
+					author.Equals(currentMessageRawAuthorName) &&
+					parsedDate.Subtract(lastMessageDateTime) <= _messagesGluingInterval)
+					{
+						Debug.Log($"<color=lightblue>{GetType().Name}:</color> gluing line '{line}' with previous");
+						lastMessageDateTime = parsedDate;
+						continue;
+					}
 
 					if (messageTextBuilder.Length > 0 && currentMessage != null)
 					{
-						currentMessage.Content.MessageText = messageTextBuilder.ToString().Trim();
+						currentMessage.MessageText = messageTextBuilder.ToString().Trim();
 						await InsertNewRecordToDb(currentMessage);
 					}
-
-					string author = headerMatch.Groups[authorHeaderRxGroupName].Value;
-					string dateStr = headerMatch.Groups[dateHeaderRxGroupName].Value;
 
 					Debug.Log($"<color=lightblue>{GetType().Name}:</color> author={author}");
 					Debug.Log($"<color=lightblue>{GetType().Name}:</color> date={dateStr}");
 
-					if (!dateStr.IsDate(out DateTime parsedDate))
-						throw new Exception("invalid date");
-
-					bool userIsMessageAuthor = userName.Equals(author);
+					bool isFromUser = userName.Equals(author);
 
 					currentMessage = new MessageRecordViewModel(parsedDate);
 
-					currentMessage.Content.UserIsMessageAuthor = userIsMessageAuthor;
-					currentMessage.Content.CompanionName = friendlyCompanionName;
+					currentMessage.IsFromUser = isFromUser;
+					currentMessage.ConversationalistName = friendlyCompanionName;
+					currentMessageRawAuthorName = author;
+					lastMessageDateTime = parsedDate;
 
 					messageTextBuilder.Clear();
 				}
 				else
 				{
-					Debug.Log($"<color=lightblue>{GetType().Name}:</color> checking line '{debugLine}' do not matches {headerRxs} pattern, it is simple text");
+					Debug.Log($"<color=lightblue>{GetType().Name}:</color> line '{debugLine}' do not matches {headerRxs} pattern, it is simple text");
 
 					messageTextBuilder.AppendLine(line);
 				}
 			}
-			currentMessage.Content.MessageText = messageTextBuilder.ToString().Trim();
+			currentMessage.MessageText = messageTextBuilder.ToString().Trim();
 			await InsertNewRecordToDb(currentMessage);
 		}
 	}
