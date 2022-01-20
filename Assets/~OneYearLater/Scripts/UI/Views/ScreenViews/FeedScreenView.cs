@@ -78,37 +78,39 @@ namespace OneYearLater.UI.Views.ScreenViews
 			{
 				SetIsLoadingImageActive(true);
 				List<GameObject> recordGameObjects = new List<GameObject>();
+				DiaryRecordView diaryView;
 				foreach (var record in records)
 				{
 					switch (record.Type)
 					{
 						case ERecordType.Diary:
-							DiaryRecordView v = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
-							var drvm = (DiaryRecordViewModel)record;
+							diaryView = Instantiate(_diaryRecordViewPrefab);
+							var diaryVM = (DiaryRecordViewModel)record;
 
-							v.Id = drvm.Id;
-							v.TimeText = drvm.DateTime.ToString("HH:mm");
-							v.ContentText = drvm.Text;
+							diaryView.Id = diaryVM.Id;
+							diaryView.TimeText = diaryVM.DateTime.ToString("HH:mm");
+							diaryView.ContentText = diaryVM.Text;
 
-							v.LongTap += (s, a) => EditRecordIntent?.Invoke(this, drvm.Id);
+							diaryView.LongTap += (s, a) => EditRecordIntent?.Invoke(this, diaryVM.Id);
 
-							recordGameObjects.Add(v.gameObject);
+							recordGameObjects.Add(diaryView.gameObject);
 							break;
 
 						case ERecordType.Message:
-							DiaryRecordView dv = Instantiate<DiaryRecordView>(_diaryRecordViewPrefab);
-
+							diaryView = Instantiate(_diaryRecordViewPrefab);
 							var messageVM = (MessageRecordViewModel)record;
 
-							dv.Id = messageVM.Id;
-							dv.TimeText = messageVM.DateTime.ToString("HH:mm");
+							diaryView.Id = messageVM.Id;
+							diaryView.TimeText = messageVM.DateTime.ToString("HH:mm");
 
 							string preposition = messageVM.IsFromUser ? "to" : "from";
 							string contentText = $"<b>Message {preposition} <i>{messageVM.ConversationalistName}</i>:</b>\n\n{messageVM.MessageText}";
 
-							dv.ContentText = contentText;
+							diaryView.ContentText = contentText;
 
-							recordGameObjects.Add(dv.gameObject);
+							diaryView.LongTap += (s, a) => EditRecordIntent?.Invoke(this, messageVM.Id);
+
+							recordGameObjects.Add(diaryView.gameObject);
 							break;
 						default:
 							throw new Exception("invalid record type");

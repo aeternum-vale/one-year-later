@@ -100,26 +100,30 @@ namespace OneYearLater.LocalStorages
 
 		public async UniTask UpdateRecordAsync(BaseRecordViewModel recordVM)
 		{
+			var recordModel = await RetrieveSQLiteRecordModelBy(recordVM.Id);
+			recordModel.LastEdited = DateTime.Now;
+			recordModel.RecordDateTime = recordVM.DateTime;
+
 			switch (recordVM.Type)
 			{
 				case ERecordType.Diary:
-
+				
 					var diaryVM = (DiaryRecordViewModel)recordVM;
-
-					var diaryRecordModel = await RetrieveSQLiteRecordModelBy(diaryVM.Id);
-					var diaryContentModel = await RetrieveSQLiteDiaryContentModelBy(diaryRecordModel.ContentId);
-
-					diaryRecordModel.RecordDateTime = diaryVM.DateTime;
-					diaryRecordModel.LastEdited = DateTime.Now;
+					var diaryContentModel = await RetrieveSQLiteDiaryContentModelBy(recordModel.ContentId);
 					diaryContentModel.Text = diaryVM.Text;
-
-					await _connection.UpdateAsync(diaryRecordModel);
 					await _connection.UpdateAsync(diaryContentModel);
-
 					break;
 
-				default: throw new Exception("invalid record type");
+				case ERecordType.Message:
+
+					var messageVM = (MessageRecordViewModel)recordVM;
+					var messageContentModel = await RetrieveSQLiteMessageContentModelBy(recordModel.ContentId);
+					messageContentModel.MessageText = messageVM.MessageText;
+					await _connection.UpdateAsync(messageContentModel);
+					break;
+
 			}
+			await _connection.UpdateAsync(recordModel);
 		}
 
 		public async UniTask DeleteRecordAsync(int recordId)
@@ -205,15 +209,13 @@ namespace OneYearLater.LocalStorages
 			return diaryContentModel;
 		}
 
-		private UniTask<SQLiteRecordModel> RetrieveSQLiteRecordModelBy(int id)
-		{
-			return _connection.Table<SQLiteRecordModel>().Where(r => r.Id == id).FirstAsync();
-		}
+		private UniTask<SQLiteRecordModel> RetrieveSQLiteRecordModelBy(int id) =>
+			_connection.Table<SQLiteRecordModel>().Where(r => r.Id == id).FirstAsync();
 
-		private UniTask<SQLiteDiaryContentModel> RetrieveSQLiteDiaryContentModelBy(int id)
-		{
-			return _connection.Table<SQLiteDiaryContentModel>().Where(dc => dc.Id == id).FirstAsync();
-		}
+		private UniTask<SQLiteDiaryContentModel> RetrieveSQLiteDiaryContentModelBy(int id) =>
+			_connection.Table<SQLiteDiaryContentModel>().Where(dc => dc.Id == id).FirstAsync();
 
+		private UniTask<SQLiteMessengeContentModel> RetrieveSQLiteMessageContentModelBy(int id) =>
+			_connection.Table<SQLiteMessengeContentModel>().Where(mc => mc.Id == id).FirstAsync();
 	}
 }

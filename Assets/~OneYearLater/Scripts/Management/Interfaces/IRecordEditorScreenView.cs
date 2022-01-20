@@ -1,11 +1,11 @@
 using System;
+using OneYearLater.Management.ViewModels;
 
 namespace OneYearLater.Management.Interfaces
 {
 	public interface IRecordEditorScreenView
 	{
-		DateTime DateTime { get; set; }
-		string Text { get; set; }
+		BaseRecordViewModel EditingRecordViewModel { get; set; }
 
 		event EventHandler ApplyIntent;
 		event EventHandler CancelIntent;

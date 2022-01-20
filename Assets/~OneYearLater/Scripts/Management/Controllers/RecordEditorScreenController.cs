@@ -12,8 +12,8 @@ namespace OneYearLater.Management.Controllers
 		public EEditorMode Mode { get; private set; } = EEditorMode.None;
 
 		[Inject] private IScreensMediator _screensMediator;
-		
-		[Inject(Id = Constants.HandledRecordStorageId)] 
+
+		[Inject(Id = Constants.HandledRecordStorageId)]
 		private ILocalRecordStorage _localRecordStorage;
 		[Inject] private IPopupManager _popupManager;
 
@@ -26,8 +26,6 @@ namespace OneYearLater.Management.Controllers
 			_view.ApplyIntent += OnApplyIntent;
 			_view.CancelIntent += OnCancelIntent;
 			_view.DeleteIntent += OnDeleteIntent;
-
-			_view.DateTime = DateTime.Now;
 		}
 
 		private void OnApplyIntent(object sender, EventArgs args)
@@ -64,40 +62,28 @@ namespace OneYearLater.Management.Controllers
 			Mode = EEditorMode.Edit;
 			_editingRecordId = recordId;
 
-			var record = await _localRecordStorage.GetRecordAsync(recordId);
+			BaseRecordViewModel recordVM = await _localRecordStorage.GetRecordAsync(recordId);
 
-			_view.DateTime = record.DateTime;
-
-			switch (record.Type)
-			{
-				case ERecordType.Diary:
-					var diaryRecord = (DiaryRecordViewModel)record;
-					_view.Text = diaryRecord.Text;
-					break;
-			}
+			_view.EditingRecordViewModel = recordVM;
 		}
 
 		public void SetCreateRecordMode()
 		{
 			Mode = EEditorMode.Create;
-			_view.DateTime = DateTime.Now;
-			_view.Text = string.Empty;
+			_view.EditingRecordViewModel = new DiaryRecordViewModel(DateTime.Now, string.Empty);
 		}
 
 		private async void CreateRecord()
 		{
-			if (string.IsNullOrWhiteSpace(_view.Text)) return;
-
-			await _localRecordStorage.InsertRecordAsync(
-				new DiaryRecordViewModel(_view.DateTime, _view.Text));
+			await _localRecordStorage.InsertRecordAsync(_view.EditingRecordViewModel);
 			_screensMediator.ActivateFeedScreenForToday().Forget();
 		}
 
 		private async void EditRecord()
 		{
-			await _localRecordStorage.UpdateRecordAsync(
-				new DiaryRecordViewModel(_editingRecordId, _view.DateTime, _view.Text));
-			_screensMediator.ActivateFeedScreenFor(_view.DateTime).Forget();
+			await _localRecordStorage.UpdateRecordAsync(_view.EditingRecordViewModel);
+
+			_screensMediator.ActivateFeedScreenFor(_view.EditingRecordViewModel.DateTime).Forget();
 		}
 	}
 }
