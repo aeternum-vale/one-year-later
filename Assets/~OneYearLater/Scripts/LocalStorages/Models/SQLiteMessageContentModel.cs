@@ -3,10 +3,10 @@ using System;
 
 namespace OneYearLater.LocalStorages.Models
 {
-	public class SQLiteMessengeContentModel
+	public class SQLiteMessageContentModel
 	{
-		[PrimaryKey, AutoIncrement]
-		public int Id { get; set; }
+		[PrimaryKey]
+		public string Hash { get; set; }
 		public string MessageText { get; set; }
 		public bool IsFromUser { get; set; }
 		public int ConversationalistId { get; set; }

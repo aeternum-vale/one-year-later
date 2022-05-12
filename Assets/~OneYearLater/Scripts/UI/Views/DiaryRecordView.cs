@@ -10,7 +10,7 @@ namespace OneYearLater.UI.Views
 		[SerializeField] private TextMeshProUGUI _contentText;
 		[SerializeField] private Tapable _tapable;
 
-		public int Id { get; set; }
+		public string Hash { get; set; }
 		public string TimeText { get => _timeText.text; set => _timeText.text = value; }
 		public string ContentText { get => _contentText.text; set => _contentText.text = value; }
 

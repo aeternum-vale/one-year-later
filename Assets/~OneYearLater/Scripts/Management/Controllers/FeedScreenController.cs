@@ -51,9 +51,9 @@ namespace OneYearLater.Management.Controllers
 			_screensMediator.ActivateRecordEditorScreenInBlankMode();
 		}
 
-		private void OnEditRecordIntent(object sender, int recordId)
+		private void OnEditRecordIntent(object sender, string recordHash)
 		{
-			_screensMediator.ActivateRecordEditorScreen(recordId);
+			_screensMediator.ActivateRecordEditorScreen(recordHash);
 		}
 	}
 }

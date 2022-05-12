@@ -40,11 +40,9 @@ namespace OneYearLater.DI
 			Container.Bind<IViewManager>().To<ViewManager>().FromInstance(_viewManager).AsSingle();
 			Container.Bind<IMobileInputHandler>().To<LeanTouchFacade>().FromInstance(_leanTouchFacade).AsSingle();
 			
-			Container.Bind<RecordStorageConnector>().FromNew().AsSingle();
-
-			Container.Bind<SQLiteLocalRecordStorage>().FromNew().AsSingle();
-			Container.Bind<HandledSQLiteLocalRecordStorage>().FromNew().AsSingle();
-			Container.Bind<ILocalRecordStorage>().To<HandledSQLiteLocalRecordStorage>().FromResolve();
+			Container.Bind<SQLiteRecordStorage>().FromNew().AsSingle();
+			Container.Bind<HandledSQLiteRecordStorage>().FromNew().AsSingle();
+			Container.Bind<ILocalRecordStorage>().To<HandledSQLiteRecordStorage>().FromResolve();
 			Container.Bind<ILocalRecordStorage>().WithId(Management.Constants.HandledRecordStorageId).To<HandledLocalStorage>().FromNew().AsSingle();
 			Container.Bind<IRecordStorageSynchronizer>().To<SQLiteSynchronizer>().FromNew().AsSingle();
 

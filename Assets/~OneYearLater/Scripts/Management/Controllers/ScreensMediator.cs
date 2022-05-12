@@ -71,9 +71,9 @@ namespace OneYearLater.Management.Controllers
 			await _feedScreenController.DisplayFeedFor(date);
 		}
 
-		public async UniTask ActivateRecordEditorScreen(int recordId)
+		public async UniTask ActivateRecordEditorScreen(string recordHash)
 		{
-			await _recordEditorScreenController.SetEditRecordMode(recordId);
+			await _recordEditorScreenController.SetEditRecordMode(recordHash);
 			_viewManager.SetScreenView(EScreenViewKey.RecordEditor);
 		}
 

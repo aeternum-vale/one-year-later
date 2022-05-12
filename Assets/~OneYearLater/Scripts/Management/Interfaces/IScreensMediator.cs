@@ -9,7 +9,7 @@ namespace OneYearLater.Management.Interfaces
 		UniTask ActivateExternalStoragesScreens();
 
 		UniTask ActivateRecordEditorScreenInBlankMode();
-		UniTask ActivateRecordEditorScreen(int recordId);
+		UniTask ActivateRecordEditorScreen(string recordHash);
 		UniTask ActivateFeedScreen();
 		UniTask ActivateFeedScreenForToday();
 		UniTask ActivateFeedScreenFor(DateTime date);

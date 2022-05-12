@@ -9,7 +9,7 @@ namespace OneYearLater.Management.Interfaces
 	{
 		event EventHandler<DateTime> DayChangeIntent;
 		event EventHandler AddRecordIntent;
-		event EventHandler<int> EditRecordIntent;
+		event EventHandler<string> EditRecordIntent;
 
 		UniTask DisplayDayFeedAsync(DateTime date, IEnumerable<BaseRecordViewModel> records);
 		void SetIsDatePickingBlocked(bool isBlocked);

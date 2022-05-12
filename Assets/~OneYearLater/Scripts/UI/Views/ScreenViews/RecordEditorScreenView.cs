@@ -46,7 +46,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 		private void SetEditingRecord(BaseRecordViewModel recordVM)
 		{
 			_editingRecordVM = recordVM;
-			SetDate(recordVM.DateTime);
+			SetDate(recordVM.RecordDateTime);
 
 			switch (recordVM.Type)
 			{

@@ -13,12 +13,12 @@ namespace OneYearLater.Management.LocalStorage
 
 		public UniTask<EInitResult> Init() => LocalRecordStorage.Init();
 
-		public UniTask DeleteRecordAsync(int recordId) =>
-			Handle(LocalRecordStorage.DeleteRecordAsync(recordId));
+		public UniTask DeleteRecordAsync(string recordHash) =>
+			Handle(LocalRecordStorage.DeleteRecordAsync(recordHash));
 		public UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date) =>
 			Handle(LocalRecordStorage.GetAllDayRecordsAsync(date));
-		public UniTask<BaseRecordViewModel> GetRecordAsync(int recordId) =>
-			Handle(LocalRecordStorage.GetRecordAsync(recordId));
+		public UniTask<BaseRecordViewModel> GetRecordAsync(string recordHash) =>
+			Handle(LocalRecordStorage.GetRecordAsync(recordHash));
 		public UniTask InsertRecordAsync(BaseRecordViewModel record) =>
 			Handle(LocalRecordStorage.InsertRecordAsync(record));
 		public UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records) =>

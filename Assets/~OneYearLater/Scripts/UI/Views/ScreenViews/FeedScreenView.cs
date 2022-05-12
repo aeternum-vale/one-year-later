@@ -40,7 +40,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 
 		public event EventHandler<DateTime> DayChangeIntent;
 		public event EventHandler AddRecordIntent;
-		public event EventHandler<int> EditRecordIntent;
+		public event EventHandler<string> EditRecordIntent;
 		private DateTime _visibleDate;
 
 
@@ -87,11 +87,11 @@ namespace OneYearLater.UI.Views.ScreenViews
 							diaryView = Instantiate(_diaryRecordViewPrefab);
 							var diaryVM = (DiaryRecordViewModel)record;
 
-							diaryView.Id = diaryVM.Id;
-							diaryView.TimeText = diaryVM.DateTime.ToString("HH:mm");
+							diaryView.Hash = diaryVM.Hash;
+							diaryView.TimeText = diaryVM.RecordDateTime.ToString("HH:mm");
 							diaryView.ContentText = diaryVM.Text;
 
-							diaryView.LongTap += (s, a) => EditRecordIntent?.Invoke(this, diaryVM.Id);
+							diaryView.LongTap += (s, a) => EditRecordIntent?.Invoke(this, diaryVM.Hash);
 
 							recordGameObjects.Add(diaryView.gameObject);
 							break;
@@ -100,15 +100,15 @@ namespace OneYearLater.UI.Views.ScreenViews
 							diaryView = Instantiate(_diaryRecordViewPrefab);
 							var messageVM = (MessageRecordViewModel)record;
 
-							diaryView.Id = messageVM.Id;
-							diaryView.TimeText = messageVM.DateTime.ToString("HH:mm");
+							diaryView.Hash = messageVM.Hash;
+							diaryView.TimeText = messageVM.RecordDateTime.ToString("HH:mm");
 
 							string preposition = messageVM.IsFromUser ? "to" : "from";
-							string contentText = $"<b>Message {preposition} <i>{messageVM.ConversationalistName}</i>:</b>\n\n{messageVM.MessageText}";
+							string contentText = $"<b>Message {preposition} <i>{messageVM.Conversationalist.Name}</i>:</b>\n\n{messageVM.MessageText}";
 
 							diaryView.ContentText = contentText;
 
-							diaryView.LongTap += (s, a) => EditRecordIntent?.Invoke(this, messageVM.Id);
+							diaryView.LongTap += (s, a) => EditRecordIntent?.Invoke(this, messageVM.Hash);
 
 							recordGameObjects.Add(diaryView.gameObject);
 							break;

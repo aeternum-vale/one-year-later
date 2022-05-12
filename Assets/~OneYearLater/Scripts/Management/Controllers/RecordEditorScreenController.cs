@@ -18,7 +18,7 @@ namespace OneYearLater.Management.Controllers
 		[Inject] private IPopupManager _popupManager;
 
 		private IRecordEditorScreenView _view;
-		private int _editingRecordId;
+		private string _editingRecordHash;
 
 		public RecordEditorScreenController(IRecordEditorScreenView view)
 		{
@@ -52,17 +52,17 @@ namespace OneYearLater.Management.Controllers
 		{
 			if (await _popupManager.RunConfirmPopupAsync("Are you sure you want to delete this record?"))
 			{
-				await _localRecordStorage.DeleteRecordAsync(_editingRecordId);
+				await _localRecordStorage.DeleteRecordAsync(_editingRecordHash);
 				_screensMediator.ActivateFeedScreen().Forget();
 			}
 		}
 
-		public async UniTask SetEditRecordMode(int recordId)
+		public async UniTask SetEditRecordMode(string recordHash)
 		{
 			Mode = EEditorMode.Edit;
-			_editingRecordId = recordId;
+			_editingRecordHash = recordHash;
 
-			BaseRecordViewModel recordVM = await _localRecordStorage.GetRecordAsync(recordId);
+			BaseRecordViewModel recordVM = await _localRecordStorage.GetRecordAsync(recordHash);
 
 			_view.EditingRecordViewModel = recordVM;
 		}
@@ -83,7 +83,7 @@ namespace OneYearLater.Management.Controllers
 		{
 			await _localRecordStorage.UpdateRecordAsync(_view.EditingRecordViewModel);
 
-			_screensMediator.ActivateFeedScreenFor(_view.EditingRecordViewModel.DateTime).Forget();
+			_screensMediator.ActivateFeedScreenFor(_view.EditingRecordViewModel.RecordDateTime).Forget();
 		}
 	}
 }

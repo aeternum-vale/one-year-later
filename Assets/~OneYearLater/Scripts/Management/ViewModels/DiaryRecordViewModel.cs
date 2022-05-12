@@ -6,9 +6,9 @@ namespace OneYearLater.Management.ViewModels
 	{
 		public string Text { get; set; }
 
-		public DiaryRecordViewModel(int id, DateTime dateTime, string text) : base(id, dateTime) { Text = text; }
-		public DiaryRecordViewModel(DateTime dateTime) : base(dateTime) { }
-		public DiaryRecordViewModel(DateTime dateTime, string text) : base(dateTime) { Text = text; }
+		public DiaryRecordViewModel(string hash, DateTime dateTime, string text) : base(hash, dateTime) { Text = text; }
+		public DiaryRecordViewModel(DateTime recordDateTime) : base(recordDateTime) { }
+		public DiaryRecordViewModel(DateTime recordDateTime, string text) : base(recordDateTime) { Text = text; }
 		protected override void InitType() { Type = ERecordType.Diary; }
 	}
 }

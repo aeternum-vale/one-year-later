@@ -10,13 +10,14 @@ namespace OneYearLater.Management.Interfaces
 	{
 		UniTask<EInitResult> Init();
 		UniTask<IEnumerable<BaseRecordViewModel>> GetAllDayRecordsAsync(DateTime date);
-		UniTask<BaseRecordViewModel> GetRecordAsync(int recordId);
+		UniTask<BaseRecordViewModel> GetRecordAsync(string recordHash);
 
 		UniTask InsertRecordAsync(BaseRecordViewModel record);
 		UniTask InsertRecordsAsync(IEnumerable<BaseRecordViewModel> records);
 
-		UniTask DeleteRecordAsync(int recordId);
+		UniTask DeleteRecordAsync(string recordHash);
 
 		UniTask UpdateRecordAsync(BaseRecordViewModel record);
+
 	}
 }

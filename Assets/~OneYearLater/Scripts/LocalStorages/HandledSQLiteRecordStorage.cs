@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using OneYearLater.LocalStorages.Models;
 using OneYearLater.Management.Exceptions;
 using OneYearLater.Management.Interfaces;
 using OneYearLater.Management.LocalStorage;
@@ -10,11 +12,15 @@ using static SQLite.SQLite3;
 
 namespace OneYearLater.LocalStorages
 {
-	public class HandledSQLiteLocalRecordStorage : AbstractHandledLocalStorage
+	public class HandledSQLiteRecordStorage : AbstractHandledLocalStorage
 	{
-		[Inject] protected SQLiteLocalRecordStorage _sqliteLocalRecordStorage;
-		protected override ILocalRecordStorage LocalRecordStorage => _sqliteLocalRecordStorage;
-		public UniTask Reconnect() => Handle(_sqliteLocalRecordStorage.Reconnect());
+		[Inject] protected SQLiteRecordStorage SqliteRecordStorage;
+		protected override ILocalRecordStorage LocalRecordStorage => SqliteRecordStorage;
+		public UniTask Reconnect() => Handle(SqliteRecordStorage.Reconnect());
+		public UniTask CloseAllConnections() => Handle(SqliteRecordStorage.CloseAllConnections());
+
+		public UniTask<bool> IsDatabaseValid() => Handle(SqliteRecordStorage.IsDatabaseValid());
+
 
 		protected override async UniTask<T> Handle<T>(UniTask<T> operation)
 		{

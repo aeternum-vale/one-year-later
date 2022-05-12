@@ -8,6 +8,12 @@ namespace OneYearLater.LocalStorages.Models
 	{
 		[PrimaryKey, AutoIncrement]
 		public int Id { get; set; }
+		
+		[Unique]
+		public string Hash { get; set; }
 		public string Name { get; set; }
+		
+		public DateTime Created { get; set; }
+		public DateTime LastEdited { get; set; }
 	}
 }

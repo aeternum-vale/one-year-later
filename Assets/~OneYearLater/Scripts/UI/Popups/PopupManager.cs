@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using NaughtyAttributes;
 using OneYearLater.Management.Interfaces;
 using UnityEngine;
 using Utilities;
@@ -24,6 +25,8 @@ namespace OneYearLater.UI.Popups
 			_popupPrefabsDictionary = _popupPrefabsArray.ToDictionary();
 		}
 		#endregion
+
+
 
 
 		public async UniTask RunMessagePopupAsync(string messageText, string okButtonText)
@@ -97,5 +100,12 @@ namespace OneYearLater.UI.Popups
 
 			return abstractPopup;
 		}
+
+
+		[Button]
+		private void TestMessage()
+		{
+			RunMessagePopupAsync("Hello World!");
+		} 
 	}
 }
