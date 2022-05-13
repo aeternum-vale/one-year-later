@@ -154,7 +154,7 @@ namespace OneYearLater.UI.Views.ScreenViews
 		private void SetDate(DateTime date)
 		{
 			_visibleDate = date;
-			_dateText.text = _visibleDate.ToString("d MMMM\nyyyy", CultureInfo.InvariantCulture);
+			_dateText.text = _visibleDate.ToString("dddd d MMMM, yyyy", CultureInfo.InvariantCulture);
 		}
 
 		private async UniTask FillRecordsContainer(IEnumerable<GameObject> records)
