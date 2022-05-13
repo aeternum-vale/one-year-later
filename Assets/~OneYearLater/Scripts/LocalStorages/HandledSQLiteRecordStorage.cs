@@ -16,14 +16,19 @@ namespace OneYearLater.LocalStorages
 	{
 		[Inject] protected SQLiteRecordStorage SqliteRecordStorage;
 		protected override ILocalRecordStorage LocalRecordStorage => SqliteRecordStorage;
-		public UniTask Reconnect() => Handle(SqliteRecordStorage.Reconnect());
-		public UniTask CloseAllConnections() => Handle(SqliteRecordStorage.CloseAllConnections());
+		public UniTask Reconnect() => SqliteRecordStorage.Reconnect();
+		public UniTask CloseAllConnections() => SqliteRecordStorage.CloseAllConnections();
+		public UniTask<bool> IsDatabaseValid() => SqliteRecordStorage.IsDatabaseValid();
 
-		public UniTask<bool> IsDatabaseValid() => Handle(SqliteRecordStorage.IsDatabaseValid());
 
+		public bool IsBusy { get; set; } = false;
 
+		
 		protected override async UniTask<T> Handle<T>(UniTask<T> operation)
 		{
+			if (IsBusy)
+				await UniTask.WaitUntil(() => !IsBusy);
+			
 			try
 			{
 				T result = await operation;

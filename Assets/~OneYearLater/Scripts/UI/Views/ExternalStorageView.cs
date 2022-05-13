@@ -27,6 +27,9 @@ namespace OneYearLater.UI.Views
 		private SettingParameterView _settingParameterView;
 		private CancellationTokenSource _changeStateAnimationCTS;
 
+		private const float NormalAlpha = 0.75f;
+		private const float DimmedAlpha = 0.5f;
+
 		public event EventHandler LongTap;
 
 		public string Text
@@ -76,7 +79,7 @@ namespace OneYearLater.UI.Views
 			switch (appearance)
 			{
 				case EExternalStorageAppearance.NotConnected:
-					_fader.SetAlphaAsync(0.2f, token).Forget();
+					_fader.SetAlphaAsync(DimmedAlpha, token).Forget();
 
 					_connectButton.gameObject.SetActive(true);
 					_syncButton.gameObject.SetActive(false);
@@ -86,7 +89,7 @@ namespace OneYearLater.UI.Views
 				case EExternalStorageAppearance.Connecting:
 				case EExternalStorageAppearance.Waiting:
 				
-					_fader.SetAlphaAsync(0.3f, token).Forget();
+					_fader.SetAlphaAsync(DimmedAlpha, token).Forget();
 
 					_connectButton.gameObject.SetActive(false);
 					_syncButton.gameObject.SetActive(false);
@@ -94,7 +97,7 @@ namespace OneYearLater.UI.Views
 					break;
 
 				case EExternalStorageAppearance.Connected:
-					_fader.SetAlphaAsync(0.45f, token).Forget();
+					_fader.SetAlphaAsync(NormalAlpha, token).Forget();
 
 					_connectButton.gameObject.SetActive(false);
 					_syncButton.gameObject.SetActive(true);
@@ -103,7 +106,7 @@ namespace OneYearLater.UI.Views
 
 				case EExternalStorageAppearance.Synchronizing:
 
-					_fader.SetAlphaAsync(0.45f, token).Forget();
+					_fader.SetAlphaAsync(NormalAlpha, token).Forget();
 
 					_disconnectButton.gameObject.SetActive(false);
 					_connectButton.gameObject.SetActive(false);
@@ -115,7 +118,7 @@ namespace OneYearLater.UI.Views
 					break;
 
 				case EExternalStorageAppearance.Error:
-					_fader.SetAlphaAsync(0.45f, token).Forget();
+					_fader.SetAlphaAsync(NormalAlpha, token).Forget();
 
 					_disconnectButton.gameObject.SetActive(false);
 					_connectButton.gameObject.SetActive(false);

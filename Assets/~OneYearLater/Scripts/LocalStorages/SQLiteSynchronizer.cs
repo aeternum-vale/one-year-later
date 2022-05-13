@@ -154,6 +154,7 @@ namespace OneYearLater.LocalStorages
         {
             try
             {
+                _localRecordStorage.IsBusy = true;
                 await CloseAllConnections();
                 CreateAsyncConnectionToLocal();
                 await MarkAllRecordsAsNonLocal();
@@ -190,6 +191,7 @@ namespace OneYearLater.LocalStorages
             finally
             {
                 await _localRecordStorage.Reconnect();
+                _localRecordStorage.IsBusy = false;
             }
         }
 
@@ -218,13 +220,14 @@ namespace OneYearLater.LocalStorages
                 if (localConvHashDictionary.ContainsKey(hash))
                 {
                     var localConv = localConvHashDictionary[hash];
-                    bool isExternalOlder = externalConv.LastEdited < localConv.LastEdited;
-                    if (isExternalOlder) continue;
+                    bool isExternalOlderOrEqual = externalConv.LastEdited <= localConv.LastEdited;
+                    if (isExternalOlderOrEqual) continue;
 
                     localConv.Name = externalConv.Name;
                     localConv.LastEdited = externalConv.LastEdited;
 
                     localConversationalistsToUpdate.Add(localConv);
+                    continue;
                 }
 
                 localConversationalistsToInsert.Add(externalConv);
@@ -258,9 +261,9 @@ namespace OneYearLater.LocalStorages
                 {
                     SQLiteRecordModel localRecord = localDbHashDictionary[hash];
 
-                    bool isExternalOlder = externalRecord.LastEdited < localRecord.LastEdited;
+                    bool isExternalOlderOrEqual = externalRecord.LastEdited <= localRecord.LastEdited;
 
-                    if (isExternalOlder) continue;
+                    if (isExternalOlderOrEqual) continue;
 
                     localRecord.LastEdited = externalRecord.LastEdited;
                     localRecord.RecordDateTime = externalRecord.RecordDateTime;
